@@ -13,3 +13,7 @@
 ## [1.0.2] - 2025-08-23
 ### Public Extensions
 - Fixed the ComponentExtensions class not being public, thus scripts not being able to access it.
+
+## [1.0.3] - 2025-08-23
+### Own Extensions
+- Made `ComponentExtension` its own class, to allow IDEs to detect it properly 
