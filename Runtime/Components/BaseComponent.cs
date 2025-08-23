@@ -1,0 +1,596 @@
+using System.Collections;
+using UCGUI.Services;
+using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace UCGUI
+{
+    public class BaseComponent : MonoBehaviour, ICopyable<BaseComponent>
+    {
+        private RectTransform _rect;
+        public bool paddingApplied = false;
+        public bool posApplied = false;
+
+        private string _displayName = "Component";
+        public string DisplayName
+        {
+            get => _displayName;
+            set
+            {
+                _displayName = value;
+                gameObject.name = value;
+            }
+        }
+    
+        protected float CanvasWidthFactor => GUIService.WidthScale;
+        protected float CanvasHeightFactor => GUIService.HeightScale;
+
+
+        public LayoutElement layoutElement;
+        public HorizontalLayoutGroup HorizontalLayout { get; protected set; }
+        public VerticalLayoutGroup VerticalLayout { get; protected set; }
+        public ContentSizeFitter ContentSizeFitter { get; protected set; }
+        
+        public virtual void Awake()
+        {
+            _rect = gameObject.GetOrAddComponent<RectTransform>();
+        }
+    
+        public RectTransform GetRect()
+        {
+            if (!_rect)
+            {
+                Debug.LogWarning(gameObject.name  +": RectTransform is null! Did you forget to call 'base.Awake()' somewhere?");
+                return gameObject.GetComponent<RectTransform>();
+            }
+            return _rect;
+        }
+
+        public virtual BaseComponent HandleSizeChanged(float x, float y)
+        {
+            return this;
+        }
+        
+
+        private void OnValidate()
+        {
+            this.SafeDisplayName(_displayName);
+        }
+        
+        
+        public LayoutElement AddLayoutElement()
+        {
+            layoutElement = gameObject.GetOrAddComponent<LayoutElement>();
+            return layoutElement;
+        }
+
+        public LayoutElement AddLayoutElement(float minWidth, float minHeight)
+        {
+            AddLayoutElement();
+            MinimumSize(minWidth, minHeight);
+            return layoutElement;
+        }
+        
+        
+        public BaseComponent MinimumSize(Vector2 size)
+        {
+            layoutElement.minWidth = size.x;
+            layoutElement.minHeight = size.y;
+            return this;
+        }
+        public BaseComponent MinimumSize(float x, float y)
+        {
+            return MinimumSize(new Vector2(x, y));
+        }
+
+        public Vector2 GetMinimumSize()
+        {
+            return new Vector2(layoutElement.preferredWidth, layoutElement.preferredHeight);
+        }
+        
+        
+        public static void CopyLayouts(BaseComponent other, BaseComponent copyComponent)
+        {
+            if (other.HorizontalLayout)
+            {
+                copyComponent.AddHorizontalLayout();
+                copyComponent.HorizontalLayout.CopyFrom(other.HorizontalLayout);
+            }
+            if (other.VerticalLayout)
+            {
+                copyComponent.AddVerticalLayout();
+                copyComponent.VerticalLayout.CopyFrom(other.VerticalLayout);
+            }
+        }
+        
+        public void CopyRect(RectTransform rect, BaseComponent component, bool copyPos = true)
+        {
+            Vector2 originalPos = component.GetPos();
+            component.LocalScale(rect.localScale);
+            component.GetRect().localRotation = rect.localRotation;
+            if (copyPos)
+            {
+                component.Pivot(rect.pivot);
+                component.AnchorMin(rect.anchorMin);
+                component.AnchorMax(rect.anchorMax);
+                component.OffsetMin(rect.offsetMin);
+                component.OffsetMax(rect.offsetMax);
+                component.Pos(rect.anchoredPosition);
+            }
+            else
+            {
+                component.Pos(originalPos);
+            }
+            component.Size(rect.sizeDelta);
+        }
+        
+        public void CopyLayoutElement(BaseComponent other, BaseComponent component)
+        {
+            LayoutElement layoutElement = other.GetComponent<LayoutElement>();
+            if (layoutElement)
+            {
+                var newLayoutElement = component.gameObject.GetOrAddComponent<LayoutElement>();
+                newLayoutElement.preferredWidth = layoutElement.preferredWidth;
+                newLayoutElement.preferredHeight = layoutElement.preferredHeight;
+                newLayoutElement.minWidth = layoutElement.minWidth;
+                newLayoutElement.minHeight= layoutElement.minHeight;
+                newLayoutElement.layoutPriority = layoutElement.layoutPriority;
+            }
+        }
+        
+        protected T AddLayout<T>(GameObject obj, float spacing, TextAnchor childAlignment = TextAnchor.MiddleCenter, bool childControlWidth = false, bool childControlHeight = false, bool childForceExpandWidth = false, bool childForceExpandHeight = false, bool reverseArrangement = false) where T : HorizontalOrVerticalLayoutGroup
+        {
+            var layout = obj.GetOrAddComponent<T>();
+            layout.spacing = spacing;
+            layout.childAlignment = childAlignment;
+            
+            layout.childControlWidth = childControlWidth;
+            layout.childControlHeight = childControlHeight;
+            layout.childForceExpandWidth = childForceExpandWidth;
+            layout.childForceExpandHeight = childForceExpandHeight;
+
+            layout.reverseArrangement = reverseArrangement;
+            return layout;
+        }
+
+        public BaseComponent AddHorizontalLayout(float spacing = 0f, TextAnchor childAlignment = TextAnchor.MiddleCenter, bool childControlWidth = false, bool childControlHeight = false, bool childForceExpandWidth = false, bool childForceExpandHeight = false, bool reverseArrangement = false) 
+        {
+            HorizontalLayout = AddLayout<HorizontalLayoutGroup>(gameObject, spacing, childAlignment, childControlWidth, childControlHeight, childForceExpandWidth, childForceExpandHeight, reverseArrangement);
+            return this;
+        }
+        public BaseComponent AddVerticalLayout(float spacing = 0f, TextAnchor childAlignment = TextAnchor.MiddleCenter, bool childControlWidth = false, bool childControlHeight = false, bool childForceExpandWidth = false, bool childForceExpandHeight = false, bool reverseArrangement = false) 
+        {
+            VerticalLayout = AddLayout<VerticalLayoutGroup>(gameObject, spacing, childAlignment, childControlWidth, childControlHeight, childForceExpandWidth, childForceExpandHeight, reverseArrangement);
+            return this;
+        }
+
+        public BaseComponent AddFitter(ScrollViewDirection dir, ContentSizeFitter.FitMode fitMode = ContentSizeFitter.FitMode.PreferredSize)
+        {
+            ContentSizeFitter = gameObject.GetOrAddComponent<ContentSizeFitter>();
+            ContentSizeFitter.verticalFit = dir.HasFlag(ScrollViewDirection.Vertical) ? fitMode : ContentSizeFitter.FitMode.Unconstrained;
+            ContentSizeFitter.horizontalFit = dir.HasFlag(ScrollViewDirection.Horizontal) ? fitMode : ContentSizeFitter.FitMode.Unconstrained;
+            return this;
+        }
+
+        public BaseComponent Padding(RectOffset padding, ScrollViewDirection direction)
+        {
+            if (direction.HasFlag(ScrollViewDirection.Vertical))
+            {
+                VerticalLayout.padding = padding;
+            }
+            if (direction.HasFlag(ScrollViewDirection.Horizontal))
+            {
+                HorizontalLayout.padding = padding;
+            }
+            return this;
+        }
+        public BaseComponent Padding(int amount, ScrollViewDirection direction)
+        {
+            return Padding(PaddingSide.All, amount, direction);
+        }
+        public BaseComponent Padding(PaddingSide side, int amount, ScrollViewDirection direction)
+        {
+            if (side.HasFlag(PaddingSide.Leading)) { if (HorizontalLayout && direction.HasFlag(ScrollViewDirection.Horizontal)) HorizontalLayout.padding.left = amount; if (VerticalLayout&& direction.HasFlag(ScrollViewDirection.Vertical)) VerticalLayout.padding.left = amount;}
+            if (side.HasFlag(PaddingSide.Trailing)) { if (HorizontalLayout&& direction.HasFlag(ScrollViewDirection.Horizontal)) HorizontalLayout.padding.right = amount;  if (VerticalLayout&& direction.HasFlag(ScrollViewDirection.Vertical)) VerticalLayout.padding.right = amount;}
+            if (side.HasFlag(PaddingSide.Top)) { if (HorizontalLayout&& direction.HasFlag(ScrollViewDirection.Horizontal)) HorizontalLayout.padding.top = amount;  if (VerticalLayout&& direction.HasFlag(ScrollViewDirection.Vertical)) VerticalLayout.padding.top= amount;}
+            if (side.HasFlag(PaddingSide.Bottom)) { if (HorizontalLayout&& direction.HasFlag(ScrollViewDirection.Horizontal)) HorizontalLayout.padding.bottom = amount;  if (VerticalLayout&& direction.HasFlag(ScrollViewDirection.Vertical)) VerticalLayout.padding.bottom = amount;}
+            return this;
+        }
+
+        public BaseComponent Copy(bool fullyCopyRect = true)
+        {
+            BaseComponent copyComponent = this.BaseCopy(this);
+            return copyComponent.CopyFrom(this, fullyCopyRect);
+        }
+
+        public virtual BaseComponent CopyFrom(BaseComponent other, bool fullyCopyRect = true)
+        {
+            CopyRect(other.GetRect(), this, fullyCopyRect);
+            CopyLayoutElement(other, this);
+            CopyLayouts(other, this);
+            return this;
+        }
+    }
+    
+    static class ComponentExtension
+    {
+        public static string DefaultName => "Component";
+        
+        // Object creation
+        public static GameObject CreateEmptyGameObjectWithParent(Transform parent, bool worldPositionStays, string name = "")
+        {
+            GameObject toReturn = new GameObject(name);
+            toReturn.AddComponent<RectTransform>();
+            if (parent)
+                toReturn.transform.SetParent(parent, worldPositionStays);
+            return toReturn;
+        }
+
+        public static T N<T>(BaseComponent parent, string name = "", bool worldPositionStays = false) where T : BaseComponent
+        {
+            return N<T>(name, parent.gameObject.transform, worldPositionStays);
+        }
+        public static T N<T>(Transform parent, string name = "", bool worldPositionStays = false) where T : BaseComponent
+        {
+            return N<T>(name, parent, worldPositionStays);
+        }
+        public static T N<T>(string name = "", Transform parent = null, bool worldPositionStays = false)  where T : BaseComponent 
+        {
+            GameObject toReturn = CreateEmptyGameObjectWithParent(parent, worldPositionStays);
+            var t = toReturn.AddComponent<T>();
+            t.DisplayName(name);
+            return t;
+        }
+        
+        // Casting between types
+        public static V Cast<V>(this BaseComponent renderable)  where V : BaseComponent
+        {
+            return (V)(object)renderable;
+        }
+        
+        // Naming
+        public static T DisplayName<T>(this T renderable, string displayName) where T : BaseComponent
+        {
+            renderable.DisplayName = displayName;
+            return renderable;
+        }
+        public static T SafeDisplayName<T>(this T renderable, string displayName) where T : BaseComponent
+        {
+            if (string.IsNullOrEmpty(renderable.DisplayName) || displayName.Equals(DefaultName))
+                renderable.DisplayName(displayName);
+            return renderable;
+        }
+        
+        // Parent
+        public static T Parent<T>(this T renderable, Transform parent, bool worldPositionStays = false) where T : BaseComponent
+        {
+            renderable.GetRect().SetParent(parent, worldPositionStays);
+            return renderable;
+        }
+        public static T Parent<T>(this T renderable, Behaviour parent, bool worldPositionStays = false) where T : BaseComponent
+        {
+            return Parent(renderable, parent.GetTransform(), worldPositionStays);
+        }
+        
+        // Positioning
+        public static T Pos<T>(this T renderable, Vector3 anchoredPosition) where T : BaseComponent
+        {
+            renderable.GetRect().anchoredPosition3D = anchoredPosition;
+            return renderable;
+        }
+        public static T Pos<T>(this T renderable, Vector2 anchoredPosition, bool force = false) where T : BaseComponent
+        {
+            if (renderable.paddingApplied && !force)
+            {
+                Debug.LogError("Padding has already been applied to " + renderable.DisplayName+". Cannot apply additional Pos!");
+                return renderable;
+            }
+            renderable.GetRect().anchoredPosition = anchoredPosition;
+            renderable.posApplied= !force;
+            return renderable;
+        }
+        public static T Pos<T>(this T renderable, float x, float y) where T : BaseComponent
+        {
+            return Pos(renderable, new Vector2(x, y));
+        }
+        public static Vector2 GetPos<T>(this T renderable) where T : BaseComponent
+        {
+            return renderable.GetRect().anchoredPosition;
+        }
+        public static Vector3 GetPos3D<T>(this T renderable) where T : BaseComponent
+        {
+            return renderable.GetRect().anchoredPosition3D;
+        }
+        public static T Offset<T>(this T renderable, Vector3 offset) where T : BaseComponent
+        {
+            return Pos(renderable, renderable.GetPos3D() + offset);
+        }
+        public static T Offset<T>(this T renderable, Vector2 offset) where T : BaseComponent
+        {
+            return Pos(renderable, renderable.GetPos() + offset);
+        }
+        public static T Offset<T>(this T renderable, float xOffset, float yOffset, float zOffset = 0) where T : BaseComponent
+        {
+            return Offset(renderable, new Vector3(xOffset, yOffset, zOffset));
+        }
+        
+        public static T OffsetMin<T>(this T renderable, Vector2 offsetMin) where T : BaseComponent
+        {
+            renderable.GetRect().offsetMin = offsetMin;
+            return renderable;
+        }
+        public static T OffsetMin<T>(this T renderable, float x, float y) where T : BaseComponent
+        {
+            return OffsetMin(renderable, new Vector2(x, y));
+        }
+        public static T OffsetMax<T>(this T renderable, Vector2 offsetMax) where T : BaseComponent
+        {
+            renderable.GetRect().offsetMin = offsetMax;
+            return renderable;
+        }
+        public static T OffsetMax<T>(this T renderable, float x, float y) where T : BaseComponent
+        {
+            return OffsetMax(renderable, new Vector2(x, y));
+        }
+
+        public static T Stretch<T>(this T renderable) where T : BaseComponent
+        {
+            var rt = renderable.GetRect();
+            var om = rt.offsetMin; om.x = 0f; rt.offsetMin = om;
+            var oM = rt.offsetMax; oM.x = 0f; rt.offsetMax = oM;
+            return renderable;
+        }
+        
+        public static T RectOffsets<T>(this T renderable, RectOffset offset) where T : BaseComponent
+        {
+            var rt = renderable.GetRect();
+            rt.offsetMin = new Vector2(offset.left, offset.bottom);
+            rt.offsetMax = new Vector2(-offset.right, -offset.top);
+            return renderable;
+        }
+        
+        // Rotation
+        public static T Rotation<T>(this T renderable, Quaternion rotation) where T : BaseComponent
+        {
+            renderable.GetRect().rotation = rotation;
+            return renderable;
+        }
+        public static T Rotation<T>(this T renderable, float zRotation) where T : BaseComponent
+        {
+            return Rotation(renderable, Quaternion.Euler(0, 0, zRotation));
+        }
+        public static T LocalRotation<T>(this T renderable, Quaternion rotation) where T : BaseComponent
+        {
+            renderable.GetRect().localRotation = rotation;
+            return renderable;
+        }
+        public static T LocalRotation<T>(this T renderable, float zRotation) where T : BaseComponent
+        {
+            return LocalRotation(renderable, Quaternion.Euler(0, 0, zRotation));
+        }
+        public static T RotateRel<T>(this T renderable, Vector3 rotation, Space space) where T : BaseComponent
+        {
+            renderable.GetRect().Rotate(rotation, space);
+            return renderable;
+        }
+        public static T RotateRel<T>(this T renderable, Quaternion rotation, Space space) where T : BaseComponent
+        {
+            return RotateRel(renderable, rotation.eulerAngles, space);
+        }
+        public static T RotateRel<T>(this T renderable, float zRotation, Space space) where T : BaseComponent
+        {
+            return RotateRel(renderable, new Vector3(0, 0, zRotation), space);
+        }
+        
+        // Padding
+        public static T Padding<T>(this T renderable, PaddingSide side, float padding) where T : BaseComponent
+        {
+            if (renderable.posApplied)
+            {
+                Debug.LogError("Pos has already been applied to " + renderable.DisplayName+". Cannot apply additional Padding!");
+                return renderable;
+            }
+            Vector2 paddingVector = side switch
+            {
+                PaddingSide.Leading or PaddingSide.Horizontal or PaddingSide.Bottom => new Vector2(padding, renderable.GetPos().y),
+                PaddingSide.Trailing or PaddingSide.Top or PaddingSide.Vertical => new Vector2(renderable.GetPos().x, -padding),
+                _ => Vector2.zero
+            };
+            
+            if (side.HasFlag(PaddingSide.Leading))
+                renderable.AddWidth(-padding);
+            if (side.HasFlag(PaddingSide.Trailing))
+                renderable.AddWidth(-padding);
+            if (side.HasFlag(PaddingSide.Top))
+                renderable.AddHeight(-padding);
+            if (side.HasFlag(PaddingSide.Bottom))
+                renderable.AddHeight(-padding);
+            
+            renderable.paddingApplied= true;
+            return Pos(renderable, paddingVector, true);
+        }
+        
+        // Sizing
+        // Get Size
+        public static float GetWidth<T>(this T renderable) where T : BaseComponent
+        {
+            return renderable.GetRect().sizeDelta.x;
+        }
+        public static float GetHeight<T>(this T renderable) where T : BaseComponent
+        {
+            return renderable.GetRect().sizeDelta.y;
+        }
+        // Set Size 
+        public static T Size<T>(this T renderable, Vector2 sizeDelta) where T : BaseComponent
+        {
+            renderable.GetRect().sizeDelta = sizeDelta;
+            renderable.HandleSizeChanged(sizeDelta.x, sizeDelta.y);
+            return renderable;
+        }
+        public static T Size<T>(this T renderable, float width, float height) where T : BaseComponent
+        {
+            return Size(renderable, new Vector2(width, height));
+        }
+        public static T SizeAdd<T>(this T renderable, Vector2 sizeDelta) where T : BaseComponent
+        {
+            var newSize = renderable.GetRect().sizeDelta + sizeDelta;
+            return Size(renderable, newSize);
+        }
+        public static T Width<T>(this T renderable, float width) where T : BaseComponent
+        {
+            return Size(renderable, width, renderable.GetHeight());
+        }
+        public static T Height<T>(this T renderable, float height) where T : BaseComponent
+        {
+            return Size(renderable, renderable.GetWidth(), height);
+        }
+        public static Vector2 GetSize<T>(this T renderable) where T : BaseComponent
+        {
+            return renderable.GetRect().sizeDelta;
+        }
+        // Add Size
+        public static T AddHeight<T>(this T renderable, float extraHeight) where T : BaseComponent
+        {
+            return Size(renderable, renderable.GetWidth(), renderable.GetHeight() + extraHeight);
+        }
+        public static T AddWidth<T>(this T renderable, float extraWidth) where T : BaseComponent
+        {
+            return Size(renderable, renderable.GetWidth() + extraWidth, renderable.GetHeight());
+        }
+        public static T FullScreen<T>(this T renderable, Canvas canvas) where T : BaseComponent
+        {
+            if (canvas)
+            {
+                RectTransform canvasRect = canvas.GetComponent<RectTransform>();
+                return Size(renderable, canvasRect.sizeDelta);
+            }
+            Debug.LogError(renderable.DisplayName +": Cannot go fullscreen, as no canvas is linked to the object. Please supply a valid canvas to the Fullscreen() function!");
+            return renderable;
+        }
+        
+        // Scaling
+        public static T Scale<T>(this T renderable, float widthScaleFactor, float heightScaleFactor) where T : BaseComponent
+        {
+            return Size(renderable, renderable.GetWidth()  * widthScaleFactor, renderable.GetHeight() * heightScaleFactor);
+        }
+        public static T LocalScale<T>(this T renderable, Vector3 localScale) where T : BaseComponent
+        {
+            renderable.GetRect().localScale = localScale;
+            return renderable;
+        }
+        public static T LocalScale<T>(this T renderable, float widthScaleFactor, float heightScaleFactor) where T : BaseComponent
+        {
+            return LocalScale(renderable, new Vector3(widthScaleFactor, heightScaleFactor, 1));
+        }
+        
+        // Pivots
+        public static T Pivot<T>(this T renderable, Vector2 pivot) where T : BaseComponent
+        {
+            renderable.GetRect().pivot = pivot;
+            return renderable;
+        }
+
+        public static Vector2 GetVectorFromPivotPos(PivotPosition pivot)
+        {
+            Vector2 pVector = pivot switch
+            {
+                PivotPosition.UpperLeft => new Vector2(0, 1f),
+                PivotPosition.UpperCenter => new Vector2(0.5f, 1f),
+                PivotPosition.UpperRight => new Vector2(1f, 1f),
+
+                PivotPosition.MiddleLeft => new Vector2(0, 0.5f),
+                PivotPosition.MiddleCenter => new Vector2(0.5f, 0.5f),
+                PivotPosition.MiddleRight => new Vector2(1f, 0.5f),
+
+
+                PivotPosition.LowerLeft => new Vector2(0, 0f),
+                PivotPosition.LowerCenter => new Vector2(0.5f, 0f),
+                PivotPosition.LowerRight => new Vector2(1f, 0f),
+                
+                _ => new Vector2(-1, -1)
+            };
+            return pVector;
+        }
+        public static T Pivot<T>(this T renderable, PivotPosition pivot, bool alsoMoveAnchor = false) where T : BaseComponent
+        {
+            if (alsoMoveAnchor)
+                renderable.AnchoredTo(pivot);
+            return renderable.Pivot(GetVectorFromPivotPos(pivot));
+        }
+        
+        // Anchors 
+        public static T AnchorMin<T>(this T renderable, Vector2 anchorMin) where T : BaseComponent
+        {
+            renderable.GetRect().anchorMin = anchorMin;
+            return renderable;
+        }
+        public static T AnchorMin<T>(this T renderable, float x, float y) where T : BaseComponent
+        {
+            return AnchorMin(renderable, new Vector2(x, y));
+        }
+        public static T AnchorMax<T>(this T renderable, Vector2 anchorMax) where T : BaseComponent
+        {
+            renderable.GetRect().anchorMax = anchorMax;
+            return renderable;
+        }
+        public static T AnchorMax<T>(this T renderable, float x, float y) where T : BaseComponent
+        {
+            return AnchorMax(renderable, new Vector2(x, y));
+        }
+        public static T AnchoredTo<T>(this T renderable, PivotPosition anchorPosition) where T : BaseComponent
+        {
+            (Vector2 anchorMinVector, Vector2 anchorMaxVector) = anchorPosition switch
+            {
+                // Add more variants (like stretching along a side, etc.) here
+                _ => (GetVectorFromPivotPos(anchorPosition), GetVectorFromPivotPos(anchorPosition))
+            };
+            return renderable.AnchorMin(anchorMinVector).AnchorMax(anchorMaxVector);
+        }
+        
+        // Hierarchy
+        public static T NthSibling<T>(this T renderable, int n) where T : BaseComponent
+        {
+            renderable.GetRect().SetSiblingIndex(n);
+            return renderable;
+        }
+        public static T BringToFront<T>(this T renderable) where T : BaseComponent
+        {
+            renderable.GetRect().SetAsLastSibling();
+            return renderable;
+        }
+        public static T BringToBack<T>(this T renderable) where T : BaseComponent
+        {
+            renderable.GetRect().SetAsFirstSibling();
+            return renderable;
+        }
+        
+        // Gameobject 
+        public static T SetActive<T>(this T renderable, bool active = true) where T : BaseComponent
+        {
+            renderable.gameObject.SetActive(active);
+            return renderable;
+        }
+        public static BaseComponent Refresh<V>(this BaseComponent renderable) where V : Behaviour 
+        {
+            V behaviour = renderable.GetComponent<V>();
+            if (behaviour)
+            {
+                renderable.StartCoroutine(RefreshComponent(behaviour));
+            }
+            return renderable;
+        }
+
+        private static IEnumerator RefreshComponent(Behaviour behaviour) 
+        {
+            behaviour.enabled = false;
+            yield return new WaitForEndOfFrame();
+            behaviour.enabled = true;
+        }
+        
+        public static Transform GetParent<T>(this T renderable) where T : BaseComponent
+        {
+            return renderable.GetRect().transform.parent;
+        }
+    }
+}
