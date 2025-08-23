@@ -213,7 +213,7 @@ namespace UCGUI
         }
     }
     
-    static class ComponentExtension
+    public static class ComponentExtension
     {
         public static string DefaultName => "Component";
         

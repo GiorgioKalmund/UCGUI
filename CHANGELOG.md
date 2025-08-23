@@ -9,3 +9,7 @@
 ## [1.0.1] - 2025-08-23
 ### Renamed Shortcuts
 - Renamed the shortcut builder to 'UI' to remove duplicate referencing when using it.
+
+## [1.0.2] - 2025-08-23
+### Public Extensions
+- Fixed the ComponentExtensions class not being public, thus scripts not being able to access it.
