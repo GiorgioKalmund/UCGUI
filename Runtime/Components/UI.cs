@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace UCGUI
 {
-    public class UCGUI
+    public class UI
     {
         /// <summary>
         /// UCGUI's default Text Component.

@@ -7,7 +7,7 @@ namespace UCGUI
 {
     /// <summary>
     /// UCGUI's default Slider Component. <br></br><br></br>
-    /// To create and customize it take a look at <see cref="UCGUI.Slider"/> and the <see cref="SliderBuilder"/>.
+    /// To create and customize it take a look at <see cref="UI.Slider"/> and the <see cref="SliderBuilder"/>.
     /// </summary>
     public class SliderComponent : BaseComponent
     {
@@ -47,11 +47,11 @@ namespace UCGUI
 
             slider = gameObject.GetOrAddComponent<Slider>();
 
-            background = UCGUI.Image(ImageService.White).Color(Color.gray7).Parent(slider).DisplayName("Background").Stretch();
-            _fillArea = UCGUI.Image(null).Alpha(0).Stretch().Parent(slider).DisplayName("Fill Area");
-            foreground = UCGUI.Image(ImageService.White).Parent(_fillArea).Filled(Image.FillMethod.Horizontal, Value).DisplayName("Foreground");
-            _handleSlideArea = UCGUI.Image(null).Alpha(0).Stretch().Parent(slider).DisplayName("Handle Slide Area");
-            handle = UCGUI.Image(ImageService.White).Color(Color.gray3).Parent(_handleSlideArea).DisplayName("Handle");
+            background = UI.Image(ImageService.White).Color(Color.gray7).Parent(slider).DisplayName("Background").Stretch();
+            _fillArea = UI.Image(null).Alpha(0).Stretch().Parent(slider).DisplayName("Fill Area");
+            foreground = UI.Image(ImageService.White).Parent(_fillArea).Filled(Image.FillMethod.Horizontal, Value).DisplayName("Foreground");
+            _handleSlideArea = UI.Image(null).Alpha(0).Stretch().Parent(slider).DisplayName("Handle Slide Area");
+            handle = UI.Image(ImageService.White).Color(Color.gray3).Parent(_handleSlideArea).DisplayName("Handle");
 
             slider.targetGraphic = handle.GetImage();
             slider.handleRect = handle.GetRect();

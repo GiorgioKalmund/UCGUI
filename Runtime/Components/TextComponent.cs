@@ -219,10 +219,10 @@ namespace UCGUI
         #if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {
-            if (UCGUI.Defaults.State.DebugMode)
+            if (UI.Defaults.State.DebugMode)
             {
-                Handles.Label(transform.position, $"\"{GetText()}\"\nBold:{(_textMesh.fontStyle & FontStyles.Bold) == FontStyles.Bold}\nItalic:{(_textMesh.fontStyle & FontStyles.Italic) == FontStyles.Italic}\nUnderline:{(_textMesh.fontStyle & FontStyles.Underline) == FontStyles.Underline}", UCGUI.Defaults.State.DebugStyle2);
-                Handles.Label(transform.position + new Vector3(0.2f, 0.2f, 0), $"\"{GetText()}\"\nBold:{(_textMesh.fontStyle & FontStyles.Bold) == FontStyles.Bold}\nItalic:{(_textMesh.fontStyle & FontStyles.Italic) == FontStyles.Italic}\nUnderline:{(_textMesh.fontStyle & FontStyles.Underline) == FontStyles.Underline}", UCGUI.Defaults.State.DebugStyle);
+                Handles.Label(transform.position, $"\"{GetText()}\"\nBold:{(_textMesh.fontStyle & FontStyles.Bold) == FontStyles.Bold}\nItalic:{(_textMesh.fontStyle & FontStyles.Italic) == FontStyles.Italic}\nUnderline:{(_textMesh.fontStyle & FontStyles.Underline) == FontStyles.Underline}", UI.Defaults.State.DebugStyle2);
+                Handles.Label(transform.position + new Vector3(0.2f, 0.2f, 0), $"\"{GetText()}\"\nBold:{(_textMesh.fontStyle & FontStyles.Bold) == FontStyles.Bold}\nItalic:{(_textMesh.fontStyle & FontStyles.Italic) == FontStyles.Italic}\nUnderline:{(_textMesh.fontStyle & FontStyles.Underline) == FontStyles.Underline}", UI.Defaults.State.DebugStyle);
             }
         }
         #endif

@@ -366,7 +366,7 @@ namespace UCGUI
             
             public virtual void Text(string text, Color? color = null)
             {
-                Add(UCGUI.Text(text, color ?? Color.gray1).FontSize(18).FitToContents().NoWrap());
+                Add(UI.Text(text, color ?? Color.gray1).FontSize(18).FitToContents().NoWrap());
             }
 
             public virtual void Add(params BaseComponent[] component)
