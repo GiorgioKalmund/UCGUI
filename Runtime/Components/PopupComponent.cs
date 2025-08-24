@@ -42,7 +42,7 @@ namespace UCGUI
             if (open) Open(); else Close();
         }
 
-        protected PopupComponent DontCloseOnStart()
+        public PopupComponent DontCloseOnStart()
         {
             open = true;
             return this;
@@ -54,6 +54,7 @@ namespace UCGUI
         {
             _canvas = canvas;
             _toggleAction = toggleAction;
+            this.Parent(canvas);
             
             Color c;
             if (backdropColor.HasValue)

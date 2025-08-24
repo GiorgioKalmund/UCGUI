@@ -17,3 +17,12 @@
 ## [1.0.3] - 2025-08-23
 ### Own Extensions
 - Made `ComponentExtension` its own class, to allow IDEs to detect it properly 
+
+## [1.0.4] - 2025-08-23
+### Menu Wheel
+- Added ability to position using `Pos` in `Space.Self`
+- Properly documented `MenuWheel` and `MenuWheelButton`
+- Added dedicated Builder for `MenuWheel`
+- Fixed an issue with the `MenuWheel` not rendering correctly when interacting with popups
+- Smaller adjustments
+

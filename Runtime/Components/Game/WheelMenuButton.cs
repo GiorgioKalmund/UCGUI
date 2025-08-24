@@ -4,10 +4,13 @@ using UnityEngine.EventSystems;
 
 namespace UCGUI.Game
 {
+    /// <summary>
+    /// UCGUI's default <see cref="WheelMenu"/>'s Button.
+    /// Automatically focuses the button when the pointer enters, and defocuses when the pointer exits.
+    /// Also reorients the text and foreground image to align expected.
+    /// </summary>
     public class WheelMenuButton : ButtonComponent
     {
-        private Sprite _normalSprite;
-        private Sprite _highlightedSprite;
         public override void Start()
         {
             base.Start();
@@ -28,28 +31,6 @@ namespace UCGUI.Game
             this.UnFocus();
         }
 
-        public WheelMenuButton ConfigureSprites(Sprite normal, Sprite highlighted)
-        {
-            _normalSprite = normal;
-            _highlightedSprite = highlighted;
-            
-            Sprite(_normalSprite);
-            return this;
-        }
-
-        public override void HandleFocus()
-        {
-            base.HandleFocus();
-            Sprite(_highlightedSprite);
-        }
-
-
-        public override void HandleUnfocus()
-        {
-            base.HandleUnfocus();
-            Sprite(_normalSprite);
-        }
-        
         #if UNITY_EDITOR
         private void OnDrawGizmos()
         {

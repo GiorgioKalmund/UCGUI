@@ -75,9 +75,12 @@ namespace UCGUI
         }
 
         // Positioning
-        public static T Pos<T>(this T renderable, Vector3 anchoredPosition) where T : BaseComponent
+        public static T Pos<T>(this T renderable, Vector3 anchoredPosition, Space space) where T : BaseComponent
         {
-            renderable.GetRect().anchoredPosition3D = anchoredPosition;
+            if (space == Space.World)
+                renderable.GetRect().anchoredPosition3D = anchoredPosition;
+            else
+                renderable.Pos(renderable.transform.TransformDirection(anchoredPosition));
             return renderable;
         }
 
@@ -90,7 +93,7 @@ namespace UCGUI
                 return renderable;
             }
 
-            renderable.GetRect().anchoredPosition = anchoredPosition;
+            Pos(renderable, anchoredPosition, Space.World);
             renderable.posApplied = !force;
             return renderable;
         }
@@ -236,7 +239,7 @@ namespace UCGUI
                 renderable.AddHeight(-padding);
 
             renderable.paddingApplied = true;
-            return Pos(renderable, paddingVector, true);
+            return Pos(renderable, paddingVector, force:true);
         }
 
         // Sizing

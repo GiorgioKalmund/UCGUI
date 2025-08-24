@@ -1,6 +1,7 @@
 using System;
 using JetBrains.Annotations;
 using TMPro;
+using UCGUI.Game;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
@@ -181,6 +182,24 @@ namespace UCGUI
             }
 
             return slider;
+        }
+
+        /// <summary>
+        /// UCGUI's default Wheel Menu.
+        /// </summary>
+        /// <param name="radius">The radius of the menu itself.</param>
+        /// <param name="contents"><see cref="WheelMenu.Builder"/> to add content to the menu.</param>
+        /// <returns>
+        /// The resulting UCGUI <see cref="UCGUI.Game.WheelMenu"/>.
+        /// </returns>
+        public static WheelMenu WheelMenu(float radius, Action<WheelMenu.Builder> contents)
+        {
+            WheelMenu wheelMenu = ComponentExtension.N<WheelMenu>();
+            wheelMenu.Radius(radius);
+
+            contents(new WheelMenu.Builder(wheelMenu));
+
+            return wheelMenu;
         }
 
         /// <summary>

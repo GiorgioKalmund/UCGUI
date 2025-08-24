@@ -12,7 +12,7 @@ namespace UCGUI
         public bool paddingApplied = false;
         public bool posApplied = false;
 
-        private string _displayName = "Component";
+        private string _displayName = "BaseComponent";
         public string DisplayName
         {
             get => _displayName;
