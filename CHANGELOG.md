@@ -31,7 +31,7 @@
 - Improved [Hotbar](Runtime/Components/Game/Hotbar.cs) scrolling behaviour to work on mouse scroll X and Y
 - Added documentation to `Hotbar` and made it more generally accessible
 
-## [1.0.5.1] - 2025-08-26
+## [1.0.6] - 2025-08-26
 ### Hotbar Events
 - Added an UnityEvent which is fired every time the [Hotbar](Runtime/Components/Game/Hotbar.cs)'s selected slot is changed.
 - Removed unnecessary files
