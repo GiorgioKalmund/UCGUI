@@ -18,11 +18,16 @@
 ### Own Extensions
 - Made `ComponentExtension` its own class, to allow IDEs to detect it properly 
 
-## [1.0.4] - 2025-08-23
+## [1.0.4] - 2025-08-24
 ### Menu Wheel
 - Added ability to position using `Pos` in `Space.Self`
 - Properly documented `MenuWheel` and `MenuWheelButton`
 - Added dedicated Builder for `MenuWheel`
 - Fixed an issue with the `MenuWheel` not rendering correctly when interacting with popups
 - Smaller adjustments
+
+## [1.0.5] - 2025-08-26
+### Hotbar
+- Improved [Hotbar](Runtime/Components/Game/Hotbar.cs) scrolling behaviour to work on mouse scroll X and Y
+- Added documentation to `Hotbar` and made it more generally accessible
 

@@ -4,7 +4,8 @@ A code-based graphics library for the Unity Game Engine
 ## Why UCGUI?
 
 Simple UIs can easily be created in the editor, however they often need assistance from scripts and other libraries to do things like animation, transitions, etc.
-This is where UCGUI jumps in, which can be seen as a code-based superset of [Unity's built in uGUI](https://docs.unity3d.com/Packages/com.unity.ugui@2.0/manual/index.html).<br> UCGUI's built in tools allow easy and accesible creation of [Text](Runtime/Components/TextComponent.cs), [Images](Runtime/Components/ImageComponent.cs), [Buttons](Runtime/Components/ButtonComponent.cs), [Textfields](Runtime/Components/InputComponent.cs), [Sliders](Runtime/Components/SliderComponent.cs), [Popups](Runtime/Components/PopupComponent.cs), [Windows](Runtime/Components/Window/WindowComponent.cs) and so much more. Everything is based on a singular [BaseComponent]() class and every class is created in such a way that it can be easily inherited from and expanded upon.
+This is where UCGUI jumps in, which can be seen as a code-based superset of [Unity's built in uGUI](https://docs.unity3d.com/Packages/com.unity.ugui@2.0/manual/index.html).<br> UCGUI's built in tools allow easy and accessible creation of [Text](Runtime/Components/TextComponent.cs), [Images](Runtime/Components/ImageComponent.cs), [Buttons](Runtime/Components/ButtonComponent.cs), [Textfields](Runtime/Components/InputComponent.cs), [Sliders](Runtime/Components/SliderComponent.cs), [Popups](Runtime/Components/PopupComponent.cs), [Windows](Runtime/Components/Window/WindowComponent.cs) and so much more. Everything is based on a singular [BaseComponent]() class and every class is created in such a way that it can be easily inherited from and expanded upon.
+<br><br>The main benefit comes from inherent control over your UI at runtime, allowing dynamic UI combinations to be created faster and frictionless.
 <br><br> <i>It might not be for everyone, but it helps me at least to keep everything **inside** my code, as code, without having to constantly search through the hierarchy to edit one specific parameter of my UI. Everything is just code, and way more flexible as it can be easily referenced during runtime.</i>
 
 ## Installation
@@ -45,7 +46,7 @@ As we are using a flexible builder pattern, everything addition is optional, eve
 ### Button
 ```csharp
 // Returns the reslting ButtonComponent
-UI.Button("MyButton", action => //
+UI.Button("MyButton", action =>
 {
     // The function being executed when the button is pressed
     MyFunc();

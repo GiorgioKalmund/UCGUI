@@ -22,8 +22,11 @@ namespace UCGUI.Game
         }
 
         // -- Input Handling -- //
-        // probably needs to be outsourced to somewhere more central at some point
         private InputAction _scrollAction;
+        
+        /// <summary>
+        /// Whether the scroll action is currently enabled if it was set using <see cref="ScrollAction"/>.
+        /// </summary>
         public bool Frozen => !_scrollAction?.enabled ?? true;
 
         public override void Awake()
@@ -43,10 +46,10 @@ namespace UCGUI.Game
                 {
                     Vector2 scrollDelta = context.ReadValue<Vector2>();
 
-                    if (scrollDelta.y > 0f)
-                        SelectedSlotIndex++;
-                    else if (scrollDelta.y < 0f)
-                        SelectedSlotIndex--;
+                    if (scrollDelta.y > 0f || scrollDelta.x < 0f)
+                        ScrollUp();
+                    else if (scrollDelta.y < 0f || scrollDelta.x > 0f)
+                        ScrollDown();
 
                 };
 
@@ -55,16 +58,49 @@ namespace UCGUI.Game
             slots[0].Focus();
         }
 
+        /// <summary>
+        /// Increases the selected slot index by 1.
+        /// </summary>
+        public void ScrollUp()
+        {
+            SelectedSlotIndex++;
+        }
+
+        /// <summary>
+        /// Decreases the selected slot index by 1.
+        /// </summary>
+        public void ScrollDown()
+        {
+            SelectedSlotIndex--;
+        }
+
+        /// <summary>
+        /// Sets the selected slot index.
+        /// </summary>
+        public void SelectSlot(int index)
+        {
+            SelectedSlotIndex = index;
+        }
+
+        /// <summary>
+        /// Disables the scroll action if it was set using <see cref="ScrollAction"/> .
+        /// </summary>
         public void Freeze()
         {
             _scrollAction?.Disable();
         }
 
+        /// <summary>
+        /// Enables the scroll action if it was set using <see cref="ScrollAction"/> .
+        /// </summary>
         public void UnFreeze()
         {
             _scrollAction?.Enable();
         }
 
+        /// <summary>
+        /// Toggles freezing and unfreezing of the scroll action if it was set using <see cref="ScrollAction"/>.
+        /// </summary>
         public void ToggleFreeze()
         {
             if (Frozen)
@@ -73,6 +109,11 @@ namespace UCGUI.Game
                 Freeze();
         }
 
+        /// <summary>
+        /// Adds new slot object to the hotbar.
+        /// </summary>
+        /// <param name="slots">The slot template / component to add.</param>
+        /// <returns></returns>
         public Hotbar AddSlots(params HotbarSlot[] slots)
         {
             foreach (var hotbarSlot in slots)
@@ -87,6 +128,12 @@ namespace UCGUI.Game
             return this;
         }
 
+		
+        /// <summary>
+        /// Removed slot object from the hotbar.
+        /// </summary>
+        /// <param name="index">The slot index to remove.</param>
+        /// <returns></returns>
         public Hotbar RemoveSlot(int index)
         {
             if (index >= 0 && index < slots.Count)
@@ -103,12 +150,11 @@ namespace UCGUI.Game
             return this;
         }
 
-        public Hotbar AddNewSlot(HotbarSlot template, bool copy = false)
-        {
-            AddSlots(copy ? template : template.Copy());
-            return this;
-        }
-
+        /// <summary>
+        /// Links an appropriate input action to the hotbar to allow switching of slots using scrolling.
+        /// If you want more specific control over how slot switching should work see <see cref="ScrollUp"/>, <see cref="ScrollDown"/> and <see cref="SelectSlot"/> / <see cref="SelectedSlotIndex"/>.
+        /// </summary>
+        /// <param name="action">The input action, Vector2, to use to scroll between slots.</param>
         public void ScrollAction(InputAction action)
         {
             _scrollAction = action;
