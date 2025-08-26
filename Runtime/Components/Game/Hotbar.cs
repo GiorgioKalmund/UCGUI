@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 namespace UCGUI.Game
@@ -18,11 +19,13 @@ namespace UCGUI.Game
                     value = slots.Count - 1;
                 _selectedSlotIndex = value % slots.Count;
                 slots[_selectedSlotIndex].Focus();
+                onSlotChanged?.Invoke(_selectedSlotIndex);
             }
         }
 
         // -- Input Handling -- //
         private InputAction _scrollAction;
+        public UnityEvent<int> onSlotChanged;
         
         /// <summary>
         /// Whether the scroll action is currently enabled if it was set using <see cref="ScrollAction"/>.
@@ -34,6 +37,7 @@ namespace UCGUI.Game
             base.Awake();
             FitToContents(25).DisabledColor(UnityEngine.Color.white).Lock();
             GetTextComponent().SetActive(false);
+            onSlotChanged = new UnityEvent<int>();
         }
 
         public override void Start()
