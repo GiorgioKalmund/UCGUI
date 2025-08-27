@@ -17,15 +17,16 @@ namespace UCGUI.Game
             {
                 if (value < 0)
                     value = slots.Count - 1;
+                int oldValue = _selectedSlotIndex;
                 _selectedSlotIndex = value % slots.Count;
                 slots[_selectedSlotIndex].Focus();
-                onSlotChanged?.Invoke(_selectedSlotIndex);
+                onSlotChanged?.Invoke(oldValue, _selectedSlotIndex);
             }
         }
 
         // -- Input Handling -- //
         private InputAction _scrollAction;
-        public UnityEvent<int> onSlotChanged;
+        public UnityEvent<int, int> onSlotChanged;
         
         /// <summary>
         /// Whether the scroll action is currently enabled if it was set using <see cref="ScrollAction"/>.
@@ -38,16 +39,6 @@ namespace UCGUI.Game
             FitToContents(25).DisabledColor(UnityEngine.Color.white).Lock();
             GetTextComponent().SetActive(false);
         }
-		
-		/// <summary>
-        /// Initializes the triggering of an event every time <see cref="SelectedSlotIndex"/> changes.
-        /// </summary>
-        /// <returns></returns>
-		public Hotbar TriggerOnChange()
-        {
-            onSlotChanged ??= new UnityEvent<int>();
-			return this;
-		}
 
         public override void Start()
         {
@@ -70,6 +61,16 @@ namespace UCGUI.Game
 
             slots[0].Focus();
         }
+
+        /// <summary>
+        /// Initializes the triggering of an event every time <see cref="SelectedSlotIndex"/> changes.
+        /// </summary>
+        /// <returns></returns>
+		public Hotbar TriggerOnChange()
+        {
+            onSlotChanged ??= new UnityEvent<int, int>();
+			return this;
+		}
 
         /// <summary>
         /// Increases the selected slot index by 1.
