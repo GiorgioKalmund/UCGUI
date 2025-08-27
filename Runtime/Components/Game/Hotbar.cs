@@ -37,8 +37,17 @@ namespace UCGUI.Game
             base.Awake();
             FitToContents(25).DisabledColor(UnityEngine.Color.white).Lock();
             GetTextComponent().SetActive(false);
-            onSlotChanged = new UnityEvent<int>();
         }
+		
+		/// <summary>
+        /// Initializes the triggering of an event every time <see cref="SelectedSlotIndex"/> changes.
+        /// </summary>
+        /// <returns></returns>
+		public Hotbar TriggerOnChange()
+        {
+            onSlotChanged ??= new UnityEvent<int>();
+			return this;
+		}
 
         public override void Start()
         {
