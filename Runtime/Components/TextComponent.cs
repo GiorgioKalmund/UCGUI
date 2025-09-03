@@ -24,7 +24,7 @@ namespace UCGUI
     /// Also implements <see cref="ICopyable{T}"/> which allows <see cref="ICopyable{T}.CopyFrom"/> and <see cref="ICopyable{T}.Copy"/>.
     /// </para>
     /// </summary>
-    public class TextComponent : BaseComponent, ICopyable<TextComponent>
+    public class TextComponent : BaseComponent, ICopyable<TextComponent>, IEnabled
     {
         private TextMeshProUGUI _textMesh;
         protected static readonly string NamePrefix = "TextComponent";
@@ -226,5 +226,10 @@ namespace UCGUI
             }
         }
         #endif
+        
+        public void Enabled(bool on)
+        {
+            _textMesh.enabled = on;
+        }
     }
 }

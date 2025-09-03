@@ -13,6 +13,11 @@ namespace UCGUI
         {
             _layoutGroup.padding = padding;
         }
+
+        public void ReverseArrangement(bool reverse = true)
+        {
+            _layoutGroup.reverseArrangement = reverse;
+        }
         
         public virtual void Add(params BaseComponent[] component)
         {

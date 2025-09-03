@@ -6,6 +6,7 @@ namespace UCGUI.Services
     public class ImageService
     {
         public static readonly string MissingTextureLocation = "Textures/missing";
+        public static readonly Sprite MissingSprite = GetSprite(MissingTextureLocation);
         public static Sprite White => GetSprite("white");
         public static Texture2D GetTexture2D(string path, FilterMode filterMode = FilterMode.Point)
         {
@@ -66,6 +67,5 @@ namespace UCGUI.Services
             Texture2D texture = GetTexture2D(resourceFolder + path);
             return texture.ToSprite();
         }
-  
     }
 }

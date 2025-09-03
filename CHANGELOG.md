@@ -36,3 +36,13 @@
 - Added an UnityEvent which is fired every time the [Hotbar](Runtime/Components/Game/Hotbar.cs)'s selected slot is changed.
 - Removed unnecessary files
 
+## [1.0.7] - 2025-09-03
+### Views and ScrollViews, Cleanup
+- Added ScrollViews to UI builder to dramatically simplify usage
+- Renamed `PopupComponent` to `ViewComponent` and added UI builder
+- Improved `ViewComponent` functionalities
+- Introduced `IEnabled`, which allows unified enabling / disabling
+- Removed Game folder and consolidated it into `Demo`
+- Removed Testing folder
+
+

@@ -139,7 +139,7 @@ namespace UCGUI
             }
         }
         
-        protected T AddLayout<T>(GameObject obj, float spacing, TextAnchor childAlignment = TextAnchor.MiddleCenter, bool childControlWidth = false, bool childControlHeight = false, bool childForceExpandWidth = false, bool childForceExpandHeight = false, bool reverseArrangement = false) where T : HorizontalOrVerticalLayoutGroup
+        protected T CreateLayout<T>(GameObject obj, float spacing, TextAnchor childAlignment = TextAnchor.MiddleCenter, bool childControlWidth = false, bool childControlHeight = false, bool childForceExpandWidth = false, bool childForceExpandHeight = false, bool reverseArrangement = false) where T : HorizontalOrVerticalLayoutGroup
         {
             var layout = obj.GetOrAddComponent<T>();
             layout.spacing = spacing;
@@ -154,14 +154,26 @@ namespace UCGUI
             return layout;
         }
 
+        public BaseComponent AddLayout(ScrollViewDirection direction, float spacing = 0, TextAnchor childAlignment = TextAnchor.MiddleCenter, bool childControlWidth = false, bool childControlHeight = false, bool childForceExpandWidth = false, bool childForceExpandHeight = false, bool reverseArrangement = false)
+        {
+            if (direction.HasFlag(ScrollViewDirection.Vertical))
+                AddVerticalLayout(spacing, childAlignment, childControlWidth, childControlHeight, childForceExpandWidth,
+                    childForceExpandHeight, reverseArrangement);
+            if (direction.HasFlag(ScrollViewDirection.Horizontal))
+                AddHorizontalLayout(spacing, childAlignment, childControlWidth, childControlHeight, childForceExpandWidth,
+                    childForceExpandHeight, reverseArrangement);
+
+            return this;
+        }
+
         public BaseComponent AddHorizontalLayout(float spacing = 0f, TextAnchor childAlignment = TextAnchor.MiddleCenter, bool childControlWidth = false, bool childControlHeight = false, bool childForceExpandWidth = false, bool childForceExpandHeight = false, bool reverseArrangement = false) 
         {
-            HorizontalLayout = AddLayout<HorizontalLayoutGroup>(gameObject, spacing, childAlignment, childControlWidth, childControlHeight, childForceExpandWidth, childForceExpandHeight, reverseArrangement);
+            HorizontalLayout = CreateLayout<HorizontalLayoutGroup>(gameObject, spacing, childAlignment, childControlWidth, childControlHeight, childForceExpandWidth, childForceExpandHeight, reverseArrangement);
             return this;
         }
         public BaseComponent AddVerticalLayout(float spacing = 0f, TextAnchor childAlignment = TextAnchor.MiddleCenter, bool childControlWidth = false, bool childControlHeight = false, bool childForceExpandWidth = false, bool childForceExpandHeight = false, bool reverseArrangement = false) 
         {
-            VerticalLayout = AddLayout<VerticalLayoutGroup>(gameObject, spacing, childAlignment, childControlWidth, childControlHeight, childForceExpandWidth, childForceExpandHeight, reverseArrangement);
+            VerticalLayout = CreateLayout<VerticalLayoutGroup>(gameObject, spacing, childAlignment, childControlWidth, childControlHeight, childForceExpandWidth, childForceExpandHeight, reverseArrangement);
             return this;
         }
 

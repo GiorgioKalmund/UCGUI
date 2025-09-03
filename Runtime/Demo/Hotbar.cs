@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
-namespace UCGUI.Game
+namespace UCGUI.Demo
 {
     public class Hotbar : ButtonComponent
     {

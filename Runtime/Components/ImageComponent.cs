@@ -30,7 +30,7 @@ namespace UCGUI
     /// <para>
     /// Also implements <see cref="ICopyable{T}"/> which allows <see cref="ICopyable{T}.CopyFrom"/> and <see cref="ICopyable{T}.Copy"/>.
     /// </para>
-    public class ImageComponent : BaseComponent, ICopyable<ImageComponent>, IPointerEnterHandler, IPointerExitHandler
+    public class ImageComponent : BaseComponent, ICopyable<ImageComponent>, IPointerEnterHandler, IPointerExitHandler, IEnabled
     {
         private Image _image;
         protected static string NamePrefix = "ImageComponent";
@@ -273,6 +273,11 @@ namespace UCGUI
         public void OnPointerExit(PointerEventData eventData)
         {
             HandlePointerExit(eventData);
+        }
+
+        public void Enabled(bool on)
+        {
+            _image.enabled = on;
         }
     }
 

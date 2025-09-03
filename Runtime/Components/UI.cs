@@ -5,6 +5,7 @@ using UCGUI.Game;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace UCGUI
@@ -56,7 +57,7 @@ namespace UCGUI
         }
 
         /// <summary>
-        /// UCGUI's default Button Component. Similar to Unity's UGUI's button, however more flexible out of the box.
+        /// UCGUI's default Button Component. Similar to Unity's UGUI's <see cref="UnityEngine.UI.Button"/>, however more flexible out of the box.
         /// </summary>
         /// <param name="text">
         /// (Optional) text to be displayed on the button.
@@ -84,6 +85,58 @@ namespace UCGUI
             }
 
             return buttonComponent;
+        }
+
+        /// <summary>
+        /// UCGUI's default Scroll View. Similar to UGUI's <see cref="ScrollRect"/>.
+        /// </summary>
+        /// <param name="direction"> The <see cref="ScrollViewDirection"/> in which scrolling is enabled.</param>
+        /// <param name="spacing"> (Optional) The spacing between the elements. <i>Defaults to <b>0f</b></i>.</param>
+        /// <param name="alignment"> (Optional) the alignment of the children within the scroll view. <i>Defaults to <see cref="TextAnchor.UpperCenter"/></i>.</param>
+        /// <param name="content"> <see cref="ScrollViewComponent.ScrollViewBuilder"/> to add content and further customize the scroll view. Will default to pivoting around and anchoring to <see cref="PivotPosition.UpperCenter"/> if the scroll view is vertical, else to <see cref="PivotPosition.MiddleLeft"/>.</param>
+        /// <returns>
+        /// The resulting UCGUI <see cref="ScrollViewComponent"/>
+        /// </returns>
+        public static ScrollViewComponent ScrollView(ScrollViewDirection direction, float spacing, TextAnchor alignment, UnityAction<ScrollViewComponent.ScrollViewBuilder> content)
+        {
+            ScrollViewComponent scrollViewComponent = ComponentExtension.N<ScrollViewComponent>();
+
+            scrollViewComponent.ScrollingDirection(direction);
+            scrollViewComponent.content
+                .AddLayout(direction, spacing, alignment)
+                .AddFitter(direction)
+                .Pivot(direction == ScrollViewDirection.Vertical ? PivotPosition.UpperCenter : PivotPosition.MiddleLeft, true);
+            
+            content(new ScrollViewComponent.ScrollViewBuilder(scrollViewComponent));
+            return scrollViewComponent;
+        }
+
+        /// <inheritdoc cref="ScrollView(UCGUI.ScrollViewDirection,float,UnityEngine.TextAnchor,UnityEngine.Events.UnityAction{UCGUI.ScrollViewComponent.ScrollViewBuilder})"/>
+        public static ScrollViewComponent ScrollView(ScrollViewDirection direction, float spacing, UnityAction<ScrollViewComponent.ScrollViewBuilder> content)
+        {
+            return ScrollView(direction, spacing, direction == ScrollViewDirection.Vertical ? TextAnchor.UpperCenter : TextAnchor.MiddleLeft, content);
+        }
+        /// <inheritdoc cref="ScrollView(UCGUI.ScrollViewDirection,float,UnityEngine.TextAnchor,UnityEngine.Events.UnityAction{UCGUI.ScrollViewComponent.ScrollViewBuilder})"/>
+        public static ScrollViewComponent ScrollView(ScrollViewDirection direction, UnityAction<ScrollViewComponent.ScrollViewBuilder> content)
+        {
+            return ScrollView(direction, 0f, content);
+        }
+
+        /// <summary>
+        /// UCGUI's default View. Can be opened and closed manually or using <see cref="InputAction"/>.
+        /// </summary>
+        /// <param name="canvas">The canvas the view attaches to.</param>
+        /// <param name="viewBuilder"><see cref="ViewComponent.ViewBuilder"/> to add content and further customize the view.</param>
+        /// <returns>
+        /// The resulting UCGUI <see cref="ViewComponent"/>.
+        /// </returns>
+        public static ViewComponent View(Canvas canvas, UnityAction<ViewComponent.ViewBuilder> viewBuilder)
+        {
+            ViewComponent viewComponent = ComponentExtension.N<ViewComponent>();
+            
+            viewBuilder(new ViewComponent.ViewBuilder(viewComponent, canvas));
+
+            return viewComponent;
         }
 
         /// <summary>
@@ -188,16 +241,16 @@ namespace UCGUI
         /// UCGUI's default Wheel Menu.
         /// </summary>
         /// <param name="radius">The radius of the menu itself.</param>
-        /// <param name="contents"><see cref="WheelMenu.Builder"/> to add content to the menu.</param>
+        /// <param name="contents"><see cref="WheelMenu.WheelMenuBuilder"/> to add content to the menu.</param>
         /// <returns>
         /// The resulting UCGUI <see cref="UCGUI.Game.WheelMenu"/>.
         /// </returns>
-        public static WheelMenu WheelMenu(float radius, Action<WheelMenu.Builder> contents)
+        public static WheelMenu WheelMenu(float radius, Action<WheelMenu.WheelMenuBuilder> contents)
         {
             WheelMenu wheelMenu = ComponentExtension.N<WheelMenu>();
             wheelMenu.Radius(radius);
 
-            contents(new WheelMenu.Builder(wheelMenu));
+            contents(new WheelMenu.WheelMenuBuilder(wheelMenu));
 
             return wheelMenu;
         }
@@ -208,7 +261,7 @@ namespace UCGUI
         /// <param name="spacing">
         /// Horizontal spacing between the elements.
         /// </param>
-        /// <param name="alignment">
+        /// <param name="childAlignment">
         /// Alignment of HStack children.
         /// </param>
         /// <param name="contents">
@@ -220,10 +273,10 @@ namespace UCGUI
         /// Under the hood it is simply an <see cref="ImageComponent"/>, allowing you to enable (<see cref="ImageComponent.ToggleVisibility()"/>), and then also directly modify the backdrop.
         /// </remarks>
         /// </returns>
-        public static ImageComponent HStack(float spacing, TextAnchor alignment, Action<LayoutBuilder> contents)
+        public static ImageComponent HStack(float spacing, TextAnchor childAlignment, Action<LayoutBuilder> contents)
         {
             ImageComponent layout = ComponentExtension.N<ImageComponent>();
-            layout.AddHorizontalLayout(spacing, alignment);
+            layout.AddHorizontalLayout(spacing, childAlignment);
             layout.AddFitter(ScrollViewDirection.Both);
             layout.ToggleVisibility();
             contents(new LayoutBuilder(layout.HorizontalLayout));
@@ -236,8 +289,8 @@ namespace UCGUI
         public static ImageComponent HStack(float spacing, Action<LayoutBuilder> contents)
             => HStack(spacing, TextAnchor.MiddleCenter, contents);
         /// <inheritdoc cref="HStack(float, TextAnchor, Action{LayoutBuilder})"/>
-        public static ImageComponent HStack(TextAnchor alignment, Action<LayoutBuilder> contents)
-            => HStack(0f, alignment, contents);
+        public static ImageComponent HStack(TextAnchor childAlignment, Action<LayoutBuilder> contents)
+            => HStack(0f, childAlignment, contents);
         
         /// <summary>
         /// A vertical layout element, automatically resizing to its contents.
@@ -245,7 +298,7 @@ namespace UCGUI
         /// <param name="spacing">
         /// Vertical spacing between the elements.
         /// </param>
-        /// <param name="alignment">
+        /// <param name="childAlignment">
         /// Alignment of VStack children.
         /// </param>
         /// <param name="contents">
@@ -257,10 +310,10 @@ namespace UCGUI
         /// Under the hood it is simply an <see cref="ImageComponent"/>, allowing you to enable (<see cref="ImageComponent.ToggleVisibility()"/>), and then also directly modify the backdrop.
         /// </remarks>
         /// </returns>
-        public static ImageComponent VStack(float spacing, TextAnchor alignment, Action<LayoutBuilder> contents)
+        public static ImageComponent VStack(float spacing, TextAnchor childAlignment, Action<LayoutBuilder> contents)
         {
             ImageComponent layout = ComponentExtension.N<ImageComponent>().Sprite(null);
-            layout.AddVerticalLayout(spacing, alignment);
+            layout.AddVerticalLayout(spacing, childAlignment);
             layout.AddFitter(ScrollViewDirection.Both);
             layout.ToggleVisibility();
             contents(new LayoutBuilder(layout.VerticalLayout));
@@ -273,8 +326,8 @@ namespace UCGUI
         public static ImageComponent VStack(float spacing, Action<LayoutBuilder> contents)
             => VStack(spacing, TextAnchor.MiddleCenter, contents);
         /// <inheritdoc cref="VStack(float, TextAnchor, Action{LayoutBuilder})"/>
-        public static ImageComponent VStack(TextAnchor alignment, Action<LayoutBuilder> contents)
-            => VStack(0f, alignment, contents);
+        public static ImageComponent VStack(TextAnchor childAlignment, Action<LayoutBuilder> contents)
+            => VStack(0f, childAlignment, contents);
 
         /// <summary>
         /// Statically stored defaults for UCGUI

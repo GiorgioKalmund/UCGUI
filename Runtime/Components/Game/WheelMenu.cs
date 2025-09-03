@@ -78,11 +78,11 @@ namespace UCGUI.Game
         /// <item><description><see cref="Add"/> - Adds a component to the wheel.</description></item>
         /// </list>
         /// </summary>
-        public class Builder
+        public class WheelMenuBuilder
         {
             private WheelMenu _menu;
 
-            public Builder(WheelMenu menu)
+            public WheelMenuBuilder(WheelMenu menu)
             {
                 _menu = menu;
             }

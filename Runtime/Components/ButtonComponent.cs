@@ -123,11 +123,11 @@ namespace UCGUI
             return ButtonText;
         }
 
-        public ButtonComponent Function(UnityAction action, bool replaceLast = false)
+        public ButtonComponent Function(UnityAction action, bool keepLast = false)
         {
-            if (replaceLast)
+            if (!keepLast)
             {
-                var last = Listeners[-1];
+                var last = Listeners[^1];
                 RemoveFunction(last);
             }
             ButtonElement.onClick.AddListener(action);
@@ -182,6 +182,30 @@ namespace UCGUI
             var colors = ButtonElement.colors;
             colors.disabledColor = color;
             ButtonElement.colors = colors;
+            return this;
+        }
+        
+        public ButtonComponent HighlightedSprite(Sprite sprite)
+        {
+            var sprites = ButtonElement.spriteState;
+            sprites.highlightedSprite = sprite;
+            ButtonElement.spriteState = sprites;
+            return this;
+        }
+        
+        public ButtonComponent PressedSprite(Sprite sprite)
+        {
+            var sprites = ButtonElement.spriteState;
+            sprites.pressedSprite = sprite;
+            ButtonElement.spriteState = sprites;
+            return this;
+        }
+        
+        public ButtonComponent DisabledSprite(Sprite sprite)
+        {
+            var sprites = ButtonElement.spriteState;
+            sprites.disabledSprite = sprite;
+            ButtonElement.spriteState = sprites;
             return this;
         }
 
@@ -254,14 +278,13 @@ namespace UCGUI
             return this;
         }
 
-        public ButtonComponent SpriteSwap(Sprite highlightedSprite, Sprite pressedSprite = null, Sprite disabledSprite = null)
+        public ButtonComponent SpriteSwap(Sprite highlightedSprite = null, Sprite pressedSprite = null, Sprite disabledSprite = null)
         {
             Transition(Selectable.Transition.SpriteSwap);
             var state = ButtonElement.spriteState;
-            state.highlightedSprite = highlightedSprite;
-            state.pressedSprite = pressedSprite ?? highlightedSprite;
-            state.disabledSprite = disabledSprite;
-            ButtonElement.spriteState = state;
+            HighlightedSprite(highlightedSprite ?? state.selectedSprite);
+            PressedSprite(pressedSprite ?? state.selectedSprite);
+            DisabledSprite(disabledSprite ?? state.selectedSprite);
             return this;
         }
 

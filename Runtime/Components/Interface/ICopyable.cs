@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UCGUI
 {
-    public interface ICopyable<T> where T : BaseComponent
+    public interface ICopyable<T> where T : MonoBehaviour
     {
         /// <summary>
         /// Returns a copy of the calling object.

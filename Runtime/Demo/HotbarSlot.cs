@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace UCGUI.Game
+namespace UCGUI.Demo
 {
     public class HotbarSlot : ButtonComponent, IFocusable, ICopyable<HotbarSlot>
     {
