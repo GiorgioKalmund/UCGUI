@@ -12,7 +12,7 @@ namespace UCGUI
         public ButtonComponent() { NamePrefix = "ButtonComponent"; }
         
         // -- Button -- //
-        protected Button ButtonElement;
+        public Button button;
         public List<UnityAction> Listeners = new List<UnityAction>();
 
         // -- Subcomponents -- // 
@@ -27,7 +27,7 @@ namespace UCGUI
         {
             base.Awake();
 
-            ButtonElement = gameObject.GetOrAddComponent<Button>();
+            button = gameObject.GetOrAddComponent<Button>();
 
             ForegroundImage = ComponentExtension.N<ImageComponent>(transform, "Foreground-Hint")
                     .RaycastTarget(false)
@@ -130,21 +130,21 @@ namespace UCGUI
                 var last = Listeners[^1];
                 RemoveFunction(last);
             }
-            ButtonElement.onClick.AddListener(action);
+            button.onClick.AddListener(action);
             Listeners.Add(action);
             return this;
         }
         
         public ButtonComponent RemoveFunction(UnityAction action)
         {
-            ButtonElement.onClick.RemoveListener(action);
+            button.onClick.RemoveListener(action);
             Listeners.Remove(action);
             return this;
         }
         
         public ButtonComponent ClearAllFunctions()
         {
-            ButtonElement.onClick.RemoveAllListeners();
+            button.onClick.RemoveAllListeners();
             Listeners.Clear();
             return this;
         }
@@ -163,61 +163,61 @@ namespace UCGUI
 
         public ButtonComponent HighlightedColor(Color color)
         {
-            var colors = ButtonElement.colors;
+            var colors = button.colors;
             colors.highlightedColor = color;
-            ButtonElement.colors = colors;
+            button.colors = colors;
             return this;
         }
         
         public ButtonComponent PressedColor(Color color)
         {
-            var colors = ButtonElement.colors;
+            var colors = button.colors;
             colors.pressedColor = color;
-            ButtonElement.colors = colors;
+            button.colors = colors;
             return this;
         }
         
         public ButtonComponent DisabledColor(Color color)
         {
-            var colors = ButtonElement.colors;
+            var colors = button.colors;
             colors.disabledColor = color;
-            ButtonElement.colors = colors;
+            button.colors = colors;
             return this;
         }
         
         public ButtonComponent HighlightedSprite(Sprite sprite)
         {
-            var sprites = ButtonElement.spriteState;
+            var sprites = button.spriteState;
             sprites.highlightedSprite = sprite;
-            ButtonElement.spriteState = sprites;
+            button.spriteState = sprites;
             return this;
         }
         
         public ButtonComponent PressedSprite(Sprite sprite)
         {
-            var sprites = ButtonElement.spriteState;
+            var sprites = button.spriteState;
             sprites.pressedSprite = sprite;
-            ButtonElement.spriteState = sprites;
+            button.spriteState = sprites;
             return this;
         }
         
         public ButtonComponent DisabledSprite(Sprite sprite)
         {
-            var sprites = ButtonElement.spriteState;
+            var sprites = button.spriteState;
             sprites.disabledSprite = sprite;
-            ButtonElement.spriteState = sprites;
+            button.spriteState = sprites;
             return this;
         }
 
         public ButtonComponent Lock()
         {
-            ButtonElement.interactable = false;
+            button.interactable = false;
             return this;
         }
 
         public ButtonComponent Unlock()
         {
-            ButtonElement.interactable = true;
+            button.interactable = true;
             return this;
         }
 
@@ -243,7 +243,7 @@ namespace UCGUI
             ForegroundImage.CopyFrom(other.ForegroundImage);
             Foreground(other.ForegroundImage.GetImage().sprite);
             
-            ButtonElement.CopyFrom(other.ButtonElement);
+            button.CopyFrom(other.button);
             
             ClearAllFunctions();
             foreach (var unityAction in other.Listeners)
@@ -274,14 +274,14 @@ namespace UCGUI
 
         public ButtonComponent Transition(Selectable.Transition transition)
         {
-            ButtonElement.transition = transition;
+            button.transition = transition;
             return this;
         }
 
         public ButtonComponent SpriteSwap(Sprite highlightedSprite = null, Sprite pressedSprite = null, Sprite disabledSprite = null)
         {
             Transition(Selectable.Transition.SpriteSwap);
-            var state = ButtonElement.spriteState;
+            var state = button.spriteState;
             HighlightedSprite(highlightedSprite ?? state.selectedSprite);
             PressedSprite(pressedSprite ?? state.selectedSprite);
             DisabledSprite(disabledSprite ?? state.selectedSprite);
