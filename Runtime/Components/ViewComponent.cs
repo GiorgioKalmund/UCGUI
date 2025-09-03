@@ -123,6 +123,12 @@ namespace UCGUI
             _toggleAction?.Disable();
         }
 
+        public ViewComponent Link(Canvas canvas)
+        {
+            _canvas = canvas;
+            return this.Parent(canvas);
+        }
+
         private void OnBackgroundTap()
         {
             if (closesOnBackgroundTap && isOpen)
@@ -135,8 +141,7 @@ namespace UCGUI
 
             public ViewBuilder(ViewComponent view, Canvas canvas)
             {
-                view._canvas = canvas;
-                view.Parent(canvas);
+                view.Link(canvas);
                 _view = view; 
             }
 

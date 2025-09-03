@@ -125,7 +125,7 @@ namespace UCGUI
 
         public ButtonComponent Function(UnityAction action, bool keepLast = false)
         {
-            if (!keepLast)
+            if (!keepLast && Listeners.Count > 1)
             {
                 var last = Listeners[^1];
                 RemoveFunction(last);
