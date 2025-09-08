@@ -13,17 +13,17 @@ namespace UCGUI.Demo
 
             ColorUtility.TryParseHtmlString("#2e222f", out Color backdropColor);
             
-            var backdrop = ComponentExtension.N<ImageComponent>("Backdrop", transform)
+            var backdrop = UI.N<ImageComponent>("Backdrop", transform)
                     .FullScreen(canvas)
                     .Color(backdropColor)
                 ;
 
-            var title = ComponentExtension.N<TextComponent>("Title", transform)
+            var title = UI.N<TextComponent>("Title", transform)
                     .Text("Component: UGUI Demo").FitToContents().FontSize(70).Bold()
                     .Pivot(PivotPosition.UpperCenter, true).Offset(0, -50)
                 ;
 
-            var buttonParent = ComponentExtension.N<ImageComponent>("Menu Buttons", transform)
+            var buttonParent = UI.N<ImageComponent>("Menu Buttons", transform)
                     .Size(1500, 800)
                     .Offset(0, -45)
                     .Sprite(ImageService.GetSpriteDirectly("Slice/Slot")).ImageType(Image.Type.Sliced).PixelsPerUnitMultiplier(0.33f)
@@ -32,7 +32,7 @@ namespace UCGUI.Demo
                     .Padding(25, ScrollViewDirection.Vertical)
                 ;
             
-            var sceneButton1 = ComponentExtension.N<ButtonComponent>("Scene 1").Parent(buttonParent)
+            var sceneButton1 = UI.N<ButtonComponent>("Scene 1").Parent(buttonParent)
                     .Size(500, 100)
                     .Create("The Basics", foreground:ImageService.GetSpriteFromAsset("player", "head"))
                     .SpriteSwap(ImageService.GetSpriteDirectly("Slice/Slot Selected"))
@@ -41,7 +41,7 @@ namespace UCGUI.Demo
                     .Pivot(PivotPosition.MiddleLeft, true)
                     .Cast<ButtonComponent>()
                 ;
-            sceneButton1.GetTextComponent().FitToContents().Bold().Color(Color.white);
+            sceneButton1.TextBuilder().FitToContents().Bold().Color(Color.white);
             sceneButton1.GetForeground().Size(60, 60);
 
             var sceneButton2 = sceneButton1.Copy().Function(() => SceneManager.LoadScene("Demo/")).Text("Images & Animations").Foreground(ImageService.GetSpriteFromAsset("player", "booster paddels single")).GetForeground().NativeSize(2, 2);

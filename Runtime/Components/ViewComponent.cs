@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace UCGUI
 {
-    public class ViewComponent : ImageComponent, IRenderable
+    public partial class ViewComponent : ImageComponent, IRenderable
     {
         public bool isOpen = false;
 
@@ -135,7 +135,7 @@ namespace UCGUI
                 Close();
         }
 
-        public class ViewBuilder
+        public partial class ViewBuilder
         {
             private readonly ViewComponent _view;
 

@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 
 namespace UCGUI
 {
-    public class InputComponent : BaseComponent, IFocusable
+    public partial class InputComponent : BaseComponent, IFocusable
     {
         // -- TMP Input Field -- //
         protected TMP_InputField Input;
@@ -23,11 +23,11 @@ namespace UCGUI
             
             Input = gameObject.GetOrAddComponent<TMP_InputField>();
             
-            Backdrop= ComponentExtension.N<ImageComponent>(transform);
+            Backdrop= UI.N<ImageComponent>(transform);
 
-            TextContents = ComponentExtension.N<TextComponent>(Backdrop);
+            TextContents = UI.N<TextComponent>(Backdrop);
 
-            HintContents = ComponentExtension.N<TextComponent>(Backdrop);
+            HintContents = UI.N<TextComponent>(Backdrop);
 
             Input.targetGraphic = Backdrop.GetImage();
             Input.textComponent = TextContents.GetTextMesh();

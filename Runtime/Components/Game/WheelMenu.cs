@@ -14,7 +14,7 @@ namespace UCGUI.Game
     /// Also implements <see cref="IRenderable"/> which allows <see cref="IRenderable.Render"/>.
     /// </para>
     /// </summary>
-    public class WheelMenu : BaseComponent, IRenderable
+    public partial class WheelMenu : BaseComponent, IRenderable
     {
         public float radius = 100;
 

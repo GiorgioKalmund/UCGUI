@@ -10,7 +10,7 @@ using UnityEngine.UI;
 
 namespace UCGUI
 {
-    public class UI
+    public partial class UI
     {
         /// <summary>
         /// UCGUI's default Text Component.
@@ -26,7 +26,7 @@ namespace UCGUI
         /// </returns>
         public static TextComponent Text(string text, Color? color = null)
         {
-            TextComponent textComponent = ComponentExtension.N<TextComponent>();
+            TextComponent textComponent = UI.N<TextComponent>();
             textComponent.Text(text);
             if (color.HasValue)
                 textComponent.Color(color.Value);
@@ -51,7 +51,7 @@ namespace UCGUI
         public static ImageComponent Image(Sprite sprite, Image.Type type = UnityEngine.UI.Image.Type.Simple,
             float ppum = 1f)
         {
-            ImageComponent imageComponent = ComponentExtension.N<ImageComponent>();
+            ImageComponent imageComponent = UI.N<ImageComponent>();
             imageComponent.Sprite(sprite, type, ppum);
             return imageComponent;
         }
@@ -74,7 +74,7 @@ namespace UCGUI
         public static ButtonComponent Button([CanBeNull] string text = null, UnityAction action = null,
             UnityAction<ButtonComponent.ButtonBuilder> label = null)
         {
-            ButtonComponent buttonComponent = ComponentExtension.N<ButtonComponent>();
+            ButtonComponent buttonComponent = UI.N<ButtonComponent>();
 
             buttonComponent.Text(text);
             if (action != null)
@@ -99,7 +99,7 @@ namespace UCGUI
         /// </returns>
         public static ScrollViewComponent ScrollView(ScrollViewDirection direction, float spacing, TextAnchor alignment, UnityAction<ScrollViewComponent.ScrollViewBuilder> content)
         {
-            ScrollViewComponent scrollViewComponent = ComponentExtension.N<ScrollViewComponent>();
+            ScrollViewComponent scrollViewComponent = UI.N<ScrollViewComponent>();
 
             scrollViewComponent.ScrollingDirection(direction);
             scrollViewComponent.content
@@ -132,7 +132,7 @@ namespace UCGUI
         /// </returns>
         public static ViewComponent View(Canvas canvas, UnityAction<ViewComponent.ViewBuilder> viewBuilder)
         {
-            ViewComponent viewComponent = ComponentExtension.N<ViewComponent>();
+            ViewComponent viewComponent = UI.N<ViewComponent>();
             
             viewBuilder(new ViewComponent.ViewBuilder(viewComponent, canvas));
 
@@ -169,7 +169,7 @@ namespace UCGUI
         /// </example>
         public static WindowComponent Window(string name, Action<WindowComponent.WindowBuilder> builder = null)
         {
-            WindowComponent window = ComponentExtension.N<WindowComponent>(name);
+            WindowComponent window = UI.N<WindowComponent>(name);
 
             if (builder != null)
             {
@@ -215,7 +215,7 @@ namespace UCGUI
         public static SliderComponent Slider(Range range, Action<SliderComponent.SliderBuilder> builder,
             Action<float> onValueChanged = null)
         {
-            SliderComponent slider = ComponentExtension.N<SliderComponent>();
+            SliderComponent slider = UI.N<SliderComponent>();
             if (!range.IsOrdered)
             {
                 Debug.LogWarning("Slider range " + range + " was not ordered. Changed to: " + range.Flipped());
@@ -247,7 +247,7 @@ namespace UCGUI
         /// </returns>
         public static WheelMenu WheelMenu(float radius, Action<WheelMenu.WheelMenuBuilder> contents)
         {
-            WheelMenu wheelMenu = ComponentExtension.N<WheelMenu>();
+            WheelMenu wheelMenu = UI.N<WheelMenu>();
             wheelMenu.Radius(radius);
 
             contents(new WheelMenu.WheelMenuBuilder(wheelMenu));
@@ -275,7 +275,7 @@ namespace UCGUI
         /// </returns>
         public static ImageComponent HStack(float spacing, TextAnchor childAlignment, Action<LayoutBuilder> contents)
         {
-            ImageComponent layout = ComponentExtension.N<ImageComponent>();
+            ImageComponent layout = UI.N<ImageComponent>();
             layout.AddHorizontalLayout(spacing, childAlignment);
             layout.AddFitter(ScrollViewDirection.Both);
             layout.ToggleVisibility();
@@ -312,7 +312,7 @@ namespace UCGUI
         /// </returns>
         public static ImageComponent VStack(float spacing, TextAnchor childAlignment, Action<LayoutBuilder> contents)
         {
-            ImageComponent layout = ComponentExtension.N<ImageComponent>().Sprite(null);
+            ImageComponent layout = UI.N<ImageComponent>().Sprite(null);
             layout.AddVerticalLayout(spacing, childAlignment);
             layout.AddFitter(ScrollViewDirection.Both);
             layout.ToggleVisibility();

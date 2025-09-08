@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using TMPro;
+using UCGUI.Services;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
@@ -7,7 +8,7 @@ using UnityEngine.UI;
 
 namespace UCGUI
 {
-    public class ButtonComponent : ImageComponent, IFocusable, ICopyable<ButtonComponent>
+    public partial class ButtonComponent : ImageComponent, IFocusable, ICopyable<ButtonComponent>, IStylable<ButtonComponent, ButtonStyle>
     {
         public ButtonComponent() { NamePrefix = "ButtonComponent"; }
         
@@ -29,12 +30,12 @@ namespace UCGUI
 
             button = gameObject.GetOrAddComponent<Button>();
 
-            ForegroundImage = ComponentExtension.N<ImageComponent>(transform, "Foreground-Hint")
+            ForegroundImage = UI.N<ImageComponent>(transform, "Foreground-Hint")
                     .RaycastTarget(false)
                     .SetActive(false)
                 ;
 
-            ButtonText = ComponentExtension.N<TextComponent>(transform, "Text")
+            ButtonText = UI.N<TextComponent>(transform, "Text")
                     .AlignCenter()
                     .VAlignCenter()
                     .Color(UnityEngine.Color.gray1)
@@ -112,13 +113,13 @@ namespace UCGUI
             return this;
         }
 
-        public ButtonComponent Text(string text, Color? color = null)
+        public ButtonComponent Text(string text, TextComponent.TextMode mode = TextComponent.TextMode.Normal, Color? color = null)
         {
-            ButtonText.Text(text, color);
+            ButtonText.Text(text, mode, color);
             return this;
         }
 
-        public TextComponent GetTextComponent()
+        public TextComponent TextBuilder()
         {
             return ButtonText;
         }
@@ -288,7 +289,13 @@ namespace UCGUI
             return this;
         }
 
-        public class ButtonBuilder
+        public ButtonComponent Style(ButtonStyle style)
+        {
+            style.Link(this);
+            return this;
+        }
+        
+        public partial class ButtonBuilder
         {
             private ButtonComponent _button;
 
@@ -345,14 +352,14 @@ namespace UCGUI
                 _button.Padding(padding, affectedDirectionLayout);
             }
 
-            public void TextStyle(Color? color = null, FontStyles fontStyle = FontStyles.Normal)
+            public void FontStyle(Color? color = null, FontStyles fontStyle = FontStyles.Normal)
             {
                 if (color.HasValue)
                     _button.ButtonText.Color(color.Value);
                 _button.ButtonText.FontStyle(fontStyle);
             }
             
-            public TextComponent TextBuilder()
+            public TextComponent GetTextComponent()
             {
                 return _button.ButtonText;
             }

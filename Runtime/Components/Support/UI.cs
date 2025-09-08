@@ -4,7 +4,7 @@ using UnityEngine;
 namespace UCGUI
 {
 
-    public static class ComponentExtension
+    public static partial class UI
     {
         public static string DefaultName => "Component";
 

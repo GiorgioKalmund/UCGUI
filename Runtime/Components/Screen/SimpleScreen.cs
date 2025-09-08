@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UCGUI
 {
-    public abstract class SimpleScreen : BaseComponent
+    public abstract partial class SimpleScreen : BaseComponent
     {
         public Canvas canvas;
         protected Transform CanvasParent;

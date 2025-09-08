@@ -9,7 +9,7 @@ namespace UCGUI
     /// UCGUI's default Slider Component. <br></br><br></br>
     /// To create and customize it take a look at <see cref="UI.Slider"/> and the <see cref="SliderBuilder"/>.
     /// </summary>
-    public class SliderComponent : BaseComponent
+    public partial class SliderComponent : BaseComponent
     {
         public static readonly Vector2 DefaultSize = new (300, 20);
         
@@ -96,7 +96,7 @@ namespace UCGUI
         /// <item><description><see cref="HandleExtraHeight"/> - Adds a given delta to the height. <i>It is this way as per default the Unity slider behind the scenes stretches the height to be the height of the slider itself.</i></description></item>
         /// </list>
         /// </summary>
-        public class SliderBuilder
+        public partial class SliderBuilder
         {
             private SliderComponent _slider;
 

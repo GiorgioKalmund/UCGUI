@@ -1,6 +1,6 @@
 namespace UCGUI
 {
-    public interface IEnabled
+    public partial interface IEnabled
     {
         public void Enabled(bool on);
     }

@@ -1,6 +1,6 @@
 namespace UCGUI
 {
-    public interface IFocusable
+    public partial interface IFocusable
     {
 
         public static IFocusable[] FocusGroups = new IFocusable[10];

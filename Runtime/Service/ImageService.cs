@@ -3,7 +3,7 @@ using UnityEngine;
 namespace UCGUI.Services
 {
     
-    public class ImageService
+    public partial class ImageService
     {
         public static readonly string MissingTextureLocation = "Textures/missing";
         public static readonly Sprite MissingSprite = GetSprite(MissingTextureLocation);

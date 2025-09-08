@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace UCGUI.Services
 {
-    public class GUIService
+    public partial class GUIService
     {
         public static Canvas GetCanvas()
         {

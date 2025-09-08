@@ -9,7 +9,7 @@ namespace UCGUI.Game
     /// Automatically focuses the button when the pointer enters, and defocuses when the pointer exits.
     /// Also reorients the text and foreground image to align expected.
     /// </summary>
-    public class WheelMenuButton : ButtonComponent
+    public partial class WheelMenuButton : ButtonComponent
     {
         public override void Start()
         {

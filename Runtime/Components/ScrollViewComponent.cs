@@ -28,7 +28,7 @@ namespace UCGUI
     /// <item><description><see cref="disableWhileHovering"/> - A list containing all other input actions which are to be disabled when hovering over the scroll view.</description></item>
     /// </list>
     /// </summary>
-    public class ScrollViewComponent : BaseComponent 
+    public partial class ScrollViewComponent : BaseComponent 
     {
         public ImageComponent content;
 
@@ -44,7 +44,7 @@ namespace UCGUI
             scrollRect = gameObject.AddComponent<ScrollRect>();
             mask = gameObject.AddComponent<RectMask2D>();
 
-            content = ComponentExtension.N<ImageComponent>("Content", transform)
+            content = UI.N<ImageComponent>("Content", transform)
                     .Alpha(0)
                 ;
 
@@ -145,7 +145,7 @@ namespace UCGUI
             return this;
         }
 
-        public class ScrollViewBuilder
+        public partial class ScrollViewBuilder
         {
             private readonly ScrollViewComponent _scrollView;
 

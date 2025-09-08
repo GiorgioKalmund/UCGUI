@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UCGUI.Services
 {
-    public class MaterialService
+    public partial class MaterialService
     {
         public static Material GetMaterial(string path, string resourceFolder = "Materials/")
         {

@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace UCGUI
 {
-    public static class SpriteHelper
+    public static partial class SpriteHelper
     {
         public static Sprite ToSprite(this Texture2D texture, Vector2 pivot)
         {

@@ -173,3 +173,52 @@ Most of UCGUI's default components implement this functionality. For a non-trivi
 
 ### [IRenderable](Runtime/Components/Interface/IRenderable.cs)
 This interface simply enforces the function `Render()`. This function should optimally be [idempotent](https://en.wikipedia.org/wiki/Idempotence#:~:text=is%20the%20property%20of%20certain%20operations%20in%20mathematics%20and%20computer%20science%20whereby%20they%20can%20be%20applied%20multiple%20times%20without%20changing%20the%20result%20beyond%20the%20initial%20application.). This can be used to easily re-render hierarchies recursively.
+
+### [IEnabled](Runtime/Components/Interface/IEnabled.cs)
+This interface can be used to enforce uniform access to an `Enable()` call, allowing faster and easier bulk enabling and disabling of components.
+
+### [IStylable](Runtime/Components/Interface/IStylable.cs)
+IStylable aims to provide a quick and easy way to style your buttons throughout your project. <br>
+In combination with [Styles](Runtime/Components/Style/AbstractStyle.cs) you can very quickly bundle and re-use your configurations for a variety of built-in components,
+as well as allowing you to expand the concept to any of your custom ones.
+<br><br>
+Let's look at a small example:
+```csharp
+// Create your project's default style
+public static ButtonStyle Default = new ButtonStyle(btn =>
+{
+    btn.FitToContents(20, 20)
+        .Foreground(defaultIcon)
+        .SpriteSwap(highlightedSprite, pressedSprite, disabledSprite)
+        .Sprite(buttonSprite)
+        ;
+});
+
+// Create a variant using 'Expand'
+public static ButtonStyle DefaultRed = Default.Expand(btn =>
+{
+    btn.Color(Color.red);
+});
+```
+As we might want a uniform button design across our game we can create a default [button style](Runtime/Components/Style/ButtonStyle.cs) for our project.
+<br>
+This allows us to reuse this style on any button without having to respecify all of our desired formatting options every time. Define it once
+and that's it.
+<br><br>
+We can expand on this concept by using `Expand` (*badum-ts, again*). Expand allows us to build on top of existing styles, creating some form of hierarchical structure within your styles.
+In our example from above, any button styles using 'DefaultRed' would also have all the previous formatting options applied by 'Default', whilst additionally also making the button red.
+<br><br>
+Applying our new styles to a button is now only a single call to `Style` (*i.e. If the component is implementing IStylable*):
+```csharp
+UI.Button("Hello, World!", () =>
+{
+    Debug.Log("Pressed!");
+}, label =>
+{
+
+}).Parent(canvas)
+.Style(DefaultRed); // Apply our custom style
+```
+These styles are also exist for other built-in components such as the [TextStyle](Runtime/Components/Style/TextStyle.cs) and more.
+
+*UCGUI comes with some preset styles for quick prototyping which can be found in [UCGUIStyles](Runtime/Components/Style/UCGUIStyles.cs)*.

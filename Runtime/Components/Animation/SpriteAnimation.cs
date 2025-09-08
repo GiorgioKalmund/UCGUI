@@ -15,7 +15,7 @@ namespace UCGUI
     /// SpriteAnimation myAnimation2 = new SpriteAnimation(frameArray, frameTimeArray);
     /// </code>
     /// </example>
-    public class SpriteAnimation
+    public partial class SpriteAnimation
     {
         public readonly Sprite[] Frames;
         public readonly float[] FramesPerSecond;

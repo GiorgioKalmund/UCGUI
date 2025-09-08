@@ -24,7 +24,7 @@ namespace UCGUI
     /// Also implements <see cref="ICopyable{T}"/> which allows <see cref="ICopyable{T}.CopyFrom"/> and <see cref="ICopyable{T}.Copy"/>.
     /// </para>
     /// </summary>
-    public class TextComponent : BaseComponent, ICopyable<TextComponent>, IEnabled
+    public partial class TextComponent : BaseComponent, ICopyable<TextComponent>, IEnabled, IStylable<TextComponent, TextStyle>
     {
         private TextMeshProUGUI _textMesh;
         protected static readonly string NamePrefix = "TextComponent";
@@ -56,17 +56,25 @@ namespace UCGUI
             this.SafeDisplayName(NamePrefix);
         }
 
-        public TextComponent Text(string text, Color? color = null)
+        public enum TextMode
         {
-            _textMesh.text = text;
+            Normal, Additive
+        }
+
+        public TextComponent Text(string text, TextMode mode = TextMode.Normal, Color? color = null)
+        {
+            if (mode == TextMode.Normal)
+                _textMesh.text = text;
+            else if (mode == TextMode.Additive)
+                _textMesh.text += text;
             if (color.HasValue)
                 Color(color.Value);
             return this;
         }
         
-        public TextComponent Text(int text)
+        public TextComponent Text(int text, TextMode mode = TextMode.Normal)
         {
-            return Text(text.ToString());
+            return Text(text.ToString(), mode:mode);
         }
 
         public TextComponent Clear()
@@ -196,7 +204,7 @@ namespace UCGUI
 
         public static void CopyTextProperties(TMP_Text text, TextComponent textComponent)
         {
-            textComponent.Text(text.text);
+            textComponent.Text(text.text, TextMode.Normal);
             textComponent.Color(text.color);
             textComponent.Alignment(text.alignment);
             textComponent.VAlignment(text.verticalAlignment);
@@ -230,6 +238,12 @@ namespace UCGUI
         public void Enabled(bool on)
         {
             _textMesh.enabled = on;
+        }
+
+        public TextComponent Style(TextStyle style)
+        {
+            style.Link(this);
+            return this;
         }
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 
 namespace UCGUI
 {
-    public class WindowResizer : ImageComponent, IDragHandler 
+    public partial class WindowResizer : ImageComponent, IDragHandler 
     {
         private ResizableWindowComponent _resizableWindow;
 

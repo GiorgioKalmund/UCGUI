@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace UCGUI
 {
-    public class BaseComponent : MonoBehaviour, ICopyable<BaseComponent>
+    public partial class BaseComponent : MonoBehaviour, ICopyable<BaseComponent>
     {
         private RectTransform _rect;
         public bool paddingApplied = false;

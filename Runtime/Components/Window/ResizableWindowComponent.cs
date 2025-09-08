@@ -3,7 +3,7 @@ using UnityEngine.InputSystem;
 
 namespace UCGUI
 {
-    public class ResizableWindowComponent : WindowComponent
+    public partial class ResizableWindowComponent : WindowComponent
     {
         
         // -- Subcomponents -- //
@@ -15,7 +15,7 @@ namespace UCGUI
         {
             base.Awake();
 
-            WindowResizer = ComponentExtension.N<WindowResizer>(WindowBase)
+            WindowResizer = UI.N<WindowResizer>(WindowBase)
                 .Pivot(PivotPosition.LowerRight, true)
                 .Size(40, 40)
                 .Build(this)

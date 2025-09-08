@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UCGUI
 {
-    public interface ICopyable<T> where T : MonoBehaviour
+    public partial interface ICopyable<T> where T : MonoBehaviour
     {
         /// <summary>
         /// Returns a copy of the calling object.
@@ -31,7 +31,7 @@ namespace UCGUI
     {
         public static T BaseCopy<T>(this BaseComponent src, T component) where T : BaseComponent
         {
-            GameObject copy = ComponentExtension
+            GameObject copy = UI
                 .CreateEmptyGameObjectWithParent(
                     component.GetParent(),
                     false,

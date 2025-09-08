@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 namespace UCGUI
 {
-    public class WindowComponent : BaseComponent, IPointerDownHandler, IFocusable, IBeginDragHandler, IDragHandler, IRenderable
+    public partial class WindowComponent : BaseComponent, IPointerDownHandler, IFocusable, IBeginDragHandler, IDragHandler, IRenderable
     {
         // -- Canvas sizes stored to avoid duplicate calculations -- //
         protected static float CanvasWidth;
@@ -51,12 +51,12 @@ namespace UCGUI
             base.Awake();
 
             // ===== WINDOW BASE-- Parent of all subcomponents to allow hiding == //
-            WindowBase = ComponentExtension.N<ImageComponent>(transform, "Window Base").Pivot(PivotPosition.UpperLeft, true);
+            WindowBase = UI.N<ImageComponent>(transform, "Window Base").Pivot(PivotPosition.UpperLeft, true);
             // ==================================================================== //
             WindowBase.AddLayoutElement();
             WindowBase.MinimumSize(DefaultMinimumWindowSize);
             
-            Header = ComponentExtension.N<ImageComponent>(WindowBase, "Header")
+            Header = UI.N<ImageComponent>(WindowBase, "Header")
                     .Pivot(PivotPosition.UpperCenter)
                     .AnchorMin(0, 1)
                     .AnchorMax(1, 1)
@@ -65,13 +65,13 @@ namespace UCGUI
             Header.AddLayoutElement().ignoreLayout = true;
             Header.AddHorizontalLayout(10, TextAnchor.MiddleLeft);
 
-            _collapseButton = ComponentExtension.N<ButtonComponent>(Header, "Collapse Toggle")
+            _collapseButton = UI.N<ButtonComponent>(Header, "Collapse Toggle")
                 .Create(action:ToggleCollapse)
                 .Sprite(ImageService.GetSpriteFromAsset("gui_assets", "right_arrow"))
                 .Cast<ButtonComponent>()
                 ;
             
-            _headerText = ComponentExtension.N<TextComponent>(Header)
+            _headerText = UI.N<TextComponent>(Header)
                     .Pivot(PivotPosition.MiddleLeft)
                     .AnchoredTo(PivotPosition.MiddleRight)
                     .FontSize(HeaderHeight - 7)

@@ -45,4 +45,12 @@
 - Removed Game folder and consolidated it into `Demo`
 - Removed Testing folder
 
+## [1.0.8] - 2025-09-08
+### Styles and Partials
+- Added the capability to save preset styles using [AbstractStyle](Runtime/Components/Style/AbstractStyle.cs)
+  - This currently includes [TextStyles](Runtime/Components/Style/TextStyle.cs) and [ButtonStyles](Runtime/Components/Style/ButtonStyle.cs).
+  - [UCGUIStyles](Runtime/Components/Style/UCGUIStyles.cs) will offer some quick default styling options
+  - Any component can be styled, but it is best paired with the [IStylable](Runtime/Components/Interface/IStylable.cs) interface for a uniform code style (*badum-ts*)
+- Most classes are now labeled as `partial` allowing a simple and direct way to build on top of UCGUI without destroying the nice `UI.ComponentName(...)` syntax for example when using custom components
+
 

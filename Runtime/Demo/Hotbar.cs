@@ -37,7 +37,7 @@ namespace UCGUI.Demo
         {
             base.Awake();
             FitToContents(25).DisabledColor(UnityEngine.Color.white).Lock();
-            GetTextComponent().SetActive(false);
+            TextBuilder().SetActive(false);
         }
 
         public override void Start()
