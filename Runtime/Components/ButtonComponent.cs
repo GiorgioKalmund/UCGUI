@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using TMPro;
-using UCGUI.Services;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
@@ -8,7 +8,20 @@ using UnityEngine.UI;
 
 namespace UCGUI
 {
-    public partial class ButtonComponent : ImageComponent, IFocusable, ICopyable<ButtonComponent>, IStylable<ButtonComponent, ButtonStyle>
+    /// <summary>
+    /// UCGUI's default Button Component.
+    /// Noteworthy formatting functions:
+    /// <list type="bullet">
+    /// <item><description><see cref="Foreground"/> - Adds a secondary image sitting between text and background. Hidden by default.</description></item>
+    /// <item><description><see cref="Function"/> - Adds a listener function for when the button is clicked.</description></item>
+    /// <item><description><see cref="Create"/> - Simple builder to create configure your button. <b>For better control and flexibility use the built-in <see cref="UI.Button"/>.</b></description></item>
+    /// <item><description><see cref="FitToContents(int,float,UCGUI.ScrollViewDirection)"/> - Allows the button to fit to its contents, as well as aligning text and foreground image (if present) horizontally. <b>For better control and flexibility use the built-in <see cref="UI.Button"/>.</b></description></item>
+    /// </list>
+    /// <para>
+    /// Also implements <see cref="ICopyable{T}"/> which allows <see cref="ICopyable{T}.CopyFrom"/> and <see cref="ICopyable{T}.Copy"/>.
+    /// </para>
+    /// </summary>
+    public partial class ButtonComponent : ImageComponent, IFocusable, ICopyable<ButtonComponent>, IStylable<ButtonComponent, ButtonStyle>, IEnabled
     {
         public ButtonComponent() { NamePrefix = "ButtonComponent"; }
         
@@ -29,37 +42,37 @@ namespace UCGUI
             base.Awake();
 
             button = gameObject.GetOrAddComponent<Button>();
-
-            ForegroundImage = UI.N<ImageComponent>(transform, "Foreground-Hint")
-                    .RaycastTarget(false)
-                    .SetActive(false)
-                ;
-
-            ButtonText = UI.N<TextComponent>(transform, "Text")
-                    .AlignCenter()
-                    .VAlignCenter()
-                    .Color(UnityEngine.Color.gray1)
-                ;
         }
 
         public override void Start()
         {
             base.Start();
-            this.SafeDisplayName("ButtonComponent");
+            this.SafeDisplayName(NamePrefix);
 
             if (_focusable)
                 Function(this.Focus);
         }
 
+        public void EnsureTextExists()
+        {
+            if (!ButtonText)
+                ButtonText = UI.N<TextComponent>(transform, "Text");
+        }
+
+        public void EnsureForegroundExists()
+        {
+            if (!ForegroundImage)
+                ForegroundImage = UI.N<ImageComponent>(transform, "Foreground-Hint").RaycastTarget(false);
+        }
+
         public ButtonComponent Create(string text = "", UnityAction action = null, Sprite foreground = null, bool focusable = false)
         {
-            Text(text);
+            if (!string.IsNullOrEmpty(text))
+                Text(text);
             if (action != null)
                 Function(action);
             if (foreground)
-            {
                 Foreground(foreground);
-            }
 
             _focusable = focusable;
             
@@ -68,17 +81,17 @@ namespace UCGUI
         
         public ButtonComponent Foreground(Sprite sprite, float alpha = 1f)
         {
+            EnsureForegroundExists();
             ForegroundImage.Sprite(sprite).Alpha(alpha).SetActive(sprite);
             return this;
         }
 
         public ButtonComponent FitToContents(PaddingSide side, int amount, float spacing, ScrollViewDirection direction = ScrollViewDirection.Both)
         {
-            //AddHorizontalLayout(spacing, childControlWidth:true, childControlHeight:true);
             AddFitter(direction);
-            ButtonText.FitToContents();
+            ButtonText?.FitToContents();
             
-            AddHorizontalLayout(spacing);
+            AddHorizontalLayout(spacing, childControlWidth:true, childControlHeight:true);
             Padding(side, amount, ScrollViewDirection.Horizontal);
             return this;
         }
@@ -115,12 +128,14 @@ namespace UCGUI
 
         public ButtonComponent Text(string text, TextComponent.TextMode mode = TextComponent.TextMode.Normal, Color? color = null)
         {
+            EnsureTextExists();
             ButtonText.Text(text, mode, color);
             return this;
         }
 
         public TextComponent TextBuilder()
         {
+            EnsureTextExists();
             return ButtonText;
         }
 
@@ -240,10 +255,13 @@ namespace UCGUI
             
             base.CopyFrom(other, fullyCopyRect);
             Create(focusable:other.IsFocusable());
-            ButtonText.CopyFrom(other.ButtonText);
-            ForegroundImage.CopyFrom(other.ForegroundImage);
-            Foreground(other.ForegroundImage.GetImage().sprite);
-            
+            if (ButtonText)
+                ButtonText.CopyFrom(other.ButtonText);
+            if (ForegroundImage)
+            {
+                ForegroundImage.CopyFrom(other.ForegroundImage);
+                Foreground(other.ForegroundImage.GetImage().sprite);
+            }
             button.CopyFrom(other.button);
             
             ClearAllFunctions();
@@ -295,9 +313,32 @@ namespace UCGUI
             return this;
         }
         
+        
+        public void ReverseArrangement(ScrollViewDirection affectedDirectionLayout)
+        {
+            if (affectedDirectionLayout.HasFlag(ScrollViewDirection.Vertical) && VerticalLayout)
+                VerticalLayout.ReverseArrangement();
+            if (affectedDirectionLayout.HasFlag(ScrollViewDirection.Horizontal) && HorizontalLayout)
+                HorizontalLayout.ReverseArrangement();
+        }
+
+        public override void Enabled(bool on)
+        {
+            base.Enabled(on);
+            button.interactable = on;
+            ForegroundImage?.Enabled(on);
+            ButtonText.Enabled(on);
+            if (HorizontalLayout) HorizontalLayout.enabled = on;
+            if (VerticalLayout) VerticalLayout.enabled = on;
+            if (ContentSizeFitter) ContentSizeFitter.enabled = on;
+        }
+
         public partial class ButtonBuilder
         {
             private ButtonComponent _button;
+
+            public HorizontalLayoutGroup HorizontalLayout => _button.HorizontalLayout;
+            public VerticalLayoutGroup VerticalLayout => _button.VerticalLayout;
 
             public ButtonBuilder(ButtonComponent button) { _button = button; }
 
@@ -359,9 +400,14 @@ namespace UCGUI
                 _button.ButtonText.FontStyle(fontStyle);
             }
             
-            public TextComponent GetTextComponent()
+            public TextComponent TextBuilder()
             {
-                return _button.ButtonText;
+                return _button.TextBuilder();
+            }
+
+            public void ReverseArrangement(ScrollViewDirection affectedDirectionLayout)
+            {
+                _button.ReverseArrangement(affectedDirectionLayout);
             }
         }
     }

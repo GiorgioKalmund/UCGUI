@@ -24,7 +24,7 @@ namespace UCGUI
         /// <returns>
         /// The resulting UCGUI <see cref="TextComponent"/>. Use this to then continue building your desired Text Component.
         /// </returns>
-        public static TextComponent Text(string text, Color? color = null)
+        public static TextComponent Text([CanBeNull] string text = null, Color? color = null)
         {
             TextComponent textComponent = UI.N<TextComponent>();
             textComponent.Text(text);
@@ -76,7 +76,8 @@ namespace UCGUI
         {
             ButtonComponent buttonComponent = UI.N<ButtonComponent>();
 
-            buttonComponent.Text(text);
+            if (!string.IsNullOrEmpty(text))
+                buttonComponent.Text(text);
             if (action != null)
                 buttonComponent.Function(action);
             if (label != null)

@@ -205,7 +205,7 @@ As we might want a uniform button design across our game we can create a default
 This allows us to reuse this style on any button without having to respecify all of our desired formatting options every time. Define it once
 and that's it.
 <br><br>
-We can expand on this concept by using `Expand` (*badum-ts, again*). Expand allows us to build on top of existing styles, creating some form of hierarchical structure within your styles.
+We can expand on this concept by using `Expand` (*badum-ts*). Expand allows us to build on top of existing styles, creating some form of hierarchical structure within your styles.
 In our example from above, any button styles using 'DefaultRed' would also have all the previous formatting options applied by 'Default', whilst additionally also making the button red.
 <br><br>
 Applying our new styles to a button is now only a single call to `Style` (*i.e. If the component is implementing IStylable*):

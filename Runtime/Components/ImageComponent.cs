@@ -275,7 +275,7 @@ namespace UCGUI
             HandlePointerExit(eventData);
         }
 
-        public void Enabled(bool on)
+        public virtual void Enabled(bool on)
         {
             _image.enabled = on;
         }

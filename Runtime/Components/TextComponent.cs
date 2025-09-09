@@ -2,6 +2,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 using FontStyles = TMPro.FontStyles;
 
 namespace UCGUI
@@ -63,10 +64,13 @@ namespace UCGUI
 
         public TextComponent Text(string text, TextMode mode = TextMode.Normal, Color? color = null)
         {
-            if (mode == TextMode.Normal)
-                _textMesh.text = text;
-            else if (mode == TextMode.Additive)
-                _textMesh.text += text;
+            if (!string.IsNullOrEmpty(text))
+            {
+                if (mode == TextMode.Normal)
+                    _textMesh.text = text;
+                else if (mode == TextMode.Additive)
+                    _textMesh.text += text;
+            }
             if (color.HasValue)
                 Color(color.Value);
             return this;

@@ -53,4 +53,13 @@
   - Any component can be styled, but it is best paired with the [IStylable](Runtime/Components/Interface/IStylable.cs) interface for a uniform code style (*badum-ts*)
 - Most classes are now labeled as `partial` allowing a simple and direct way to build on top of UCGUI without destroying the nice `UI.ComponentName(...)` syntax for example when using custom components
 
+## [1.0.9] - 2025-09-09
+### Quality of Life
+- Added [UCGUI Logger](Runtime/Components/Support/UCGUILogger.cs)
+- Fixed a bug where buttons would not properly scale with their containing text when using `FitToContents()`
+- Fixed the issue that the `VerticalLayoutGroup` wasn't targeted by the helper `ReverseArrangement()`
+- Added some default styling options in [UCGUIStyles](Runtime/Components/Style/UCGUIStyles.cs)
+- Made button implement `IEnabled`
+- Buttons now won't automatically be created with an attached foreground and text component, minimizing object count
+
 

@@ -64,7 +64,7 @@ namespace UCGUI
             button.colors = other.colors;
         }
 
-        public static void ReverseArrangement(this HorizontalLayoutGroup layout, bool reverse = true)
+        public static void ReverseArrangement(this HorizontalOrVerticalLayoutGroup layout, bool reverse = true)
         {
             layout.reverseArrangement = reverse;
         }

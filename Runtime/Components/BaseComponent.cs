@@ -1,4 +1,3 @@
-using System.Collections;
 using UCGUI.Services;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -218,6 +217,11 @@ namespace UCGUI
 
         public virtual BaseComponent CopyFrom(BaseComponent other, bool fullyCopyRect = true)
         {
+            if (!other)
+            {
+                UCGUILogger.LogError("<b>Cannot copy from null!</b>");
+                return this;
+            }
             CopyRect(other.GetRect(), this, fullyCopyRect);
             CopyLayoutElement(other, this);
             CopyLayouts(other, this);
