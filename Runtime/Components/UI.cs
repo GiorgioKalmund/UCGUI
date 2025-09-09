@@ -76,7 +76,7 @@ namespace UCGUI
         {
             ButtonComponent buttonComponent = UI.N<ButtonComponent>();
 
-            if (!string.IsNullOrEmpty(text))
+            if (text != null)
                 buttonComponent.Text(text);
             if (action != null)
                 buttonComponent.Function(action);

@@ -64,7 +64,7 @@ namespace UCGUI
 
         public TextComponent Text(string text, TextMode mode = TextMode.Normal, Color? color = null)
         {
-            if (!string.IsNullOrEmpty(text))
+            if (text != null)
             {
                 if (mode == TextMode.Normal)
                     _textMesh.text = text;
