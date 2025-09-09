@@ -1,10 +1,15 @@
 # UCGUI - Unity Codable GUI
+<div align="center">
+<img width="64" height="64" alt="ucgui-logo" src="https://github.com/user-attachments/assets/0bc8274d-021e-4d73-a094-f08b95e2559c"/>
+    
+[![Unity](https://img.shields.io/badge/Unity-black.svg?style=for-the-badge&logo=unity)](http://www.unity.com)
+</div>
 A code-based graphics library for the Unity Game Engine
 
 ## Why UCGUI?
 
 Simple UIs can easily be created in the editor, however they often need assistance from scripts and other libraries to do things like animation, transitions, etc.
-This is where UCGUI jumps in, which can be seen as a code-based superset of [Unity's built in uGUI](https://docs.unity3d.com/Packages/com.unity.ugui@2.0/manual/index.html).<br> UCGUI's built in tools allow easy and accessible creation of [Text](Runtime/Components/TextComponent.cs), [Images](Runtime/Components/ImageComponent.cs), [Buttons](Runtime/Components/ButtonComponent.cs), [Textfields](Runtime/Components/InputComponent.cs), [Sliders](Runtime/Components/SliderComponent.cs), [Popups](Runtime/Components/PopupComponent.cs), [Windows](Runtime/Components/Window/WindowComponent.cs) and so much more. Everything is based on a singular [BaseComponent]() class and every class is created in such a way that it can be easily inherited from and expanded upon.
+This is where UCGUI jumps in, which can be seen as a code-based superset of [Unity's built in uGUI](https://docs.unity3d.com/Packages/com.unity.ugui@2.0/manual/index.html).<br> UCGUI's built in tools allow easy and accessible creation of [Text](Runtime/Components/TextComponent.cs), [Images](Runtime/Components/ImageComponent.cs), [Buttons](Runtime/Components/ButtonComponent.cs), [Textfields](Runtime/Components/InputComponent.cs), [Sliders](Runtime/Components/SliderComponent.cs), [Views](Runtime/Components/ViewComponent.cs), [Windows](Runtime/Components/Window/WindowComponent.cs) and so much more. Everything is based on a singular [BaseComponent]() class and every class is created in such a way that it can be easily inherited from and expanded upon.
 <br><br>The main benefit comes from inherent control over your UI at runtime, allowing dynamic UI combinations to be created faster and frictionless.
 <br><br> <i>It might not be for everyone, but it helps me at least to keep everything **inside** my code, as code, without having to constantly search through the hierarchy to edit one specific parameter of my UI. Everything is just code, and way more flexible as it can be easily referenced during runtime.</i>
 
@@ -40,7 +45,7 @@ UI.Text("Hello, World!")
     .Parent(canvas); // Finally, parents the GameObject to the canvas
 ```
 As we are using a flexible builder pattern, everything addition is optional, even the `.Parent()`.
-<br> Under the hood, the [UI class](Runtime/Components/UI.cs) simply uses the `ComponentExtension` to create its elements.
+<br> Under the hood, the [UI class](Runtime/Components/UI.cs) simply uses the `UI` to create its elements.
 <br> Feel free to take a look a how these supporting builders are made, so you can also add your own patterns if you want.
 
 ### Button
@@ -66,27 +71,26 @@ an optional `Foreground` sprite which lives between the button's background and 
 For example, `Padding()` allows you to specify optional padding on all the four sides between the text and the borders of the button. It is most commonly used in combination with `FitToContents`.
 <br> Again, the entire `label` block is optional, however `action` is not when using this pattern builder.
 
-### [ComponentsExtension](Runtime/Components/Support/ComponentExtension.cs)
-This file is foundation for creating your components in UCGUI. It contains all the builder pattern styling functions applicable to every [BaseComponent](Runtime/Components/BaseComponent.cs).
+### [UI (Base)](Runtime/Components/Support/UI.cs)
+This file acts as the second half of the `UI` class and serves as a foundation for creating components in UCGUI. It contains all the builder pattern styling functions applicable to **every** [BaseComponent](Runtime/Components/BaseComponent.cs).
 If you have custom components, they will be instantiated via this class.
 <br> Naturally, all of UCGUI's default components can be instantiated in this way too:
 ```csharp
 // Returns the resulting ImageComponent
-ImageComponent myImage = ComponentExtension.N<ImageComponent>("GameObject name", parent)
+ImageComponent myImage = UI.N<ImageComponent>("GameObject name", parent)
     .Sprite(_teapotSprite)
     .Alpha(0.5f)
     .Color(Color.red)
     .Size(300, 300)
 ```
 This code would create a 300x300 image, located at the center of the parent, with sprite, color and alpha applied.
-[N\<T\>](Runtime/Components/Support/ComponentExtension.cs) (<i>"New"</i>) is the generic method used to create any component.
+[N\<T\>](Runtime/Components/Support/UI.cs) (<i>"New"</i>) is the generic method used to create any component.
 
 ```csharp
 // The TextComponentExample from above, just in another format now    
 // Returns the resulting TextComponent 
-TextComponent myText = ComponentExtension.N<TextComponent>("GameObject2 name", parent)
+TextComponent myText = UI.N<TextComponent>("GameObject2 name", parent)
     .Text("Hello, World!")
-    .FitToContents()
     .Pivot(PivotPosition.UpperLeft, true)
     .Offset(50, -50)
     .FitToContents()
@@ -94,13 +98,16 @@ TextComponent myText = ComponentExtension.N<TextComponent>("GameObject2 name", p
 ```
 This code produces an identical [Text](Runtime/Components/TextComponent.cs) to the one from the example above, we are just using a different syntax :)
 
+> [!TIP]
+Most of UCGUI's classes are labeled as `partial`. This means you can easily hook into and add onto the base functionality of UCGUI directly. *You can read more about partial classes [here](https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/partial-classes-and-methods).*
+
 ---
 
 ### Screens
 
 Screens are the bridge between the editor and UCGUI. 
-A screen acts as your canvas for creating your UI and components. They act as an abstract class and enforce two methods. `Setup()`, which is where you will build your UI. It is called in the `Start()` phase of [Unity's Event Loop](https://docs.unity3d.com/6000.2/Documentation/Manual/execution-order.html).
-`Canvas GetCanvas()`expects you to return the canvas the screen should attach to.
+A screen acts as your canvas for creating your UI and components. They are an abstract class and enforce two methods. `Setup()`: this is where you will build your UI. It is called in the `Start()` phase of [Unity's Event Loop](https://docs.unity3d.com/6000.2/Documentation/Manual/execution-order.html).
+`Canvas GetCanvas()` expects you to return the canvas the screen should attach to.
 <br> Let's look at a simple example:
 ```csharp
 using UCGUI;
@@ -127,9 +134,11 @@ public class MyScreen : SimpleScreen
 
 <i><br> Of course you can manually add any component to GameObjects directly, however screens exist for a reason... ;)</i>
 
+----
+
 ## Interfaces
 
-UCGUI adds multiple interfaces which may appear useful to you in certain situations.
+UCGUI adds multiple interfaces which can come in handy in certain situations.
 ### [IFocusable](Runtime/Components/Interface/IFocusable.cs)
 
 This interface introduces the concept of **focus** in UCGUI. Any script implementing it will have to implement three members:
