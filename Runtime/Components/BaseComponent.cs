@@ -60,6 +60,8 @@ namespace UCGUI
         
         public LayoutElement AddLayoutElement()
         {
+            if (layoutElement)
+                return layoutElement;
             layoutElement = gameObject.GetOrAddComponent<LayoutElement>();
             return layoutElement;
         }
@@ -70,10 +72,19 @@ namespace UCGUI
             MinimumSize(minWidth, minHeight);
             return layoutElement;
         }
-        
+
+        public BaseComponent IgnoreLayout(bool ignore = true)
+        {
+            if (!layoutElement)
+                AddLayoutElement();
+            layoutElement.ignoreLayout = ignore;
+            return this;
+        }
         
         public BaseComponent MinimumSize(Vector2 size)
         {
+            if (!layoutElement)
+                AddLayoutElement();
             layoutElement.minWidth = size.x;
             layoutElement.minHeight = size.y;
             return this;
@@ -85,6 +96,8 @@ namespace UCGUI
 
         public Vector2 GetMinimumSize()
         {
+            if (!layoutElement)
+                AddLayoutElement();
             return new Vector2(layoutElement.preferredWidth, layoutElement.preferredHeight);
         }
         
@@ -124,17 +137,19 @@ namespace UCGUI
             component.Size(rect.sizeDelta);
         }
         
-        public void CopyLayoutElement(BaseComponent other, BaseComponent component)
+        public void CopyLayoutElement(BaseComponent otherComponent, BaseComponent component)
         {
-            LayoutElement layoutElement = other.GetComponent<LayoutElement>();
-            if (layoutElement)
+            LayoutElement other = otherComponent.GetComponent<LayoutElement>();
+            if (other)
             {
                 var newLayoutElement = component.gameObject.GetOrAddComponent<LayoutElement>();
-                newLayoutElement.preferredWidth = layoutElement.preferredWidth;
-                newLayoutElement.preferredHeight = layoutElement.preferredHeight;
-                newLayoutElement.minWidth = layoutElement.minWidth;
-                newLayoutElement.minHeight= layoutElement.minHeight;
-                newLayoutElement.layoutPriority = layoutElement.layoutPriority;
+                newLayoutElement.preferredWidth = other.preferredWidth;
+                newLayoutElement.preferredHeight = other.preferredHeight;
+                newLayoutElement.minWidth = other.minWidth;
+                newLayoutElement.minHeight= other.minHeight;
+                newLayoutElement.layoutPriority = other.layoutPriority;
+                newLayoutElement.ignoreLayout = other.ignoreLayout;
+                newLayoutElement.enabled = other.enabled;
             }
         }
         

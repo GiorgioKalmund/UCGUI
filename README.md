@@ -98,10 +98,52 @@ TextComponent myText = UI.N<TextComponent>("GameObject2 name", parent)
 ```
 This code produces an identical [Text](Runtime/Components/TextComponent.cs) to the one from the example above, we are just using a different syntax :)
 
-> [!TIP]
-Most of UCGUI's classes are labeled as `partial`. This means you can easily hook into and add onto the base functionality of UCGUI directly. *You can read more about partial classes [here](https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/partial-classes-and-methods).*
-
 ---
+
+### Views / ViewStack
+[Views](Runtime/Components/ViewComponent.cs) are one of two ways of managing your UI. Using the [ViewBuilder](Runtime/Components/ViewComponent.cs) you can easily create an area for you content. Views are very versatile. 
+They easily scale to fit their entire canvas parent and can be configured to close on a background tap or on an InputAction.
+<br>
+Views themselves are ideally just parent container for any other component, however they inherit from [ImageComponent](Runtime/Components/ImageComponent.cs) for faster configuration of the backdrop.
+<br>
+<br>
+Here is a small example:
+```csharp
+ViewStack stack = UI.ViewStack(canvas);
+    
+View view1 = UI.View(canvas, v =>
+{
+    v.Add(UI.Text("1"));
+    v.CloseOnBackgroundTap();
+}).Size(800, 800); // Overrides the default canvas-filling behaviour of the view.
+
+View view2 = UI.View(canvas, v =>
+{
+    v.Add(UI.Text("2"));
+});
+
+// more views...
+
+------------------------------
+// Some interaction might then call
+stack.Push(view1);
+// and later
+stack.Push(view2);
+// ...
+stack.Push(view3);
+------------------------------
+
+------------------------------
+// Afterwards we can:
+stack.Pop(); // Removes and closes last pushed view
+stack.PopUntil(view1); // Does what it says ;)
+stack.Collapse(); // Pops all remaining views
+------------------------------
+```
+In our example we would now have revealed two views with `view2` always displaying om top of `view1`, no matter the creation order.<br> We can see we can easily create a view stack and directly create our own navigation flow!
+Using `Pop()` we can then move backwards in the stack, revealing the underlying views one by one.
+<br><br>
+ViewStacks are quite versatile, also allowing an immediate dissolving of the stack as well as going back to a specific view. 
 
 ### Screens
 

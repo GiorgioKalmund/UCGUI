@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -35,8 +34,6 @@ namespace UCGUI
         
         private bool _focusable;
         
-        public int FocusGroup { get; protected set; } = 0;
-        
         public override void Awake()
         {
             base.Awake();
@@ -56,7 +53,7 @@ namespace UCGUI
         public void EnsureTextExists()
         {
             if (!ButtonText)
-                ButtonText = UI.N<TextComponent>(transform, "Text");
+                ButtonText = UI.N<TextComponent>(transform, "Text").Style(Defaults.Style.Text.ButtonText);
         }
 
         public void EnsureForegroundExists()
@@ -237,6 +234,12 @@ namespace UCGUI
             return this;
         }
 
+        public ButtonComponent Interactable(bool i)
+        {
+            button.interactable = i;
+            return this;
+        }
+
         public new ButtonComponent Copy(bool fullyCopyRect = true)
         {
             ButtonComponent copyButton = this.BaseCopy(this);
@@ -275,16 +278,6 @@ namespace UCGUI
 
         public virtual void HandleFocus() { }
         public virtual void HandleUnfocus() { }
-
-        public virtual int GetFocusGroup()
-        {
-            return FocusGroup;
-        }
-
-        public virtual void SetFocusGroup(int group)
-        {
-            FocusGroup = group;
-        }
 
         public ImageComponent GetForeground()
         {

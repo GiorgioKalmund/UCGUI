@@ -18,16 +18,6 @@ namespace UCGUI.Demo
             Sprite("player", "Inventory Slot");
         }
         
-        #if UNITY_EDITOR
-        private void OnDrawGizmos()
-        {
-            GUIStyle style = new GUIStyle();
-            style.normal.textColor = UnityEngine.Color.red;
-            style.fontSize = 14; 
-            Handles.Label(transform.position, GetFocusGroup() + "", style);
-        }
-        #endif
-        
         // -- Copy -- //
         public new HotbarSlot Copy(bool fullyCopyRect = true)
         {

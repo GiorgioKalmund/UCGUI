@@ -68,6 +68,33 @@ namespace UCGUI
         {
             layout.reverseArrangement = reverse;
         }
+        public static void Padding(this LayoutGroup layout, PaddingSide side, int amount)
+        {
+            var padding = layout.padding;
+            if (side.HasFlag(PaddingSide.Leading))
+                padding.left = amount;
+            if (side.HasFlag(PaddingSide.Trailing))
+                padding.right = amount;
+            if (side.HasFlag(PaddingSide.Top))
+                padding.top = amount;
+            if (side.HasFlag(PaddingSide.Bottom))
+                padding.bottom = amount;
+            layout.padding = padding;
+        }
+        
+        public static void PaddingAdd(this LayoutGroup layout, PaddingSide side, int amount)
+        {
+            var padding = layout.padding;
+            if (side.HasFlag(PaddingSide.Leading))
+                padding.left += amount;
+            if (side.HasFlag(PaddingSide.Trailing))
+                padding.right += amount;
+            if (side.HasFlag(PaddingSide.Top))
+                padding.top += amount;
+            if (side.HasFlag(PaddingSide.Bottom))
+                padding.bottom += amount;
+            layout.padding = padding;
+        }
     }
 
     // Scuffed but works for now. (0,0) is at the bottom left corner of the canvas. 

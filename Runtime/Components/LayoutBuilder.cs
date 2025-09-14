@@ -13,6 +13,15 @@ namespace UCGUI
         {
             _layoutGroup.padding = padding;
         }
+        
+        public void Padding(PaddingSide side, int amount)
+        {
+            _layoutGroup.Padding(side, amount);
+        }
+        public void PaddingAdd(PaddingSide side, int amount)
+        {
+            _layoutGroup.PaddingAdd(side, amount);
+        }
 
         public void ReverseArrangement(bool reverse = true)
         {

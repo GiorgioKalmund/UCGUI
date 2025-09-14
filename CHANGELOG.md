@@ -62,4 +62,18 @@
 - Made button implement `IEnabled`
 - Buttons now won't automatically be created with an attached foreground and text component, minimizing object count
 
+## [1.0.10] - 2025-09-14
+### View(Stack) & Layout Components
+- Further improvements to [Views](Runtime/Components/View.cs):
+  - Renamed to `View` from `ViewComponent`. <i>This cange will probably come to more components in the future.</i>
+  - The `onOpen` and `onClose` events are now only fired if explicitly initialized using `EventOpen` and `EventClose` respectively. Use `Events` to do both directly
+  - Event creation behaviour can also be automatically added if setting `Default.View.AutoAddEvents` to `true`.
+- New component: **[ViewStack](Runtime/Components/ViewStack.cs)**. This Stack manages your views in a, you guessed it, stack. This allows for some easier management of navigation flows and view coordination.
+- New component: **[HStackComponent](Runtime/Components/HStackComponent.cs)**. This component aligns your items horizontally ;). Essentially an easier access for Unity's native `HorizontalLayoutGroup`.
+- New component: **[VStackComponent](Runtime/Components/VStackComponent.cs)**. This component aligns your items vertically ;). Essentially an easier access for Unity's native `VerticalLayoutGroup`.
+- New component: **[GridComponent](Runtime/Components/GridComponent.cs)**. This component aligns your items in a grid;). Essentially an easier access for Unity's native `GridLayoutGroup`.
+- Introduction of UCGUI wide [Defaults](Runtime/Components/Support/Defaults.cs). These now also contain the previously separate `UCGUIStyles` under `Defaults.Styles`.
+- Added native function to toggle focus state in `IFocusable`.
+- Improved LayoutElement compatability
+
 

@@ -1,8 +1,5 @@
 using System;
-using JetBrains.Annotations;
-using TMPro;
 using UCGUI.Game;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -24,7 +21,7 @@ namespace UCGUI
         /// <returns>
         /// The resulting UCGUI <see cref="TextComponent"/>. Use this to then continue building your desired Text Component.
         /// </returns>
-        public static TextComponent Text([CanBeNull] string text = null, Color? color = null)
+        public static TextComponent Text(string text = null, Color? color = null)
         {
             TextComponent textComponent = UI.N<TextComponent>();
             textComponent.Text(text);
@@ -71,7 +68,7 @@ namespace UCGUI
         /// <returns>
         /// The resulting UCGUI <see cref="ButtonComponent"/>.
         /// </returns>
-        public static ButtonComponent Button([CanBeNull] string text = null, UnityAction action = null,
+        public static ButtonComponent Button(string text = null, UnityAction action = null,
             UnityAction<ButtonComponent.ButtonBuilder> label = null)
         {
             ButtonComponent buttonComponent = UI.N<ButtonComponent>();
@@ -126,18 +123,33 @@ namespace UCGUI
         /// <summary>
         /// UCGUI's default View. Can be opened and closed manually or using <see cref="InputAction"/>.
         /// </summary>
-        /// <param name="canvas">The canvas the view attaches to.</param>
-        /// <param name="viewBuilder"><see cref="ViewComponent.ViewBuilder"/> to add content and further customize the view.</param>
+        /// <param name="canvas">The canvas the view attaches to. If set will <see cref="FullScreen{T}"/> if no other <see cref="Size{T}(T,UnityEngine.Vector2)"/> is specified.</param>
+        /// <param name="viewBuilder"><see cref="UCGUI.View.ViewBuilder"/> to add content and further customize the view.</param>
         /// <returns>
-        /// The resulting UCGUI <see cref="ViewComponent"/>.
+        /// The resulting UCGUI <see cref="UCGUI.View"/>.
         /// </returns>
-        public static ViewComponent View(Canvas canvas, UnityAction<ViewComponent.ViewBuilder> viewBuilder)
+        public static View View(Canvas canvas, UnityAction<View.ViewBuilder> viewBuilder)
         {
-            ViewComponent viewComponent = UI.N<ViewComponent>();
+            View view = UI.N<View>();
             
-            viewBuilder(new ViewComponent.ViewBuilder(viewComponent, canvas));
+            viewBuilder(new View.ViewBuilder(view, canvas));
 
-            return viewComponent;
+            return view;
+        }
+        /// <summary>
+        /// UCGUI's default View. Can be opened and closed manually or using <see cref="InputAction"/>.
+        /// </summary>
+        /// <param name="viewBuilder"><see cref="UCGUI.View.ViewBuilder"/> to add content and further customize the view.</param>
+        /// <returns>
+        /// The resulting UCGUI <see cref="UCGUI.View"/>.
+        /// </returns>
+        public static View View(UnityAction<View.ViewBuilder> viewBuilder)
+        {
+            View view = UI.N<View>();
+            
+            viewBuilder(new View.ViewBuilder(view));
+
+            return view;
         }
 
         /// <summary>
@@ -274,13 +286,12 @@ namespace UCGUI
         /// Under the hood it is simply an <see cref="ImageComponent"/>, allowing you to enable (<see cref="ImageComponent.ToggleVisibility()"/>), and then also directly modify the backdrop.
         /// </remarks>
         /// </returns>
-        public static ImageComponent HStack(float spacing, TextAnchor childAlignment, Action<LayoutBuilder> contents)
+        public static HStackComponent HStack(float spacing, TextAnchor childAlignment, Action<LayoutBuilder> contents)
         {
-            ImageComponent layout = UI.N<ImageComponent>();
-            layout.AddHorizontalLayout(spacing, childAlignment);
-            layout.AddFitter(ScrollViewDirection.Both);
-            layout.ToggleVisibility();
-            contents(new LayoutBuilder(layout.HorizontalLayout));
+            HStackComponent layout = UI.N<HStackComponent>();
+            layout.Spacing(spacing).ChildAlignment(childAlignment);
+            var builder = new LayoutBuilder(layout.HorizontalLayout);
+            contents(builder);
             return layout;
         }
         /// <inheritdoc cref="HStack(float, TextAnchor, Action{LayoutBuilder})"/>
@@ -311,72 +322,44 @@ namespace UCGUI
         /// Under the hood it is simply an <see cref="ImageComponent"/>, allowing you to enable (<see cref="ImageComponent.ToggleVisibility()"/>), and then also directly modify the backdrop.
         /// </remarks>
         /// </returns>
-        public static ImageComponent VStack(float spacing, TextAnchor childAlignment, Action<LayoutBuilder> contents)
+        public static VStackComponent VStack(float spacing, TextAnchor childAlignment, Action<LayoutBuilder> contents)
         {
-            ImageComponent layout = UI.N<ImageComponent>().Sprite(null);
-            layout.AddVerticalLayout(spacing, childAlignment);
-            layout.AddFitter(ScrollViewDirection.Both);
-            layout.ToggleVisibility();
-            contents(new LayoutBuilder(layout.VerticalLayout));
+            VStackComponent layout = UI.N<VStackComponent>();
+            layout.Spacing(spacing).ChildAlignment(childAlignment);
+            var builder = new LayoutBuilder(layout.VerticalLayout);
+            contents(builder);
             return layout;
         }
         /// <inheritdoc cref="VStack(float, TextAnchor, Action{LayoutBuilder})"/>
-        public static ImageComponent VStack(Action<LayoutBuilder> contents)
+        public static VStackComponent VStack(Action<LayoutBuilder> contents)
             => VStack(0f, TextAnchor.MiddleCenter, contents);
         /// <inheritdoc cref="VStack(float, TextAnchor, Action{LayoutBuilder})"/>
-        public static ImageComponent VStack(float spacing, Action<LayoutBuilder> contents)
+        public static VStackComponent VStack(float spacing, Action<LayoutBuilder> contents)
             => VStack(spacing, TextAnchor.MiddleCenter, contents);
         /// <inheritdoc cref="VStack(float, TextAnchor, Action{LayoutBuilder})"/>
-        public static ImageComponent VStack(TextAnchor childAlignment, Action<LayoutBuilder> contents)
+        public static VStackComponent VStack(TextAnchor childAlignment, Action<LayoutBuilder> contents)
             => VStack(0f, childAlignment, contents);
 
-        /// <summary>
-        /// Statically stored defaults for UCGUI
-        /// </summary>
-        public static class Defaults
+        public static GridComponent Grid(GridLayoutGroup.Constraint constraint, int constraintCount, Action<GridComponent.GridBuilder> grid)
         {
-            public static class State
-            {
-                public static bool DebugMode = false;
-                #if UNITY_EDITOR
-                [MenuItem("Tools/UCGUI/Toggle Debug Mode %#d")]
-                private static void ToggleDebugMode()
-                {
-                    DebugMode = !DebugMode;
-                    Menu.SetChecked("Tools/UCGUI/Toggle Debug Mode %d", DebugMode);
-                    Debug.LogWarning($"UCGUI: Debug Mode {(DebugMode ? "enabled" : "disabled")}.");
-                }
-                #endif
-
-                public static GUIStyle DebugStyle
-                {
-                    get
-                    {
-                        var style = new GUIStyle();
-                        style.normal.textColor = Color.white;
-                        style.fontStyle = FontStyle.Bold;
-                        return style;
-                    }
-                }
-                public static GUIStyle DebugStyle2
-                {
-                    get
-                    {
-                        var style = new GUIStyle();
-                        style.normal.textColor = Color.black;
-                        style.fontStyle = FontStyle.Bold;
-                        return style;
-                    }
-                }
-            }
-            public static class TextDefaults
-            {
-                public static TMP_FontAsset GlobalFont
-                {
-                    get => TextComponent.GetGlobalFont();
-                    set => TextComponent.GlobalFont(value);
-                }
-            }
+            GridComponent gridComponent = UI.N<GridComponent>();
+            var builder = new GridComponent.GridBuilder(gridComponent);
+            builder.GetGrid().constraint = constraint;
+            builder.GetGrid().constraintCount = constraintCount;
+            grid(builder);
+            return gridComponent;
         }
+
+        public static GridComponent Grid(Action<GridComponent.GridBuilder> grid) => 
+            Grid(GridLayoutGroup.Constraint.Flexible, 0, grid);
+
+        public static ViewStack ViewStack(Canvas canvas = null)
+        {
+            ViewStack viewStack = UI.N<ViewStack>();
+            if (canvas)
+                viewStack.Parent(canvas);
+            return viewStack;
+        }
+
     }
 }

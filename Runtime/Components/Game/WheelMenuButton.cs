@@ -30,15 +30,5 @@ namespace UCGUI.Game
             base.HandlePointerEnter(eventData);
             this.UnFocus();
         }
-
-        #if UNITY_EDITOR
-        private void OnDrawGizmos()
-        {
-            GUIStyle style = new GUIStyle();
-            style.normal.textColor = UnityEngine.Color.red;
-            style.fontSize = 14; 
-            Handles.Label(transform.position, GetFocusGroup() + "", style);
-        }
-        #endif
     }
 }

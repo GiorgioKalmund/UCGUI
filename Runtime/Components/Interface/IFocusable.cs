@@ -1,17 +1,21 @@
+using System.Collections.Generic;
+using System.Linq;
+
 namespace UCGUI
 {
     public partial interface IFocusable
     {
 
-        public static IFocusable[] FocusGroups = new IFocusable[10];
+        public static Dictionary<string, IFocusable> FocusGroups = new Dictionary<string, IFocusable>();
+        public static string[] FocusGroupNames => FocusGroups.Keys.ToArray();
 
         private static IFocusable _lastFocusedElement;
 
         public void HandleFocus();
         public void HandleUnfocus();
-        public int GetFocusGroup()
+        public virtual string GetFocusGroup()
         {
-            return 0;
+            return Defaults.Focus.DefaultGroup;
         }
         public static void SetLastFocusedElement(IFocusable focusable)
         {
@@ -23,17 +27,17 @@ namespace UCGUI
             _lastFocusedElement.Focus();
         }
 
-        public static void UnFocusGroup(int focusGroup)
+        public static void UnFocusGroup(string focusGroup)
         {
             FocusGroups[focusGroup]?.UnFocus();
         }
 
-        public static void FocusGroup(int focusGroup)
+        public static void FocusGroup(string focusGroup)
         {
             FocusGroups[focusGroup]?.Focus();
         }
 
-        public static IFocusable GetFocusedElement(int focusGroup)
+        public static IFocusable GetFocusedElement(string focusGroup)
         {
             return FocusGroups[focusGroup];
         }
@@ -61,6 +65,14 @@ namespace UCGUI
         public static bool IsFocused<T>(this T focusable) where T : IFocusable
         {
             return IFocusable.FocusGroups[focusable.GetFocusGroup()] is T f && f.Equals(focusable);
+        }
+        
+        public static void ToggleFocus<T>(this T focusable) where T : IFocusable
+        {
+            if (focusable.IsFocused())
+                focusable.UnFocus();
+            else
+                focusable.Focus();
         }
     }
 }
