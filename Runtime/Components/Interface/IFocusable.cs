@@ -64,7 +64,9 @@ namespace UCGUI
 
         public static bool IsFocused<T>(this T focusable) where T : IFocusable
         {
-            return IFocusable.FocusGroups[focusable.GetFocusGroup()] is T f && f.Equals(focusable);
+            return IFocusable.FocusGroups.ContainsKey(focusable.GetFocusGroup()) 
+                   && IFocusable.FocusGroups[focusable.GetFocusGroup()] is T f 
+                   && f.Equals(focusable);
         }
         
         public static void ToggleFocus<T>(this T focusable) where T : IFocusable

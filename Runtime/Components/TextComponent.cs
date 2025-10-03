@@ -9,10 +9,12 @@ namespace UCGUI
 {
     /// <summary>
     /// UCGUI's default Text Component.
-    /// Noteworthy formatting functions:
+    /// <br></br>
+    /// <br></br>
+    /// Functions:
     /// <list type="bullet">
     /// <item><description><see cref="Color"/> - Sets the color.</description></item>
-    /// <item><description><see cref="Alpha"/> - Sets the alpha.</description></item>
+    /// <item><description><see cref="GraphicComponent{T}.Alpha"/> - Sets the alpha.</description></item>
     /// <item><description><see cref="FontStyle"/> - Sets the <see cref="FontStyles"/>. Can be '|' together to layer them. Shorthands: <see cref="Bold"/>,<see cref="Italic"/>,<see cref="Underline"/></description></item>
     /// <item><description><see cref="FontSize"/> and <see cref="AutoSize"/> - Control the text's font size.</description></item>
     /// <item><description><see cref="Alignment"/> - Controls the horizontal alignment. See also <see cref="AlignCenter"/>.</description></item>
@@ -25,7 +27,7 @@ namespace UCGUI
     /// Also implements <see cref="ICopyable{T}"/> which allows <see cref="ICopyable{T}.CopyFrom"/> and <see cref="ICopyable{T}.Copy"/>.
     /// </para>
     /// </summary>
-    public partial class TextComponent : BaseComponent, ICopyable<TextComponent>, IEnabled, IStylable<TextComponent, TextStyle>
+    public partial class TextComponent : GraphicComponent<TextComponent>, ICopyable<TextComponent>, IStylable<TextComponent, TextStyle>
     {
         private TextMeshProUGUI _textMesh;
         protected static readonly string NamePrefix = "TextComponent";
@@ -163,32 +165,12 @@ namespace UCGUI
         public TextComponent Italic() { return FontStyle(FontStyles.Italic); }
         public TextComponent Underline() { return FontStyle(FontStyles.Underline); }
 
-        // Duplicate to ImageComponent implementation, maybe find some consolidated space?
-        public TextComponent Color(Color color, bool keepPreviousAlphaValue = false) 
-        {
-            if (keepPreviousAlphaValue)
-            {
-                var prevAlpha = _textMesh.color.a;
-                _textMesh.color = color;
-                Alpha(prevAlpha);
-            }
-            else
-            {
-                _textMesh.color = color;
-            }
-            return this;
-        }
-        
-        // Duplicate to ImageComponent implementation, maybe find some consolidated space?
-        public TextComponent Alpha(float alpha)
-        {
-            var color = _textMesh.color;
-            color.a = alpha;
-            _textMesh.color = color;
-            return this;
-        }
-        
         public TextMeshProUGUI GetTextMesh()
+        {
+            return _textMesh;
+        }
+        
+        public override Graphic GetGraphic()
         {
             return _textMesh;
         }
@@ -199,7 +181,7 @@ namespace UCGUI
             return textCopy.CopyFrom(this, fullyCopyRect);
         }
 
-        public TextComponent CopyFrom(TextComponent other, bool fullyCopyRect = true)
+        public override TextComponent CopyFrom(TextComponent other, bool fullyCopyRect = true)
         {
             base.CopyFrom(other, fullyCopyRect);
             CopyTextProperties(other.GetTextMesh(), this);
@@ -208,8 +190,7 @@ namespace UCGUI
 
         public static void CopyTextProperties(TMP_Text text, TextComponent textComponent)
         {
-            textComponent.Text(text.text, TextMode.Normal);
-            textComponent.Color(text.color);
+            textComponent.Text(text.text);
             textComponent.Alignment(text.alignment);
             textComponent.VAlignment(text.verticalAlignment);
             textComponent.FontStyle(text.fontStyle);
@@ -229,8 +210,9 @@ namespace UCGUI
         }
 
         #if UNITY_EDITOR
-        private void OnDrawGizmosSelected()
+        protected override void OnDrawGizmosSelected()
         {
+            base.OnDrawGizmosSelected();
             if (Defaults.State.DebugMode)
             {
                 Handles.Label(transform.position, $"\"{GetText()}\"\nBold:{(_textMesh.fontStyle & FontStyles.Bold) == FontStyles.Bold}\nItalic:{(_textMesh.fontStyle & FontStyles.Italic) == FontStyles.Italic}\nUnderline:{(_textMesh.fontStyle & FontStyles.Underline) == FontStyles.Underline}", Defaults.State.DebugStyle2);
@@ -239,14 +221,9 @@ namespace UCGUI
         }
         #endif
         
-        public void Enabled(bool on)
-        {
-            _textMesh.enabled = on;
-        }
-
         public TextComponent Style(TextStyle style)
         {
-            style.Link(this);
+            style.Apply(this);
             return this;
         }
     }

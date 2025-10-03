@@ -76,4 +76,12 @@
 - Added native function to toggle focus state in `IFocusable`.
 - Improved LayoutElement compatability
 
+## [1.0.11] - 2025-10-03
+### Better Inputs, Graphic Base & DebugMode
+- Overhauled and improved [InputComponent](Runtime/Components/InputComponent.cs).
+- Added new defaults
+- Created a common ground for Graphic based components using [GraphicComponent](Runtime/Components/GraphicComponent.cs).
+- Added new [DebugOptions](Runtime/Components/Support/DebugOptions.cs) and `DebugMode(DebugOptions)` for basic editor gizmos.
+- Smaller reordering of code and comments for improved maintenance and legibility
+
 

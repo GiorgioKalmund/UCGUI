@@ -1,6 +1,6 @@
 # UCGUI - Unity Codable GUI
 <div align="center">
-<img width="64" height="64" alt="ucgui-logo" src="https://github.com/user-attachments/assets/0bc8274d-021e-4d73-a094-f08b95e2559c"/>
+<img width="64" height="64" alt="ucgui-logo" src="logo.png"/>
     
 [![Unity](https://img.shields.io/badge/Unity-black.svg?style=for-the-badge&logo=unity)](http://www.unity.com)
 </div>
@@ -9,9 +9,25 @@ A code-based graphics library for the Unity Game Engine
 ## Why UCGUI?
 
 Simple UIs can easily be created in the editor, however they often need assistance from scripts and other libraries to do things like animation, transitions, etc.
-This is where UCGUI jumps in, which can be seen as a code-based superset of [Unity's built in uGUI](https://docs.unity3d.com/Packages/com.unity.ugui@2.0/manual/index.html).<br> UCGUI's built in tools allow easy and accessible creation of [Text](Runtime/Components/TextComponent.cs), [Images](Runtime/Components/ImageComponent.cs), [Buttons](Runtime/Components/ButtonComponent.cs), [Textfields](Runtime/Components/InputComponent.cs), [Sliders](Runtime/Components/SliderComponent.cs), [Views](Runtime/Components/ViewComponent.cs), [Windows](Runtime/Components/Window/WindowComponent.cs) and so much more. Everything is based on a singular [BaseComponent]() class and every class is created in such a way that it can be easily inherited from and expanded upon.
+This is where UCGUI jumps in, which can be seen as a code-based superset of [Unity's built in uGUI](https://docs.unity3d.com/Packages/com.unity.ugui@2.0/manual/index.html).
+<br> UCGUI's built in tools allow easy and accessible creation of [Text](Runtime/Components/TextComponent.cs), [Images](Runtime/Components/ImageComponent.cs), [Buttons](Runtime/Components/ButtonComponent.cs), [Input](Runtime/Components/InputComponent.cs), [Sliders](Runtime/Components/SliderComponent.cs), [Views](Runtime/Components/ViewComponent.cs), [Windows](Runtime/Components/Window/WindowComponent.cs) and so much more.
+Everything is based on a singular [BaseComponent]() class and every class is created in such a way that it can be easily inherited from and expanded upon.
 <br><br>The main benefit comes from inherent control over your UI at runtime, allowing dynamic UI combinations to be created faster and frictionless.
 <br><br> <i>It might not be for everyone, but it helps me at least to keep everything **inside** my code, as code, without having to constantly search through the hierarchy to edit one specific parameter of my UI. Everything is just code, and way more flexible as it can be easily referenced during runtime.</i>
+
+---
+
+## Contents
+- [Installation](#installation)
+- [Usage, Patterns, Examples](#usage-patterns-examples)
+    - [UI - Builders](#ui---builders)
+    - [UI - Base](#ui---base)
+    - [View / ViewStack](#views--viewstack)
+    - [Screens](#screens)
+- [Interfaces](#interfaces)
+- [List of Components](#list-of-components)
+
+---
 
 ## Installation
 
@@ -31,7 +47,7 @@ This will add the latest version of UCGUI to your Unity project.
 
 UCGUI offers you two main ways of creating UI components. Let's look at some simple examples on how to create UCGUI's components using both of them.
 
-### [UI](Runtime/Components/UI.cs)
+### [UI - Builders](Runtime/Components/UI.cs)
 This class offers simple but flexible builders for all of UCGUI's base components.
 
 ### Text
@@ -39,23 +55,22 @@ Creating a text on your screen which sticks to the top left of the canvas with s
 ```csharp
 // Returns the resulting TextComponent
 UI.Text("Hello, World!")
-    .Pivot(PivotPosition.UpperLeft, true) // Sets the pivot point. Additionally adding true, will also achor it to that same corner inside of the parent
+    .Pivot(PivotPosition.UpperLeft, true) // Sets the pivot point. Additionally adding true, will also anchor it to that same corner inside of the parent
     .Offset(50, -50) // Offsets the position by 50 on the x, and -50 on the y-axis. Relative to the pivot of the RectTransform
     .FitToContents() // Makes the RectTransform adjust its size to the preferred size of the text
     .Parent(canvas); // Finally, parents the GameObject to the canvas
 ```
 As we are using a flexible builder pattern, everything addition is optional, even the `.Parent()`.
-<br> Under the hood, the [UI class](Runtime/Components/UI.cs) simply uses the `UI` to create its elements.
+<br> Under the hood, the [UI class](Runtime/Components/UI.cs) simply uses the `UI.N<T>` (more on that in [UI (Base)](#ui---base)) call to create its elements.
 <br> Feel free to take a look a how these supporting builders are made, so you can also add your own patterns if you want.
 
 ### Button
 ```csharp
-// Returns the reslting ButtonComponent
+// Returns the resulting ButtonComponent
 UI.Button("MyButton", action =>
 {
     // The function being executed when the button is pressed
     MyFunc();
-    
 }, label => 
 {
     // Visual customization 
@@ -71,9 +86,9 @@ an optional `Foreground` sprite which lives between the button's background and 
 For example, `Padding()` allows you to specify optional padding on all the four sides between the text and the borders of the button. It is most commonly used in combination with `FitToContents`.
 <br> Again, the entire `label` block is optional, however `action` is not when using this pattern builder.
 
-### [UI (Base)](Runtime/Components/Support/UI.cs)
+### [UI - Base](Runtime/Components/Support/UI.cs)
 This file acts as the second half of the `UI` class and serves as a foundation for creating components in UCGUI. It contains all the builder pattern styling functions applicable to **every** [BaseComponent](Runtime/Components/BaseComponent.cs).
-If you have custom components, they will be instantiated via this class.
+If you have custom components, they can be instantiated via this class.
 <br> Naturally, all of UCGUI's default components can be instantiated in this way too:
 ```csharp
 // Returns the resulting ImageComponent
@@ -84,10 +99,10 @@ ImageComponent myImage = UI.N<ImageComponent>("GameObject name", parent)
     .Size(300, 300)
 ```
 This code would create a 300x300 image, located at the center of the parent, with sprite, color and alpha applied.
-[N\<T\>](Runtime/Components/Support/UI.cs) (<i>"New"</i>) is the generic method used to create any component.
+[N\<T\>](Runtime/Components/Support/UI.cs) (<i>"New"</i>) is the generic method used to create any element inheriting from [BaseComponent](Runtime/Components/BaseComponent.cs).
 
 ```csharp
-// The TextComponentExample from above, just in another format now    
+// The text example from above, just in another format now    
 // Returns the resulting TextComponent 
 TextComponent myText = UI.N<TextComponent>("GameObject2 name", parent)
     .Text("Hello, World!")
@@ -96,12 +111,12 @@ TextComponent myText = UI.N<TextComponent>("GameObject2 name", parent)
     .FitToContents()
     .Parent(canvas); 
 ```
-This code produces an identical [Text](Runtime/Components/TextComponent.cs) to the one from the example above, we are just using a different syntax :)
+This code produces an identical [Text](Runtime/Components/TextComponent.cs) to the one from [the example above](#text), we are just using a different syntax :)
 
 ---
 
 ### Views / ViewStack
-[Views](Runtime/Components/ViewComponent.cs) are one of two ways of managing your UI. Using the [ViewBuilder](Runtime/Components/ViewComponent.cs) you can easily create an area for you content. Views are very versatile. 
+[Views](Runtime/Components/ViewComponent.cs) are one of two ways of managing your UI. Using the [ViewBuilder](Runtime/Components/ViewComponent.cs) you can easily create an area for you content. 
 They easily scale to fit their entire canvas parent and can be configured to close on a background tap or on an InputAction.
 <br>
 Views themselves are ideally just parent container for any other component, however they inherit from [ImageComponent](Runtime/Components/ImageComponent.cs) for faster configuration of the backdrop.
@@ -140,17 +155,20 @@ stack.PopUntil(view1); // Does what it says ;)
 stack.Collapse(); // Pops all remaining views
 ------------------------------
 ```
-In our example we would now have revealed two views with `view2` always displaying om top of `view1`, no matter the creation order.<br> We can see we can easily create a view stack and directly create our own navigation flow!
+In our example we would now have revealed two views with `view2` always displaying on top of `view1`, no matter the creation order.
+<br> Using a [ViewStack](Runtime/Components/ViewStackComponent.cs) we can additionally create our own navigation flow!
 Using `Pop()` we can then move backwards in the stack, revealing the underlying views one by one.
 <br><br>
 ViewStacks are quite versatile, also allowing an immediate dissolving of the stack as well as going back to a specific view. 
 
 ### Screens
 
-Screens are the bridge between the editor and UCGUI. 
-A screen acts as your canvas for creating your UI and components. They are an abstract class and enforce two methods. `Setup()`: this is where you will build your UI. It is called in the `Start()` phase of [Unity's Event Loop](https://docs.unity3d.com/6000.2/Documentation/Manual/execution-order.html).
+Screens are the bridge between the editor and UCGUI and are the second way of managing your UI.<br>
+They are more static than views in the sense that they act more like  as a simple canvas for creating and storing your top level UI and components. 
+They are an abstract class and enforce two methods. `Setup()`: this is where you will build your UI. 
+It is called in the `Start()` phase of [Unity's Event Loop](https://docs.unity3d.com/6000.2/Documentation/Manual/execution-order.html).
 `Canvas GetCanvas()` expects you to return the canvas the screen should attach to.
-<br> Let's look at a simple example:
+<br><br> Let's look at a simple example:
 ```csharp
 using UCGUI;
 
@@ -273,3 +291,27 @@ UI.Button("Hello, World!", () =>
 These styles are also exist for other built-in components such as the [TextStyle](Runtime/Components/Style/TextStyle.cs) and more.
 
 *UCGUI comes with some preset styles for quick prototyping which can be found in [UCGUIStyles](Runtime/Components/Style/UCGUIStyles.cs)*.
+
+## List of Components
+### Visual
+
+| Name                                                                 | Description                                                                                              |
+|:---------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------|
+| **[BaseComponent](Runtime/Components/BaseComponent.cs)**             | Foundation of UCGUI's component system. By itself similar to an empty GameObject with a `RectTransform.` |
+| **[TextComponent](Runtime/Components/TextComponent.cs)**             | Displays text using the builtin `TextMeshPro` text component.                                            |
+| **[ImageComponent](Runtime/Components/ImageComponent.cs)**           | Displays images using the builtin uGUI `Image`.                                                          |
+| **[ButtonComponent](Runtime/Components/ButtonComponent.cs)**         | A button based on uGUI's `Button`.                                                                       |
+| **[InputComponent](Runtime/Components/InputComponent.cs)**           | Input field based on TextMeshPro's `TMP_InputField`.                                                     |
+| **[SliderComponent](Runtime/Components/SliderComponent.cs)**         | Slider based on uGUI's `Slider`.                                                                         |
+| **[HStackComponent](Runtime/Components/HStackComponent.cs)**         | A layout element to horizontally align its children. Based on uGUI's `HorizontalLayoutGroup`.            |
+| **[VStackComponent](Runtime/Components/VStackComponent.cs)**         | A layout element to vertically align its children. Based on uGUI's `VerticalLayoutGroup`.                |
+| **[GridComponent](Runtime/Components/GridComponent.cs)**             | A layout element to align its children in a grid. Based on uGUI's `GridLayoutGroup`.                     |
+| **[ScrollViewComponent](Runtime/Components/ScrollViewComponent.cs)** | A view allowing for scrolling content in both horizontal and vertical directions.                        |
+| **[ViewComponent](Runtime/Components/ViewComponent.cs)**             | Dynamic component which can be shown and hidden at any time.                                             |
+| **[ViewStackComponent](Runtime/Components/ViewStackComponent.cs)**   | Manages the visibility and ordering of `View` components .                                               |
+| **[ViewStackComponent](Runtime/Components/ViewStackComponent.cs)**   | Manages the visibility and ordering of `View` components .                                               |
+
+### Supporting 
+| Name                                                                 | Description                                        |
+|:---------------------------------------------------------------------|:---------------------------------------------------|
+| **[SpriteAnimator](Runtime/Components/Animation/SpriteAnimator.cs)** | Controls complex animations for `ImageComponent`s. |

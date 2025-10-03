@@ -1,82 +1,80 @@
 using TMPro;
 using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using UnityEngine.Events;
 
 namespace UCGUI
 {
-    public partial class InputComponent : BaseComponent, IFocusable
+    /// <summary>
+    /// UCGUI's default (Text)Input Component.
+    /// <i>Extends <see cref="ImageComponent"/>.</i>
+    /// <br></br>
+    /// <br></br>
+    /// Functions:
+    /// <list type="bullet">
+    /// <item><description><see cref="Colorize"/> - Sets the text colors of the text as well as the placeholder.</description></item>
+    /// <item><description><see cref="FontSize"/> - Control the text's and placeholder's font size.</description></item>
+    /// <item><description><see cref="Clear"/> - Clears the input field.</description></item>
+    /// <item><description><see cref="GetText"/> - Returns the current text contents of the input field.</description></item>
+    /// </list>
+    /// <para>
+    /// Handles:
+    /// <list type="bullet">
+    /// <item><description><see cref="OnSubmit"/> - Add handles to when the user submits their current text input.</description></item>
+    /// <item><description><see cref="OnChanged"/> - Add handles to when input's contents change.</description></item>
+    /// </list>
+    /// Default Style: <see cref="Defaults.Style.Input.Default"/>
+    /// </para>
+    /// </summary>
+    public partial class InputComponent : ImageComponent , IStylable<InputComponent, InputStyle>
     {
-        // -- TMP Input Field -- //
         protected TMP_InputField Input;
-        // -- Subcomponents -- //
-        protected ImageComponent Backdrop;
-        protected TextComponent TextContents;
-        protected TextComponent HintContents;
 
-        private InputAction _submitAction;
-        public TMP_InputField.SubmitEvent onSubmit => Input.onSubmit;
+        protected TextComponent TextElement;
+        protected TextComponent PlaceholderElement;
+
+        protected TMP_InputField.SubmitEvent OnSubmitEvent => Input.onSubmit;
+        protected TMP_InputField.OnChangeEvent OnChangedEvent => Input.onValueChanged;
+
+        private int _leadingOffset = 0;
+        private int _trailingOffset = 0;
+
         public override void Awake()
         {
             base.Awake();
-            
+
             Input = gameObject.GetOrAddComponent<TMP_InputField>();
-            
-            Backdrop= UI.N<ImageComponent>(transform);
 
-            TextContents = UI.N<TextComponent>(Backdrop);
+            TextElement = UI.N<TextComponent>(this).Pivot(PivotPosition.MiddleLeft, true);
+            PlaceholderElement = UI.N<TextComponent>(this).Pivot(PivotPosition.MiddleLeft, true);
 
-            HintContents = UI.N<TextComponent>(Backdrop);
-
-            Input.targetGraphic = Backdrop.GetImage();
-            Input.textComponent = TextContents.GetTextMesh();
+            Input.targetGraphic = this.GetImage();
+            Input.textComponent = TextElement.GetTextMesh();
             Input.textViewport = GetRect();
-            Input.placeholder = HintContents.GetTextMesh();
+            Input.placeholder = PlaceholderElement.GetTextMesh();
             Input.onFocusSelectAll = true;
 
-            TextContents.OverflowMode(TextOverflowModes.Ellipsis);
-            HintContents.OverflowMode(TextOverflowModes.Ellipsis);
+            TextElement.OverflowMode(TextOverflowModes.Ellipsis);
+            PlaceholderElement.OverflowMode(TextOverflowModes.Ellipsis);
+            
+            this.Style(Defaults.Style.Input.Default);
         }
 
-
-        public InputComponent Create(string placeholder, TMP_InputField.ContentType contentType = TMP_InputField.ContentType.Standard)
+        public InputComponent Colorize(Color textColor, Color placeholderColor)
         {
-            ContentType(contentType);
-            HintContents.Text(placeholder);
+            TextElement.Color(textColor);
+            PlaceholderElement.Color(placeholderColor);
             return this;
         }
 
-        public InputComponent SubmitAction(InputAction action)
-        {
-            _submitAction = action;
-            return this;
-        }
-        private void OnEnable() { if (_submitAction!= null) _submitAction.performed += SendOnSubmitEvent; }
-        private void OnDisable() { if (_submitAction != null) _submitAction.performed -= SendOnSubmitEvent; }
-        private void SendOnSubmitEvent(InputAction.CallbackContext context) { Input.OnSubmit(null); }
-
-        public InputComponent Color(Color textColor, Color? hintColor = null)
-        {
-            TextContents.Color(textColor);
-            HintContents.Color(hintColor ?? textColor);
-            return this;
-        }
-
-        public InputComponent ColorBackdrop(Color color)
-        {
-            Backdrop.Color(color);
-            return this;
-        }
-        
         public InputComponent FontSize(float size)
         {
-            TextContents.FontSize(size);
-            HintContents.FontSize(size);
+            TextElement.FontSize(size);
+            PlaceholderElement.FontSize(size);
             return this;
         }
 
-        public InputComponent Clear()
+        public new InputComponent Clear()
         {
             Input.text = "";
             return this;
@@ -87,23 +85,42 @@ namespace UCGUI
             Input.contentType = contentType;
             return this;
         }
+        public InputComponent InputType(TMP_InputField.InputType inputType)
+        {
+            Input.inputType = inputType;
+            return this;
+        }
 
         public override BaseComponent HandleSizeChanged(float x, float y)
         {
             base.HandleSizeChanged(x, y);
 
-            Backdrop.Size(x, y);
-            TextContents.Size(x, y);
-            HintContents.Size(x, y);
+            if (TextElement)
+                TextElement.Size(x -_leadingOffset - _trailingOffset, y);
+            if (PlaceholderElement)
+                PlaceholderElement.Size(x - _leadingOffset - _trailingOffset, y);
             return this;
         }
 
-        public TextComponent GetTextComponent() { return TextContents; }
-        public string GetText() { return TextContents.GetText(); }
-        public TextComponent GetHintComponent() { return HintContents; }
-
-        private void Start()
+        public TextComponent GetTextComponent()
         {
+            return TextElement;
+        }
+
+        public string GetText()
+        {
+            return TextElement.GetText();
+        }
+
+        public TextComponent GetPlaceholder()
+        {
+            return PlaceholderElement;
+        }
+
+        public override void Start()
+        {
+            base.Start();
+            
             DisplayName = "Input";
         }
 
@@ -112,18 +129,76 @@ namespace UCGUI
             return Input;
         }
 
-        public void HandleFocus()
+        public void Select()
         {
             Input.ActivateInputField();
         }
-
-        public void HandleUnfocus() { }
-
-        #if UNITY_EDITOR
-        private void OnDrawGizmos()
+        
+        public void Placeholder(string placeholder)
         {
-            Handles.Label(transform.position + new Vector3(0, 40, 0), this.IsFocused() + $" ({((IFocusable)this).GetFocusGroup()})");
+            PlaceholderElement.Text(placeholder);
         }
-        #endif
+
+        public InputComponent OnChanged(UnityAction<string> newText)
+        {
+            OnChangedEvent.AddListener(newText);
+            return this;
+        }
+
+        public InputComponent OnSubmit(UnityAction<string> submission)
+        {
+            OnSubmitEvent.AddListener(submission);
+            return this;
+        }
+        
+        public InputComponent Style(InputStyle style)
+        {
+            style.Apply(this);
+            return this;
+        }
+        
+        
+        public InputComponent PaddingLeading(int offset)
+        {
+            _leadingOffset = offset;
+                
+            TextElement.Offset(_leadingOffset, 0);
+            PlaceholderElement.Offset(_leadingOffset, 0);
+            HandleSizeChanged(this.GetWidth(), this.GetHeight());
+            return this;
+        }
+        public InputComponent PaddingTrailing(int offset)
+        {
+            _trailingOffset = offset;
+            HandleSizeChanged(this.GetWidth(), this.GetHeight());
+            return this;
+        }
+
+
+        public class InputBuilder
+        {
+            private InputComponent _input;
+
+            public InputBuilder(InputComponent input) => _input = input;
+
+            public void ContentType(TMP_InputField.ContentType contentType)
+            {
+                _input.ContentType(contentType);
+            }
+            public void InputType(TMP_InputField.InputType inputType)
+            {
+                _input.InputType(inputType);
+            }
+
+            public void PaddingLeading(int offset)
+            {
+                _input.PaddingLeading(offset);
+            }
+            public void PaddingTrailing(int offset)
+            {
+                _input.PaddingTrailing(offset);
+            }
+        }
+
     }
 }

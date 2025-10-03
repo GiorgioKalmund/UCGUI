@@ -15,7 +15,7 @@ namespace UCGUI
             Builder = builder;
         }
 
-        public void Link(T component)
+        public void Apply(T component)
         {
             Builder(component);
         }

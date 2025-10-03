@@ -2,35 +2,33 @@ using UCGUI.Services;
 using UnityEngine;
 using UnityEngine.UI;
 using Unity.VisualScripting;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 namespace UCGUI
 {
+    /// <summary>
     /// UCGUI's Image Component.
     /// Noteworthy formatting functions:
     /// <list type="bullet">
     /// <item><description><see cref="Sprite(UnityEngine.Sprite,UnityEngine.UI.Image.Type?,float)"/> - Sets the image's sprite with optional <see cref="Image.Type"/> and <see cref="Image.pixelsPerUnitMultiplier"/>.</description></item>
-    /// <item><description><see cref="Color(UnityEngine.Color,bool)"/> - Sets the color. Allows you to also keep the previous alpha value if adding 'true'.</description></item>
-    /// <item><description><see cref="Alpha"/> - Sets the alpha.</description></item>
-    /// <item><description><see cref="ClearSprite"/> - Sets the sprite to null.</description></item>
+    /// <item><description><see cref="GraphicComponent{T}.Color(UnityEngine.Color,bool)"/> - Sets the color. Allows you to also keep the previous alpha value if adding 'true'.</description></item>
+    /// <item><description><see cref="GraphicComponent{T}.Alpha"/> - Sets the alpha.</description></item>
+    /// <item><description><see cref="Clear"/> - Sets the sprite to null.</description></item>
     /// <item><description><see cref="NativeSize()"/> - Sets the RectTransform's size to the pixel size of the sprite. Use <see cref="NativeSize(Vector2)"/> or <see cref="NativeSize(float, float)"/> to additionally scale the image by a factor.</description></item>
     /// <item><description><see cref="ImageType"/> - <see cref="Image.Type"/> used to render the image.</description></item>.
     /// <item><description><see cref="Filled"/> - Allows you to specify a fill method, as well an optional fill amount. (Defaults to '1f').</description></item>.
     /// <item><description><see cref="FillAmount"/> - Adjusts the fill amount.</description></item>.
     /// <item><description><see cref="PixelsPerUnitMultiplier"/> - Adjusts the <see cref="Image.pixelsPerUnitMultiplier"/> of the image. For example when using <see cref="Image.Type.Sliced"/>.</description></item>.
-    /// <item><description><see cref="RaycastTarget"/> - Determines whether the image acts a raycast target.</description></item>.
-    /// <item><description><see cref="ToggleVisibility"/> - Enables / disables the image render.</description></item>.
+    /// <item><description><see cref="GraphicComponent{T}.RaycastTarget"/> - Determines whether the image acts a raycast target.</description></item>.
+    /// <item><description><see cref="GraphicComponent{T}.ToggleVisibility"/> - Enables / disables the image render.</description></item>.
     /// <item><description><see cref="AddAnimator"/> - Adds a <see cref="SpriteAnimator"/> behaviour.</description></item>.
     /// <item><description><see cref="Material"/> - Sets the material.</description></item>.
     /// </list>
     /// <para>
-    /// Implements <see cref="IPointerEnterHandler"/> and <see cref="IPointerExitHandler"/> which allows any deriving classes to handle this by overriding <see cref="HandlePointerEnter"/> and <see cref="HandlePointerExit"/>>.
-    /// </para>
-    /// <para>
     /// Also implements <see cref="ICopyable{T}"/> which allows <see cref="ICopyable{T}.CopyFrom"/> and <see cref="ICopyable{T}.Copy"/>.
     /// </para>
-    public partial class ImageComponent : BaseComponent, ICopyable<ImageComponent>, IPointerEnterHandler, IPointerExitHandler, IEnabled
+    /// </summary>
+    public partial class ImageComponent : GraphicComponent<ImageComponent>, ICopyable<ImageComponent>
     {
         private Image _image;
         protected static string NamePrefix = "ImageComponent";
@@ -52,7 +50,7 @@ namespace UCGUI
             this.SafeDisplayName(NamePrefix);
 
             if (_toggleInputAction != null)
-                _toggleInputAction.performed += ToggleVisibility;
+                _toggleInputAction.performed += _ => ToggleVisibility();
         }
 
         public ImageComponent Sprite(Sprite sprite, Image.Type? imageType = null, float pixelsPerUnitMultiplier = 1f) 
@@ -80,7 +78,7 @@ namespace UCGUI
             return Sprite(ImageService.GetSpriteFromAsset(asset, layerName), imageType);
         }
 
-        public ImageComponent ClearSprite()
+        public ImageComponent Clear()
         {
             return Sprite((Sprite)null);
         }
@@ -97,33 +95,10 @@ namespace UCGUI
         {
             return NativeSize(new Vector2(scaleFactorX, scaleFactorY));
         }
-        
-        public ImageComponent Color(Color color, bool keepPreviousAlphaValue = false) 
-        {
-            if (keepPreviousAlphaValue)
-            {
-                var prevAlpha = _image.color.a;
-                _image.color = color;
-                Alpha(prevAlpha);
-            }
-            else
-            {
-                _image.color = color;
-            }
-            return this;
-        }
 
-        public ImageComponent Color(Color color, float alpha)
+        public Vector2 GetNativeSize()
         {
-            return Color(color).Alpha(alpha);
-        }
-        
-        public ImageComponent Alpha(float alpha)
-        {
-            var color = _image.color;
-            color.a = alpha;
-            _image.color = color;
-            return this;
+            return _image.sprite.NativeSize();
         }
         
         public ImageComponent ImageType(Image.Type imageType)
@@ -157,10 +132,9 @@ namespace UCGUI
             return _image;
         }
 
-        public ImageComponent RaycastTarget(bool target)
+        public override Graphic GetGraphic()
         {
-            _image.raycastTarget = target;
-            return this;
+            return _image;
         }
 
         public bool HasImage()
@@ -174,14 +148,20 @@ namespace UCGUI
             return copyImage.CopyFrom(this, fullyCopyRect);
         }
 
-        public ImageComponent CopyFrom(ImageComponent other, bool fullyCopyRect = true)
+        public override ImageComponent CopyFrom(ImageComponent other, bool fullyCopyRect = true)
         {
             base.CopyFrom(other, fullyCopyRect);
-            //DisplayName = other.DisplayName + " (Copy)";
             CopyImageProperties(other.GetImage(), this);
-            CopyAnimator(other, this);
             CopyMaterial(other, this);
+            CopyAnimator(other, this);
             return this;
+        }
+        
+        public static void CopyImageProperties(Image image, ImageComponent copyImage) 
+        {
+            copyImage.ImageType(image.type);
+            copyImage.Sprite(image.sprite);
+            copyImage.PixelsPerUnitMultiplier(image.pixelsPerUnitMultiplier);
         }
 
         public static void CopyMaterial(ImageComponent other, ImageComponent copyImage)
@@ -202,29 +182,11 @@ namespace UCGUI
             }
         }
 
-        public static void CopyImageProperties(Image image, ImageComponent copyImage) 
-        {
-            copyImage.ImageType(image.type);
-            copyImage.Color(image.color);
-            copyImage.Sprite(image.sprite);
-            copyImage.PixelsPerUnitMultiplier(image.pixelsPerUnitMultiplier);
-            copyImage.RaycastTarget(image.raycastTarget);
-        }
-
         public ImageComponent ToggleVisibilityUsing(InputAction action)
         {
             _toggleInputAction = action;
             _toggleInputAction?.Enable();
             return this;
-        }
-
-        public void ToggleVisibility()
-        {
-            GetImage().enabled = !GetImage().enabled;
-        }
-        public void ToggleVisibility(InputAction.CallbackContext callbackContext)
-        {
-            ToggleVisibility();
         }
 
         private void OnEnable()
@@ -254,30 +216,6 @@ namespace UCGUI
         public SpriteAnimator GetAnimator()
         {
             return Animator;
-        }
-
-        public HorizontalLayoutGroup GetHorizontalLayout()
-        {
-            return HorizontalLayout;
-        }
-        
-        
-        public virtual void HandlePointerEnter(PointerEventData eventData) { }
-        public virtual void HandlePointerExit(PointerEventData eventData) { }
-        
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-            HandlePointerEnter(eventData);
-        }
-
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            HandlePointerExit(eventData);
-        }
-
-        public virtual void Enabled(bool on)
-        {
-            _image.enabled = on;
         }
     }
 

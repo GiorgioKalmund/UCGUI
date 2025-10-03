@@ -20,7 +20,7 @@ namespace UCGUI
     /// Also implements <see cref="ICopyable{T}"/> which allows <see cref="ICopyable{T}.CopyFrom"/> and <see cref="ICopyable{T}.Copy"/>.
     /// </para>
     /// </summary>
-    public partial class ButtonComponent : ImageComponent, IFocusable, ICopyable<ButtonComponent>, IStylable<ButtonComponent, ButtonStyle>, IEnabled
+    public partial class ButtonComponent : ImageComponent, IFocusable, ICopyable<ButtonComponent>, IStylable<ButtonComponent, ButtonStyle>
     {
         public ButtonComponent() { NamePrefix = "ButtonComponent"; }
         
@@ -302,7 +302,7 @@ namespace UCGUI
 
         public ButtonComponent Style(ButtonStyle style)
         {
-            style.Link(this);
+            style.Apply(this);
             return this;
         }
         

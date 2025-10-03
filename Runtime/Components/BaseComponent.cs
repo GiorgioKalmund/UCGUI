@@ -1,5 +1,6 @@
 using UCGUI.Services;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,9 +8,55 @@ namespace UCGUI
 {
     public partial class BaseComponent : MonoBehaviour, ICopyable<BaseComponent>
     {
+        
+#if DEBUG
+        [Header("Debug")]
+        [SerializeField] protected DebugOptions debugOptions = DebugOptions.None;
+        protected virtual void OnDrawGizmos()
+        {
+            if (debugOptions.HasFlag(DebugOptions.RectOnly))
+            {
+                RectTransform rect = gameObject.GetComponent<RectTransform>();
+                Gizmos.color = Color.red;
+                DrawRect(rect);
+            }
+            if (debugOptions.HasFlag(DebugOptions.TextOnly))
+            {
+                RectTransform rect = gameObject.GetComponent<RectTransform>();
+                var style = new GUIStyle();
+                style.normal.textColor = Color.red;
+                style.fontSize = 8;
+                Handles.Label(transform.position + new Vector3(-rect.sizeDelta.x / 2, rect.sizeDelta.y / 2, 0),  $"{rect.sizeDelta.x}x{rect.sizeDelta.y}", style);
+            }
+        }
+        protected virtual void OnDrawGizmosSelected()
+        {
+            if (debugOptions.HasFlag(DebugOptions.RectOnly))
+            {
+                Gizmos.color = Color.green;
+                DrawRect(gameObject.GetComponent<RectTransform>());
+            }
+        }
+
+        public BaseComponent DebugMode(DebugOptions options)
+        {
+            debugOptions = options;
+            return this;
+        }
+        
+        protected void DrawRect(RectTransform rect)
+        {
+            Gizmos.DrawWireCube(
+                rect.position,
+                new Vector3(rect.sizeDelta.x, rect.sizeDelta.y, 0.01f)
+            );
+        }
+#endif
+        
         private RectTransform _rect;
-        public bool paddingApplied = false;
-        public bool posApplied = false;
+        
+        [HideInInspector] public bool paddingApplied = false;
+        [HideInInspector] public bool posApplied = false;
 
         private string _displayName = "BaseComponent";
         public string DisplayName
@@ -26,10 +73,11 @@ namespace UCGUI
         protected float CanvasHeightFactor => GUIService.HeightScale;
 
 
-        public LayoutElement layoutElement;
+        [HideInInspector] public LayoutElement layoutElement;
         public HorizontalLayoutGroup HorizontalLayout { get; protected set; }
         public VerticalLayoutGroup VerticalLayout { get; protected set; }
         public ContentSizeFitter ContentSizeFitter { get; protected set; }
+        
         
         public virtual void Awake()
         {
@@ -40,8 +88,8 @@ namespace UCGUI
         {
             if (!_rect)
             {
-                Debug.LogWarning(gameObject.name  +": RectTransform is null! Did you forget to call 'base.Awake()' somewhere?");
-                return gameObject.GetComponent<RectTransform>();
+                UCGUILogger.LogWarning(gameObject.name  +": RectTransform is null! Did you forget to call 'base.Awake()' somewhere or does the GameObject not have a RectTransform attached?");
+                _rect = gameObject.GetComponent<RectTransform>();
             }
             return _rect;
         }

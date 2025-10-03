@@ -240,8 +240,9 @@ namespace UCGUI
         }
 
         #if UNITY_EDITOR
-        private void OnDrawGizmos()
+        protected override void OnDrawGizmos()
         {
+            base.OnDrawGizmos();
             GUIStyle style = new GUIStyle();
             style.normal.textColor = UnityEngine.Color.red;
             style.fontSize = 14; 

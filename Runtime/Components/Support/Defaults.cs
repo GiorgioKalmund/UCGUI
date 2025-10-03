@@ -61,9 +61,8 @@ namespace UCGUI{
         {
             public static bool AutoAddEvents = false;
             
-            public static Color DefaultBackdropColor = UnityEngine.Color.black;
+            public static Color DefaultBackdropColor = Color.black;
             public static float DefaultBackdropAlpha = 0.6f;
-
         }
 
         public static class Style
@@ -83,9 +82,28 @@ namespace UCGUI{
 
             public static class Text
             {
-                public static readonly TextStyle ButtonText = new TextStyle(txt =>
+                public static readonly TextStyle Primary = new TextStyle(txt =>
                 {
-                    txt.VAlignCenter().AlignCenter().Color(Color.gray1);
+                    txt.VAlignCenter().Color(Color.gray1);
+                });
+
+                public static readonly TextStyle Secondary = Primary.Expand(txt =>
+                {
+                    txt.Color(Color.gray);
+                });
+                
+                public static readonly TextStyle ButtonText = Primary.Expand(txt =>
+                {
+                    txt.AlignCenter();
+                });
+            }
+
+            public static class Input
+            {
+                public static readonly InputStyle Default = new InputStyle(input =>
+                {
+                    input.GetTextComponent().Style(Text.Primary);
+                    input.GetPlaceholder().Style(Text.Secondary);
                 });
             }
         }
