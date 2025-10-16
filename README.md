@@ -1,6 +1,6 @@
 # UCGUI - Unity Codable GUI
 <div align="center">
-<img width="64" height="64" alt="ucgui-logo" src="logo.png"/>
+<img width="64" height="64" alt="ucgui-logo" src="Resources/logo.png"/>
     
 [![Unity](https://img.shields.io/badge/Unity-black.svg?style=for-the-badge&logo=unity)](http://www.unity.com)
 </div>
