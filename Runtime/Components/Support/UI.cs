@@ -84,17 +84,9 @@ namespace UCGUI
             return renderable;
         }
 
-        public static T Pos<T>(this T renderable, Vector2 anchoredPosition, bool force = false) where T : BaseComponent
+        public static T Pos<T>(this T renderable, Vector2 anchoredPosition) where T : BaseComponent
         {
-            if (renderable.paddingApplied && !force)
-            {
-                Debug.LogError("Padding has already been applied to " + renderable.DisplayName +
-                               ". Cannot apply additional Pos!");
-                return renderable;
-            }
-
             Pos(renderable, anchoredPosition, Space.World);
-            renderable.posApplied = !force;
             return renderable;
         }
 
@@ -135,9 +127,15 @@ namespace UCGUI
             return renderable;
         }
 
-        public static T OffsetMin<T>(this T renderable, float x, float y) where T : BaseComponent
+        public static T OffsetMin<T>(this T renderable, float? x = null, float? y = null) where T : BaseComponent
         {
-            return OffsetMin(renderable, new Vector2(x, y));
+            var offset = renderable.GetRect().offsetMin;
+            if (x.HasValue)
+                offset.x = x.Value;
+            if (y.HasValue)
+                offset.y = y.Value;
+            renderable.GetRect().offsetMin = offset;
+            return renderable;
         }
 
         public static T OffsetMax<T>(this T renderable, Vector2 offsetMax) where T : BaseComponent
@@ -146,22 +144,17 @@ namespace UCGUI
             return renderable;
         }
 
-        public static T OffsetMax<T>(this T renderable, float x, float y) where T : BaseComponent
+        public static T OffsetMax<T>(this T renderable, float? x = null, float? y = null) where T : BaseComponent
         {
-            return OffsetMax(renderable, new Vector2(x, y));
-        }
-
-        public static T Stretch<T>(this T renderable) where T : BaseComponent
-        {
-            var rt = renderable.GetRect();
-            var om = rt.offsetMin;
-            om.x = 0f;
-            rt.offsetMin = om;
-            var oM = rt.offsetMax;
-            oM.x = 0f;
-            rt.offsetMax = oM;
+            var offset = renderable.GetRect().offsetMax;
+            if (x.HasValue)
+                offset.x = x.Value;
+            if (y.HasValue)
+                offset.y = y.Value;
+            renderable.GetRect().offsetMax = offset;
             return renderable;
         }
+
 
         public static T RectOffsets<T>(this T renderable, RectOffset offset) where T : BaseComponent
         {
@@ -208,38 +201,6 @@ namespace UCGUI
         public static T RotateRel<T>(this T renderable, float zRotation, Space space) where T : BaseComponent
         {
             return RotateRel(renderable, new Vector3(0, 0, zRotation), space);
-        }
-
-        // Padding
-        public static T Padding<T>(this T renderable, PaddingSide side, float padding) where T : BaseComponent
-        {
-            if (renderable.posApplied)
-            {
-                Debug.LogError("Pos has already been applied to " + renderable.DisplayName +
-                               ". Cannot apply additional Padding!");
-                return renderable;
-            }
-
-            Vector2 paddingVector = side switch
-            {
-                PaddingSide.Leading or PaddingSide.Horizontal or PaddingSide.Bottom => new Vector2(padding,
-                    renderable.GetPos().y),
-                PaddingSide.Trailing or PaddingSide.Top or PaddingSide.Vertical => new Vector2(renderable.GetPos().x,
-                    -padding),
-                _ => Vector2.zero
-            };
-
-            if (side.HasFlag(PaddingSide.Leading))
-                renderable.AddWidth(-padding);
-            if (side.HasFlag(PaddingSide.Trailing))
-                renderable.AddWidth(-padding);
-            if (side.HasFlag(PaddingSide.Top))
-                renderable.AddHeight(-padding);
-            if (side.HasFlag(PaddingSide.Bottom))
-                renderable.AddHeight(-padding);
-
-            renderable.paddingApplied = true;
-            return Pos(renderable, paddingVector, force:true);
         }
 
         // Sizing
@@ -402,6 +363,91 @@ namespace UCGUI
             return renderable.AnchorMin(anchorMinVector).AnchorMax(anchorMaxVector);
         }
 
+        /// <summary>
+        /// Stretches the element along the height of its parent automatically expanding and contracting.
+        /// </summary>
+        public static T StretchHorizontally<T>(this T renderable, HorizontalStretchAnchor? anchor = null) where T : BaseComponent
+        {
+
+            var rt = renderable.GetRect();
+
+            OffsetMin(renderable, 0, rt.offsetMin.y);
+            OffsetMax(renderable, 0, rt.offsetMax.y);
+
+            if (anchor.HasValue)
+            {
+                switch (anchor.Value)
+                {
+                    case HorizontalStretchAnchor.Top:
+                        Pivot(renderable, PivotPosition.UpperCenter, true);
+                        AnchorMin(renderable, 0, 1);
+                        AnchorMax(renderable,  1, rt.anchorMax.y);
+                        break;
+                    case HorizontalStretchAnchor.Middle:
+                        Pivot(renderable, PivotPosition.MiddleCenter, true);
+                        AnchorMin(renderable, 0, rt.anchorMin.y);
+                        AnchorMax(renderable,  1, rt.anchorMax.y);
+                        break;
+                    case HorizontalStretchAnchor.Bottom:
+                        Pivot(renderable, PivotPosition.LowerCenter, true);
+                        AnchorMin(renderable, 0, rt.anchorMin.y);
+                        AnchorMax(renderable,  1, 0);
+                        break;
+                }
+            }
+
+            return renderable;
+        }
+        
+        /// <summary>
+        /// Stretches the element along the width of its parent automatically expanding and contracting.
+        /// </summary>
+        public static T StretchVertically<T>(this T renderable, VerticalStretchAnchor? anchor = null) where T : BaseComponent
+        {
+            var rt = renderable.GetRect();
+            
+            OffsetMin(renderable, rt.offsetMin.x, 0);
+            OffsetMax(renderable, rt.offsetMax.x, 0);
+            
+            if (anchor.HasValue)
+            {
+                switch (anchor.Value)
+                {
+                    case VerticalStretchAnchor.Left:
+                        Pivot(renderable, PivotPosition.MiddleLeft, true);
+                        AnchorMin(renderable, 0, 0);
+                        AnchorMax(renderable,  rt.anchorMax.x, 1);
+                        break;
+                    case VerticalStretchAnchor.Center:
+                        Pivot(renderable, PivotPosition.MiddleCenter, true);
+                        AnchorMin(renderable, rt.anchorMin.x, 0);
+                        AnchorMax(renderable,  rt.anchorMax.x, 1);
+                        break;
+                    case VerticalStretchAnchor.Right:
+                        Pivot(renderable, PivotPosition.MiddleRight, true);
+                        AnchorMin(renderable, rt.anchorMin.x, 0);
+                        AnchorMax(renderable,  1, 1);
+                        break;
+                }
+            }
+                
+            return renderable;
+        }
+
+        /// <summary>
+        /// Stretches the element to fill the parent rect fully whilst automatically expanding and contracting.
+        /// </summary>
+        public static T Maximize<T>(this T renderable) where T : BaseComponent
+        {
+            OffsetMin(renderable, 0, 0);
+            OffsetMax(renderable, 0, 0);
+            
+            Pivot(renderable, PivotPosition.MiddleCenter, true);
+            AnchorMin(renderable, 0, 0);
+            AnchorMax(renderable, 1, 1);
+            return renderable;
+        }
+        
         // Hierarchy
         public static T NthSibling<T>(this T renderable, int n) where T : BaseComponent
         {

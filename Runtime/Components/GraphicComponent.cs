@@ -1,4 +1,6 @@
+using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -18,6 +20,9 @@ namespace UCGUI
     {
         
         public abstract Graphic GetGraphic();
+        private UnityAction clickAction;
+        [CanBeNull] private UnityAction _onPointerEnterAction;
+        [CanBeNull] private UnityAction _onPointerExitAction;
         
         public virtual T CopyFrom(T other, bool fullyCopyRect = true)
         {
@@ -76,16 +81,21 @@ namespace UCGUI
         
         public virtual void HandlePointerEnter(PointerEventData eventData) { }
         public virtual void HandlePointerExit(PointerEventData eventData) { }
+
+        public GraphicComponent<T> OnPointerEnter(UnityAction action) { _onPointerEnterAction = action; return this; }
         
         public void OnPointerEnter(PointerEventData eventData)
         {
             HandlePointerEnter(eventData);
+            _onPointerEnterAction?.Invoke();
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             HandlePointerExit(eventData);
+            _onPointerExitAction?.Invoke();
         }
+        public GraphicComponent<T> OnPointerExit(UnityAction action) { _onPointerExitAction = action; return this; }
         
         public virtual void Enabled(bool on)
         {

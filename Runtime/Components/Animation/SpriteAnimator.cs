@@ -1,19 +1,20 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace UCGUI
 {
     /// <summary>
     /// Highly customizable Animator for any component that uses an <see cref="ImageComponent"/>.
-    /// Noteworthy variables:
+    /// Variables:
     /// <list type="bullet">
-    /// <item><description><see cref="CurrentAnimation"/> - The current <see cref="SpriteAnimation"/>.</description></item>
+    /// <item><description><see cref="currentAnimation"/> - The current <see cref="SpriteAnimation"/>.</description></item>
     /// <item><description><see cref="CurrentState"/> - The current <see cref="State"/> the animator is in.</description></item>
     /// <item><description><see cref="Speed"/> - The playback speed. Default value is 1f.</description></item>
     /// <item><description><see cref="AnimationType"/> - The <see cref="Type"/> of the animator.</description></item>
     /// </list>
-    /// Noteworthy functions:
+    /// Functions:
     /// <list type="bullet">
     /// <item><description><see cref="Play"/> - Sets the <see cref="CurrentState"/> to <see cref="State.Running"/>.<i>If the animation is already <see cref="State.Completed"/>, will simply return.</i></description></item>
     /// <item><description><see cref="Pause"/> - Sets the <see cref="CurrentState"/> to <see cref="State.Paused"/>.</description></item>
@@ -21,8 +22,13 @@ namespace UCGUI
     /// <item><description><see cref="RestartAnimation"/> - Resets and then plays the current animation.</description></item>
     /// <item><description><see cref="NativeSizing"/> - Makes the animator's RectTransform to always scale to the native size of the frame being shown. See <see cref="ImageComponent.NativeSize()"/> and <see cref="ImageComponent.NativeSize(float, float)"/> for details.</description></item>
     /// </list>
+    /// Events:
+    /// <list type="bullet">
+    /// <item><description><see cref="OnPing"/> - Event fired when <see cref="AnimationType"/> is set to <see cref="Type.PingPong"/> and the <see cref="PingPongPhase.Ping"/> is reached. <i>Does <b>NOT</b> fire at the initial "Ping" when the animation starts.</i></description></item>
+    /// <item><description><see cref="OnPong"/> - Event fired when <see cref="AnimationType"/> is set to <see cref="Type.PingPong"/> and the <see cref="PingPongPhase.Pong"/> is reached.</description></item>
+    /// </list>
     /// <seealso cref="SpriteAnimation"/>
-    /// <seealso cref="ImageComponent"/>
+    /// <seealso cref="ImageComponent.AddAnimator"/>
     /// <para>
     /// Also implements <see cref="ICopyable{T}"/> which allows <see cref="ICopyable{T}.CopyFrom"/> and <see cref="ICopyable{T}.Copy"/>.
     /// </para>
@@ -51,15 +57,33 @@ namespace UCGUI
             Pong
         }
         
-        public SpriteAnimation CurrentAnimation;
+        public SpriteAnimation currentAnimation;
         public State CurrentState { get; private set; } = State.None;
         public Type AnimationType { get; private set;  }
         private PingPongPhase _currentPingPongPhase = PingPongPhase.Ping;
         public float Speed { get; private set; } = 1f;
         public float ElapsedTime { get; private set; }
         public int CurrentFrame { get; private set; }
-        public int AnimationLength => CurrentAnimation.Frames.Length;
+        public int AnimationLength => currentAnimation.Frames.Length;
         
+        private UnityEvent _onPing;
+        public UnityEvent OnPing {
+            get
+            {
+                _onPing ??= new UnityEvent();
+                return _onPing;
+            }
+        }
+        private UnityEvent _onPong;
+        public UnityEvent OnPong
+        {
+            get
+            {
+                _onPong ??= new UnityEvent();
+                return _onPong;
+            }
+        }
+
         // Sprite Sizing
         protected bool UseNativeSizing  {get; private set;  }
         protected Vector2 NativeSizeFactor { get; private set; }
@@ -70,6 +94,12 @@ namespace UCGUI
         {
             if (CurrentState == State.Completed)
                 return;
+
+            if (AnimationLength <= 1)
+            {
+                UCGUILogger.LogWarning(DisplayName + ": Animation has length 1. Will not start playing.");
+                return;
+            }
             
             CurrentState = State.Running;
         }
@@ -90,7 +120,7 @@ namespace UCGUI
 
         private void Update()
         {
-            if (CurrentState != State.Running || CurrentAnimation == null)
+            if (CurrentState != State.Running || currentAnimation == null)
                 return;
             
             ElapsedTime += Time.deltaTime;
@@ -104,7 +134,7 @@ namespace UCGUI
 
         public SpriteAnimator CreateAnimation(SpriteAnimation anim, Type animationType, float speed = 1f)
         {
-            CurrentAnimation = anim;
+            currentAnimation = anim;
             AnimationType = animationType;
             Speed = speed;
             return this;
@@ -145,7 +175,8 @@ namespace UCGUI
                             break;
                         }
                         CurrentFrame++;
-                        SetFrame();
+                        if (CurrentFrame == AnimationLength - 1)
+                            _onPong?.Invoke();
                     }
                     else
                     {
@@ -157,8 +188,10 @@ namespace UCGUI
                             break;
                         }
                         CurrentFrame--;
-                        SetFrame();
+                        if (CurrentFrame == 0)
+                            _onPing?.Invoke();
                     }
+                    SetFrame();
                     break;
                 }
             }
@@ -178,7 +211,7 @@ namespace UCGUI
         public void Clear()
         {
             ResetAnimation();
-            CurrentAnimation = null;
+            currentAnimation = null;
         }
         
         public void RestartAnimation()
@@ -189,7 +222,7 @@ namespace UCGUI
 
         private void SetFrame()
         {
-            Image.Sprite(CurrentAnimation.Frames[CurrentFrame]);
+            Image.Sprite(currentAnimation.Frames[CurrentFrame]);
             
             if (UseNativeSizing)
                 Image.NativeSize(NativeSizeFactor);
@@ -197,9 +230,9 @@ namespace UCGUI
 
         float GetFrameTime()
         {
-            if (CurrentFrame < 0 || CurrentFrame >= CurrentAnimation.FramesPerSecond.Length)
-                Debug.Log(AnimationType + ": "+ CurrentAnimation.FramesPerSecond.Length + $">> ({CurrentFrame})");
-            return 1f / (CurrentAnimation.FramesPerSecond[CurrentFrame] * Speed);
+            if (CurrentFrame < 0 || CurrentFrame >= currentAnimation.FramesPerSecond.Length)
+                Debug.Log(AnimationType + ": "+ currentAnimation.FramesPerSecond.Length + $">> ({CurrentFrame})");
+            return 1f / (currentAnimation.FramesPerSecond[CurrentFrame] * Speed);
         }
 
         public SpriteAnimator NativeSizing(float scaleFactorX, float scaleFactorY, bool nativeSizing = true)
@@ -232,7 +265,7 @@ namespace UCGUI
             NativeSizeFactor = other.NativeSizeFactor;
             UseNativeSizing = other.UseNativeSizing;
             Speed = other.Speed;
-            CurrentAnimation = other.CurrentAnimation;
+            currentAnimation = other.currentAnimation;
             CurrentState = other.CurrentState;
             CurrentFrame = other.CurrentFrame;
 
@@ -243,11 +276,14 @@ namespace UCGUI
         protected override void OnDrawGizmos()
         {
             base.OnDrawGizmos();
-            GUIStyle style = new GUIStyle();
-            style.normal.textColor = UnityEngine.Color.red;
-            style.fontSize = 14; 
-            
-            Handles.Label(transform.position, $"Type: {AnimationType}\nState: {CurrentState}\nFrame: {CurrentFrame}\nSpeed: {Speed}\nFrames: {CurrentAnimation.Frames.Length}", style);
+            if (debugOptions.HasFlag(DebugOptions.TextOnly))
+            {
+                GUIStyle style = new GUIStyle();
+                style.normal.textColor = Color.red;
+                style.fontSize = 14;
+
+                Handles.Label(transform.position, $"Type: {AnimationType}\nState: {CurrentState}\nFrame: {CurrentFrame}\nSpeed: {Speed}\nFrames: {currentAnimation.Frames.Length}", style);
+            }
         }
         #endif
     }

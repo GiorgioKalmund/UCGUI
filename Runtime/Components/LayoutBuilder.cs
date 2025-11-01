@@ -5,35 +5,24 @@ namespace UCGUI
     using UnityEngine.UI;
     public partial class LayoutBuilder
     {
-        private HorizontalOrVerticalLayoutGroup _layoutGroup;
+        private HorizontalOrVerticalLayoutComponent _layout;
+        private HorizontalOrVerticalLayoutGroup _relevantLayout;
 
-        public LayoutBuilder(HorizontalOrVerticalLayoutGroup layoutGroup) { _layoutGroup = layoutGroup; }
-
-        public void Padding(RectOffset padding)
+        public LayoutBuilder(HorizontalOrVerticalLayoutComponent layout, HorizontalOrVerticalLayoutGroup relevantLayout)
         {
-            _layoutGroup.padding = padding;
+            _layout = layout;
+            _relevantLayout = relevantLayout;   
         }
+
+        public void Padding(RectOffset padding) => _relevantLayout.padding = padding;
         
-        public void Padding(PaddingSide side, int amount)
-        {
-            _layoutGroup.Padding(side, amount);
-        }
-        public void PaddingAdd(PaddingSide side, int amount)
-        {
-            _layoutGroup.PaddingAdd(side, amount);
-        }
+        public void Padding(PaddingSide side, int amount) => _relevantLayout.Padding(side, amount);
+        public void PaddingAdd(PaddingSide side, int amount) => _relevantLayout.PaddingAdd(side, amount);
+        public void ReverseArrangement(bool reverse = true) => _relevantLayout.reverseArrangement = reverse;
 
-        public void ReverseArrangement(bool reverse = true)
+        public virtual void Add(params BaseComponent[] components)
         {
-            _layoutGroup.reverseArrangement = reverse;
-        }
-        
-        public virtual void Add(params BaseComponent[] component)
-        {
-            foreach (var baseComponent in component)
-            {
-                baseComponent.Parent(_layoutGroup.GetTransform());
-            }
+            _layout.Add(components);
         }
     }
 }

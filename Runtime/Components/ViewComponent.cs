@@ -9,14 +9,14 @@ namespace UCGUI
     /// UCGUI's Image Component.
     /// <br></br>
     /// <br></br>
-    /// Will default to <see cref="Close"/> on <see cref="Start"/>. Applies <see cref="DefaultBackdropColor"/> and <see cref="DefaultBackdropAlpha"/> to the background by default.
+    /// Will default to <see cref="Close"/> on <see cref="Start"/>. Applies <see cref="Defaults.View.DefaultBackdropColor"/> and <see cref="Defaults.View.DefaultBackdropAlpha"/> to the background by default.
     /// <br></br>
     /// <br></br>
     /// Variables:
     /// <list type="bullet">
-    /// <item><description><see cref="isOpen"/> - Whether the view is open.</description></item>.
-    /// <item><description><see cref="isLocked"/> - Whether the view is locked If <i>true</i>, the view can neither be opened nor closed.</description></item>.
-    /// <item><description><see cref="closesOnBackgroundTap"/> - Determines whether the view should close when clicking on the background.</description></item>.
+    /// <item><description><see cref="IsOpen"/> - Whether the view is open.</description></item>.
+    /// <item><description><see cref="IsLocked"/> - Whether the view is locked If <i>true</i>, the view can neither be opened nor closed.</description></item>.
+    /// <item><description><see cref="ClosesOnBackgroundTap"/> - Determines whether the view should close when clicking on the background.</description></item>.
     /// </list>
     /// Functions:
     /// <list type="bullet">
@@ -33,30 +33,30 @@ namespace UCGUI
     /// </list>
     /// Events:
     /// <list type="bullet">
-    /// <item><description><see cref="onOpen"/> - Invoked when the view is opened and either <see cref="EventOpen"/> or <see cref="Events"/> has been called.</description></item>.
-    /// <item><description><see cref="onClose"/> - Invoked when the view is closed and either <see cref="EventClose"/> or <see cref="Events"/> has been called.</description></item>.
+    /// <item><description><see cref="OnOpen"/> - Invoked when the view is opened and either <see cref="EventOpen()"/> or <see cref="Events"/> has been called.</description></item>.
+    /// <item><description><see cref="OnClose"/> - Invoked when the view is closed and either <see cref="EventOpen()"/> or <see cref="Events"/> has been called.</description></item>.
     /// </list>
     /// <para>
     /// Implements <see cref="IRenderable"/>.
     /// </para>
     public partial class ViewComponent : ImageComponent, IRenderable
     {
-        public bool isOpen = false;
+        public bool IsOpen { get; protected set; } = Defaults.View.StartsOpen;
 
         /// <summary>
-        /// Event fired whenever the view is opened. <br></br> Set it using <see cref="EventOpen"/> or <see cref="Events"/>.
+        /// Event fired whenever the view is opened. <br></br> Set it using <see cref="EventOpen()"/> or <see cref="Events"/>.
         /// </summary>
-        public UnityEvent onOpen { get; protected set; }
+        public UnityEvent OnOpen { get; protected set; }
         
         /// <summary>
-        /// Event fired whenever the view is closed. <br></br> Set it using <see cref="EventClose"/> or <see cref="Events"/>.
+        /// Event fired whenever the view is closed. <br></br> Set it using <see cref="EventOpen()"/> or <see cref="Events"/>.
         /// </summary>
-        public UnityEvent onClose { get; protected set; }
+        public UnityEvent OnClose { get; protected set; }
 
         private Canvas _canvas;
         private CanvasGroup _canvasGroup;
         
-        public bool isLocked = false;
+        public bool IsLocked { get; protected set; }
 
         private InputAction _toggleAction;
         private InputAction _openAction;
@@ -64,7 +64,7 @@ namespace UCGUI
 
         private Button _button;
 
-        public bool closesOnBackgroundTap = false;
+        public bool ClosesOnBackgroundTap { get; protected set; }
 
         private ViewStackComponent _viewStackComponent;
 
@@ -89,16 +89,16 @@ namespace UCGUI
             
             Color(Defaults.View.DefaultBackdropColor, Defaults.View.DefaultBackdropAlpha);
             
-            if (isOpen) Open(); else Close();
+            if (IsOpen) Open(); else Close();
         }
 
         /// <summary>
-        /// Sets <see cref="isOpen"/> to true, resulting in the view to stay open on <see cref="Start"/>.
+        /// Sets <see cref="IsOpen"/> to true, resulting in the view to stay open on <see cref="Start"/>.
         /// </summary>
         /// <returns></returns>
         public ViewComponent StartOpen()
         {
-            isOpen = true;
+            IsOpen = true;
             return this;
         }
 
@@ -108,11 +108,11 @@ namespace UCGUI
         public virtual void Render() { }
         
         /// <summary>
-        /// Toggles between opening and closing the view based on <see cref="isOpen"/>.
+        /// Toggles between opening and closing the view based on <see cref="IsOpen"/>.
         /// </summary>
         public virtual void ToggleOpenClose()
         {
-            if (isOpen)
+            if (IsOpen)
                 Close();
             else
                 Open();
@@ -120,39 +120,43 @@ namespace UCGUI
         private void ToggleOpenClose(InputAction.CallbackContext context) => ToggleOpenClose();
 
         /// <summary>
-        /// Opens the view.
+        /// Opens and re-renders the view.
+        /// <br></br>
+        /// Invokes <see cref="OnOpen"/>.
         /// </summary>
         public virtual void Open()
         {
-            if (isLocked)
+            if (IsLocked)
                 return;
             
             _canvasGroup.alpha = 1f;
             RaycastTarget(true);
 
-            isOpen = true;
+            IsOpen = true;
             this.BringToFront();
             Render();
 
-            onOpen?.Invoke();
+            OnOpen?.Invoke();
            
             EnsureEnabledOfAllChildren(true);
         }
         
         /// <summary>
         /// Closes the view.
+        /// <br></br>
+        /// Invokes <see cref="OnClose"/>.
         /// </summary>
         public virtual void Close()
         {
-            if (isLocked)
+            if (IsLocked)
                 return;
             
             _canvasGroup.alpha = 0f;
             RaycastTarget(false);
             
-            isOpen = false;
+            IsOpen = false;
 
-            onClose?.Invoke();
+            OnClose?.Invoke();
             
             EnsureEnabledOfAllChildren(false);
         }
@@ -183,7 +187,7 @@ namespace UCGUI
         /// </summary>
         /// <param name="component">The component to add.</param>
         /// <returns></returns>
-        public ViewComponent Add(BaseComponent component)
+        public virtual ViewComponent Add(BaseComponent component)
         {
             component.Parent(this);
             return this;
@@ -194,7 +198,7 @@ namespace UCGUI
         /// </summary>
         /// <param name="toggle">The <see cref="InputAction"/> to link.</param>
         /// <returns></returns>
-        public ViewComponent ToggleUsing(InputAction toggle)
+        public virtual ViewComponent ToggleUsing(InputAction toggle)
         {
             _toggleAction = toggle;
             _toggleAction.performed += ToggleOpenClose;
@@ -226,18 +230,18 @@ namespace UCGUI
         }
 
         /// <summary>
-        /// Sets <see cref="isLocked"/> to true. This disables opening and closing.
+        /// Sets <see cref="IsLocked"/> to true. This disables opening and closing.
         /// </summary>
         public void Lock()
         {
-            isLocked = true;
+            IsLocked = true;
         }
         /// <summary>
-        /// Sets <see cref="isLocked"/> to false. This re-enabled opening and closing if the view was previsouly locked.
+        /// Sets <see cref="IsLocked"/> to false. This re-enabled opening and closing if the view was previsouly locked.
         /// </summary>
         public void Unlock()
         {
-            isLocked = false;
+            IsLocked = false;
         }
 
         /// <summary>
@@ -245,7 +249,7 @@ namespace UCGUI
         /// </summary>
         public void ToggleLock()
         {
-            isLocked = !isLocked;
+            IsLocked = !IsLocked;
         }
         
         public void OnEnable()
@@ -274,27 +278,27 @@ namespace UCGUI
         }
 
         /// <summary>
-        /// Creates an event (<see cref="onOpen"/>) for when the view is opened.
-        /// </summary>
-        /// <returns></returns>
-        public ViewComponent EventClose()
-        {
-            onOpen ??= new UnityEvent();
-            return this;
-        }
-        
-        /// <summary>
-        /// Creates an event (<see cref="onClose"/>) for when the view is closed.
+        /// Creates an event (<see cref="OnOpen"/>) for when the view is opened.
         /// </summary>
         /// <returns></returns>
         public ViewComponent EventOpen()
         {
-            onClose ??= new UnityEvent();
+            OnOpen ??= new UnityEvent();
             return this;
         }
         
         /// <summary>
-        /// Creates events for opening and closing the view: <see cref="onOpen"/> and <see cref="onClose"/>.
+        /// Creates an event (<see cref="OnClose"/>) for when the view is closed.
+        /// </summary>
+        /// <returns></returns>
+        public ViewComponent EventClose()
+        {
+            OnClose ??= new UnityEvent();
+            return this;
+        }
+        
+        /// <summary>
+        /// Creates events for opening and closing the view: <see cref="OnOpen"/> and <see cref="OnClose"/>.
         /// </summary>
         /// <returns></returns>
         public ViewComponent Events()
@@ -305,7 +309,7 @@ namespace UCGUI
 
         private void OnBackgroundTap()
         {
-            if (closesOnBackgroundTap && isOpen && !isLocked)
+            if (ClosesOnBackgroundTap && IsOpen && !IsLocked)
             {
                 if (_viewStackComponent)
                 {
@@ -315,7 +319,8 @@ namespace UCGUI
                         return;
                     }
                     
-                    UCGUILogger.LogWarning($"<b>Closed View which is not on top of the view stack: {this}!</b>\nThis can lead to unwanted behaviours. Please make sure you open and close Views in a ViewStack in the intended order.");
+                    UCGUILogger.LogWarning($"<b>Closed View which is not on top of the view stack: {this}!</b>" +
+                                           $"\nThis can lead to unwanted behaviours. Please make sure you open and close Views in a ViewStack in the intended order using \"ViewStack.Pop()\"");
                 }
                 Close();
             }
@@ -345,14 +350,13 @@ namespace UCGUI
         {
             private readonly ViewComponent _viewComponent;
 
-            public ViewBuilder(ViewComponent viewComponent)
+            public ViewBuilder(ViewComponent viewComponent, Canvas canvas = null)
             {
-                _viewComponent = viewComponent; 
+                _viewComponent = viewComponent;
+                if (canvas)
+                    viewComponent.Link(canvas);
             }
-            public ViewBuilder(ViewComponent viewComponent, Canvas canvas) : this(viewComponent)
-            {
-                viewComponent.Link(canvas);
-            }
+            
             /// <inheritdoc cref="ViewComponent.ToggleUsing"/>
             public void ToggleUsing(InputAction toggle) => _viewComponent.ToggleUsing(toggle);
             
@@ -370,8 +374,8 @@ namespace UCGUI
             /// <summary>
             /// Sets whether the view closes automatically when tapping on its background.
             /// </summary>
-            /// <param name="closes">Boolean controlling <see cref="ViewComponent.closesOnBackgroundTap"/></param>.
-            public void CloseOnBackgroundTap(bool closes = true) => _viewComponent.closesOnBackgroundTap = closes;
+            /// <param name="closes">Boolean controlling <see cref="ViewComponent.ClosesOnBackgroundTap"/>.</param>
+            public void CloseOnBackgroundTap(bool closes = true) => _viewComponent.ClosesOnBackgroundTap = closes;
             
             /// <inheritdoc cref="ViewComponent.StartOpen"/>
             public void StartOpen() => _viewComponent.StartOpen();
@@ -379,7 +383,7 @@ namespace UCGUI
             /// <inheritdoc cref="ViewComponent.EventOpen"/>
             public void EventOpen() => _viewComponent.EventOpen();
             
-            /// <inheritdoc cref="ViewComponent.EventClose"/>
+            /// <inheritdoc cref="ViewComponent.EventOpen()"/>
             public void EventClose() => _viewComponent.EventClose();
             
             /// <inheritdoc cref="ViewComponent.Events"/>

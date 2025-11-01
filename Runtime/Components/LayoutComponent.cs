@@ -9,10 +9,13 @@ namespace UCGUI
             base.Awake();
             ToggleVisibility();
         }
-        
-        public virtual void Add(BaseComponent element)
+
+        public virtual void Add(params BaseComponent[] elements) 
         {
-            element.Parent(this);
+            foreach (var element in elements)
+            {
+                element.Parent(this);
+            }
         }
 
         public override void Enabled(bool on)
@@ -25,6 +28,14 @@ namespace UCGUI
                     e.Enabled(on);
                 }
             }
+        }
+
+        public override BaseComponent HandleSizeChanged(float x, float y)
+        {
+            if (ContentSizeFitter)
+                ContentSizeFitter.enabled = false;
+            base.HandleSizeChanged(x, y);
+            return this;
         }
     }
 }

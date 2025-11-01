@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -13,83 +14,38 @@ namespace UCGUI
     /// <list type="bullet">
     /// <item><description><see cref="Foreground"/> - Adds a secondary image sitting between text and background. Hidden by default.</description></item>
     /// <item><description><see cref="Function"/> - Adds a listener function for when the button is clicked.</description></item>
-    /// <item><description><see cref="Create"/> - Simple builder to create configure your button. <b>For better control and flexibility use the built-in <see cref="UI.Button"/>.</b></description></item>
     /// <item><description><see cref="FitToContents(int,float,UCGUI.ScrollViewDirection)"/> - Allows the button to fit to its contents, as well as aligning text and foreground image (if present) horizontally. <b>For better control and flexibility use the built-in <see cref="UI.Button"/>.</b></description></item>
     /// </list>
     /// <para>
     /// Also implements <see cref="ICopyable{T}"/> which allows <see cref="ICopyable{T}.CopyFrom"/> and <see cref="ICopyable{T}.Copy"/>.
     /// </para>
     /// </summary>
-    public partial class ButtonComponent : ImageComponent, IFocusable, ICopyable<ButtonComponent>, IStylable<ButtonComponent, ButtonStyle>
+    public partial class ButtonComponent : LabelComponent, IFocusable, ICopyable<ButtonComponent>, IStylable<ButtonComponent, ButtonStyle>
     {
-        public ButtonComponent() { NamePrefix = "ButtonComponent"; }
-        
-        // -- Button -- //
         public Button button;
-        public List<UnityAction> Listeners = new List<UnityAction>();
 
-        // -- Subcomponents -- // 
-        protected ImageComponent ForegroundImage;
-        protected TextComponent ButtonText;
-        
-        private bool _focusable;
-        
+        protected readonly List<UnityAction> listeners = new List<UnityAction>();
+
         public override void Awake()
         {
             base.Awake();
-
+            
+            GetGraphic().enabled = true;
             button = gameObject.GetOrAddComponent<Button>();
+            Style(ButtonStyle.Plain);
         }
 
         public override void Start()
         {
             base.Start();
-            this.SafeDisplayName(NamePrefix);
-
-            if (_focusable)
-                Function(this.Focus);
-        }
-
-        public void EnsureTextExists()
-        {
-            if (!ButtonText)
-                ButtonText = UI.N<TextComponent>(transform, "Text").Style(Defaults.Style.Text.ButtonText);
-        }
-
-        public void EnsureForegroundExists()
-        {
-            if (!ForegroundImage)
-                ForegroundImage = UI.N<ImageComponent>(transform, "Foreground-Hint").RaycastTarget(false);
-        }
-
-        public ButtonComponent Create(string text = "", UnityAction action = null, Sprite foreground = null, bool focusable = false)
-        {
-            if (!string.IsNullOrEmpty(text))
-                Text(text);
-            if (action != null)
-                Function(action);
-            if (foreground)
-                Foreground(foreground);
-
-            _focusable = focusable;
-            
-            return this;
-        }
-        
-        public ButtonComponent Foreground(Sprite sprite, float alpha = 1f)
-        {
-            EnsureForegroundExists();
-            ForegroundImage.Sprite(sprite).Alpha(alpha).SetActive(sprite);
-            return this;
+            DisplayName = "Button";
         }
 
         public ButtonComponent FitToContents(PaddingSide side, int amount, float spacing, ScrollViewDirection direction = ScrollViewDirection.Both)
         {
             AddFitter(direction);
-            ButtonText?.FitToContents();
-            
-            AddHorizontalLayout(spacing, childControlWidth:true, childControlHeight:true);
-            Padding(side, amount, ScrollViewDirection.Horizontal);
+            Padding(side, amount, direction);
+            Spacing(spacing);
             return this;
         }
         
@@ -98,67 +54,30 @@ namespace UCGUI
             return FitToContents(PaddingSide.All, padding, spacing, direction);
         }
         
-        public BaseComponent ContentPadding(int amount)
-        {
-            return Padding(PaddingSide.All, amount, ScrollViewDirection.Horizontal);
-        }
-        
-        public ButtonComponent ForegroundSize(float x, float y)
-        {
-            ForegroundImage.AddLayoutElement(x, y);
-            return this;
-        }
-
-        public ButtonComponent ForegroundSize(Vector2 size)
-        {
-            return ForegroundSize(size.x, size.y);
-        }
-
-        public ButtonComponent ContentSpacing(float spacing)
-        {
-            if (HorizontalLayout)
-                HorizontalLayout.spacing = spacing;
-            if (VerticalLayout)
-                VerticalLayout.spacing = spacing;
-            return this;
-        }
-
-        public ButtonComponent Text(string text, TextComponent.TextMode mode = TextComponent.TextMode.Normal, Color? color = null)
-        {
-            EnsureTextExists();
-            ButtonText.Text(text, mode, color);
-            return this;
-        }
-
-        public TextComponent TextBuilder()
-        {
-            EnsureTextExists();
-            return ButtonText;
-        }
 
         public ButtonComponent Function(UnityAction action, bool keepLast = false)
         {
-            if (!keepLast && Listeners.Count > 1)
+            if (!keepLast && listeners.Count > 1)
             {
-                var last = Listeners[^1];
+                var last = listeners[^1];
                 RemoveFunction(last);
             }
             button.onClick.AddListener(action);
-            Listeners.Add(action);
+            listeners.Add(action);
             return this;
         }
         
         public ButtonComponent RemoveFunction(UnityAction action)
         {
             button.onClick.RemoveListener(action);
-            Listeners.Remove(action);
+            listeners.Remove(action);
             return this;
         }
         
         public ButtonComponent ClearAllFunctions()
         {
             button.onClick.RemoveAllListeners();
-            Listeners.Clear();
+            listeners.Clear();
             return this;
         }
 
@@ -167,10 +86,9 @@ namespace UCGUI
             base.HandleSizeChanged(x, y);
             if (HorizontalLayout && HorizontalLayout.enabled || VerticalLayout && VerticalLayout.enabled)
                 return this;
-            if (ForegroundImage)
-                ForegroundImage.Size(x, y);
-            if (ButtonText)
-                ButtonText.Size(x, y);
+            
+            _image?.Size(x, y);
+            _text?.Size(x, y);
             return this;
         }
 
@@ -239,16 +157,11 @@ namespace UCGUI
             button.interactable = i;
             return this;
         }
-
+        
         public new ButtonComponent Copy(bool fullyCopyRect = true)
         {
             ButtonComponent copyButton = this.BaseCopy(this);
             return copyButton.CopyFrom(this, fullyCopyRect);
-        }
-
-        public bool IsFocusable()
-        {
-            return _focusable;
         }
 
         public ButtonComponent CopyFrom(ButtonComponent other, bool fullyCopyRect = true)
@@ -257,18 +170,10 @@ namespace UCGUI
                 FitToContents();
             
             base.CopyFrom(other, fullyCopyRect);
-            Create(focusable:other.IsFocusable());
-            if (ButtonText)
-                ButtonText.CopyFrom(other.ButtonText);
-            if (ForegroundImage)
-            {
-                ForegroundImage.CopyFrom(other.ForegroundImage);
-                Foreground(other.ForegroundImage.GetImage().sprite);
-            }
             button.CopyFrom(other.button);
             
             ClearAllFunctions();
-            foreach (var unityAction in other.Listeners)
+            foreach (var unityAction in other.listeners)
             {
                 Function(unityAction);
             }
@@ -276,13 +181,15 @@ namespace UCGUI
             return this;
         }
 
+
+        public string FocusGroup { get; set; }
+        
+        public UnityEvent OnFocusEvent { get; set; }
+        
+        public UnityEvent OnUnfocusEvent { get; set; }
+        
         public virtual void HandleFocus() { }
         public virtual void HandleUnfocus() { }
-
-        public ImageComponent GetForeground()
-        {
-            return ForegroundImage;
-        }
 
         public ButtonComponent Transition(Selectable.Transition transition)
         {
@@ -319,88 +226,40 @@ namespace UCGUI
         {
             base.Enabled(on);
             button.interactable = on;
-            ForegroundImage?.Enabled(on);
-            ButtonText.Enabled(on);
+            image.Enabled(on);
+            text.Enabled(on);
             if (HorizontalLayout) HorizontalLayout.enabled = on;
             if (VerticalLayout) VerticalLayout.enabled = on;
             if (ContentSizeFitter) ContentSizeFitter.enabled = on;
+        }
+
+        protected override void OnDrawGizmosSelected()
+        {
+            base.OnDrawGizmosSelected();
+            this.DrawFocusableDebug();
         }
 
         public partial class ButtonBuilder
         {
             private ButtonComponent _button;
 
-            public HorizontalLayoutGroup HorizontalLayout => _button.HorizontalLayout;
-            public VerticalLayoutGroup VerticalLayout => _button.VerticalLayout;
-
-            public ButtonBuilder(ButtonComponent button) { _button = button; }
-
-            public void Foreground(Sprite sprite, float alpha = 1)
-            {
-                _button.Foreground(sprite, alpha);
-            }
-            public void Foreground(Sprite sprite, Vector2 preferredSize, float alpha = 1)
-            {
-                Foreground(sprite, alpha);
-                _button.ForegroundImage.Size(preferredSize);
-            }
+            public ButtonBuilder(ButtonComponent button) => _button = button;
             
-            
-            public void Background(Sprite sprite, Image.Type type, float ppum = 1f)
-            {
-                _button.Sprite(sprite, type, ppum);
-            }
-            public void Background(Color color, float alpha = 1f)
-            {
-                _button.Color(color, alpha);
-            }
+            /// <summary>
+            /// Modifies the label of the button.
+            /// </summary>
+            /// <param name="text">The text of the label.</param>
+            /// <param name="image">(Optional) The image of the label.</param>
+            public void Label(string text, [CanBeNull] Sprite image = null) => _button.Init(text, image);
 
-            public void AddHorizontalLayout(float spacing = 0f, TextAnchor childAlignment = TextAnchor.MiddleCenter, bool childControlWidth = false, bool childControlHeight = false, bool childForceExpandWidth = false, bool childForceExpandHeight = false, bool reverseArrangement = false)
+            /// <summary>
+            /// Hides the default <see cref="LabelComponent"/> elements and adds all inserted elements into the button's body.
+            /// </summary>
+            /// <param name="content">The content to show.</param>
+            public void Content(params BaseComponent[] content) 
             {
-                _button.AddHorizontalLayout(spacing, childAlignment, childControlWidth, childControlHeight,
-                    childForceExpandWidth, childForceExpandHeight, reverseArrangement);
-            }
-            public void AddVerticalLayout(float spacing = 0f, TextAnchor childAlignment = TextAnchor.MiddleCenter, bool childControlWidth = false, bool childControlHeight = false, bool childForceExpandWidth = false, bool childForceExpandHeight = false, bool reverseArrangement = false)
-            {
-                _button.AddVerticalLayout(spacing, childAlignment, childControlWidth, childControlHeight,
-                    childForceExpandWidth, childForceExpandHeight, reverseArrangement);
-            }
-            
-            public void FitToContents(float spacing = 0f, ScrollViewDirection direction = ScrollViewDirection.Both)  
-            {
-                _button.FitToContents(spacing:spacing, direction:direction);
-            }
-
-            public void Padding(RectOffset padding)
-            {
-                ScrollViewDirection directionToApply = ScrollViewDirection.None;
-                if (_button.VerticalLayout)
-                    directionToApply |= ScrollViewDirection.Vertical;
-                if (_button.HorizontalLayout)
-                    directionToApply |= ScrollViewDirection.Horizontal;
-                
-                Padding(padding, directionToApply);
-            }
-            public void Padding(RectOffset padding, ScrollViewDirection affectedDirectionLayout)
-            {
-                _button.Padding(padding, affectedDirectionLayout);
-            }
-
-            public void FontStyle(Color? color = null, FontStyles fontStyle = FontStyles.Normal)
-            {
-                if (color.HasValue)
-                    _button.ButtonText.Color(color.Value);
-                _button.ButtonText.FontStyle(fontStyle);
-            }
-            
-            public TextComponent TextBuilder()
-            {
-                return _button.TextBuilder();
-            }
-
-            public void ReverseArrangement(ScrollViewDirection affectedDirectionLayout)
-            {
-                _button.ReverseArrangement(affectedDirectionLayout);
+                _button.Style(LabelStyle.Hidden);
+                _button.Add(content);
             }
         }
     }

@@ -26,7 +26,7 @@ namespace UCGUI
     /// Default Style: <see cref="Defaults.Style.Input.Default"/>
     /// </para>
     /// </summary>
-    public partial class InputComponent : ImageComponent , IStylable<InputComponent, InputStyle>
+    public partial class InputComponent : ImageComponent , IStylable<InputComponent, InputStyle>, IFocusable, ICopyable<InputComponent>
     {
         protected TMP_InputField Input;
 
@@ -35,6 +35,8 @@ namespace UCGUI
 
         protected TMP_InputField.SubmitEvent OnSubmitEvent => Input.onSubmit;
         protected TMP_InputField.OnChangeEvent OnChangedEvent => Input.onValueChanged;
+        protected TMP_InputField.SelectionEvent OnSelectionEvent => Input.onSelect;
+        protected TMP_InputField.SelectionEvent OnDeselectionEvent => Input.onDeselect;
 
         private int _leadingOffset = 0;
         private int _trailingOffset = 0;
@@ -54,22 +56,31 @@ namespace UCGUI
             Input.placeholder = PlaceholderElement.GetTextMesh();
             Input.onFocusSelectAll = true;
 
-            TextElement.OverflowMode(TextOverflowModes.Ellipsis);
-            PlaceholderElement.OverflowMode(TextOverflowModes.Ellipsis);
+            TextElement.OverflowMode(TextOverflowModes.Ellipsis).AutoSize();
+            PlaceholderElement.OverflowMode(TextOverflowModes.Ellipsis).AutoSize();
             
-            this.Style(Defaults.Style.Input.Default);
+            OnSelectionEvent.AddListener(_ =>
+            {
+                this.Focus();
+            });
+            
+            Style(InputStyle.Default);
         }
 
         public InputComponent Colorize(Color textColor, Color placeholderColor)
         {
-            TextElement.Color(textColor);
-            PlaceholderElement.Color(placeholderColor);
+            TextElement.Color(textColor, keepPreviousAlphaValue:true);
+            PlaceholderElement.Color(placeholderColor, keepPreviousAlphaValue:true);
             return this;
         }
 
+        public InputComponent Colorize(Color textColors) => Colorize(textColors, textColors);
+
         public InputComponent FontSize(float size)
         {
+            TextElement.AutoSize(active: false);
             TextElement.FontSize(size);
+            PlaceholderElement.AutoSize(active: false);
             PlaceholderElement.FontSize(size);
             return this;
         }
@@ -112,7 +123,7 @@ namespace UCGUI
             return TextElement.GetText();
         }
 
-        public TextComponent GetPlaceholder()
+        public TextComponent GetPlaceholderComponent()
         {
             return PlaceholderElement;
         }
@@ -134,9 +145,10 @@ namespace UCGUI
             Input.ActivateInputField();
         }
         
-        public void Placeholder(string placeholder)
+        public InputComponent Placeholder(string placeholder)
         {
             PlaceholderElement.Text(placeholder);
+            return this;
         }
 
         public InputComponent OnChanged(UnityAction<string> newText)
@@ -148,6 +160,18 @@ namespace UCGUI
         public InputComponent OnSubmit(UnityAction<string> submission)
         {
             OnSubmitEvent.AddListener(submission);
+            return this;
+        }
+        
+        public InputComponent OnSelect(UnityAction<string> submission)
+        {
+            OnSelectionEvent.AddListener(submission);
+            return this;
+        }
+        
+        public InputComponent OnDeselect(UnityAction<string> submission)
+        {
+            OnSelectionEvent.AddListener(submission);
             return this;
         }
         
@@ -173,32 +197,48 @@ namespace UCGUI
             HandleSizeChanged(this.GetWidth(), this.GetHeight());
             return this;
         }
-
+        
+        public string FocusGroup { get; set; }
+        public UnityEvent OnFocusEvent { get; set; }
+        public UnityEvent OnUnfocusEvent { get; set; }
+        public virtual void HandleFocus() { Input.Select(); }
+        public virtual void HandleUnfocus() { Input.ReleaseSelection(); }
+        protected override void OnDrawGizmosSelected()
+        {
+            base.OnDrawGizmosSelected();
+            this.DrawFocusableDebug();
+        }
 
         public class InputBuilder
         {
             private InputComponent _input;
-
             public InputBuilder(InputComponent input) => _input = input;
 
-            public void ContentType(TMP_InputField.ContentType contentType)
-            {
-                _input.ContentType(contentType);
-            }
-            public void InputType(TMP_InputField.InputType inputType)
-            {
-                _input.InputType(inputType);
-            }
-
-            public void PaddingLeading(int offset)
-            {
-                _input.PaddingLeading(offset);
-            }
-            public void PaddingTrailing(int offset)
-            {
-                _input.PaddingTrailing(offset);
-            }
+            public void ContentType(TMP_InputField.ContentType contentType) => _input.ContentType(contentType);
+            public void InputType(TMP_InputField.InputType inputType) => _input.InputType(inputType);
+            public void PaddingLeading(int offset) => _input.PaddingLeading(offset);
+            public void PaddingTrailing(int offset) => _input.PaddingTrailing(offset);
+            public TextComponent GetTextComponent() => _input.GetTextComponent();
+            public TextComponent GetPlaceholderComponent() => _input.GetPlaceholderComponent();
         }
 
+        public new InputComponent Copy(bool fullyCopyRect = true)
+        {
+            InputComponent copyInput = this.BaseCopy(this);
+            return copyInput.CopyFrom(this, fullyCopyRect);
+        }
+
+        public InputComponent CopyFrom(InputComponent other, bool fullyCopyRect = true)
+        {
+            _leadingOffset = other._leadingOffset;
+            _trailingOffset = other._trailingOffset;
+            base.CopyFrom(other, fullyCopyRect);
+            
+            TextElement.CopyFrom(other.TextElement, fullyCopyRect);
+            PlaceholderElement.CopyFrom(other.PlaceholderElement, fullyCopyRect);
+            
+            // TODO: Submit event is not copied over
+            return this;
+        }
     }
 }

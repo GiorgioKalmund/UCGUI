@@ -23,8 +23,7 @@ namespace UCGUI
         public class GridBuilder
         {
             private GridComponent _grid;
-
-            public GridBuilder(GridComponent grid) { _grid = grid; }
+            public GridBuilder(GridComponent grid) => _grid = grid;
 
             public void SpacingVertical(float spacing)
             {
@@ -38,34 +37,15 @@ namespace UCGUI
                 s.x = spacing;
                 _grid.grid.spacing = s;
             }
-
-            public void Spacing(Vector2 spacing) { _grid.grid.spacing = spacing; }
+            public void Spacing(Vector2 spacing) =>  _grid.grid.spacing = spacing;
             public void Spacing(float x, float y) => Spacing(new Vector2(x, y));
-            public void CellSize (Vector2 cellSize) { _grid.grid.cellSize = cellSize; }
+            public void CellSize (Vector2 cellSize) => _grid.grid.cellSize = cellSize;
             public void CellSize(float x, float y) => CellSize(new Vector2(x, y));
-
-            public void Padding(RectOffset padding)
-            {
-                _grid.grid.padding = padding;
-            }
-            public void Padding(PaddingSide side, int amount)
-            {
-                _grid.grid.Padding(side, amount);
-            }
-            public void PaddingAdd(PaddingSide side, int amount)
-            {
-                _grid.grid.PaddingAdd(side, amount);
-            }
-
-            public void Add(BaseComponent element)
-            {
-                _grid.Add(element);
-            }
-
-            public GridLayoutGroup GetGrid()
-            {
-                return _grid.grid;
-            }
+            public void Padding(RectOffset padding) => _grid.grid.padding = padding;
+            public void Padding(PaddingSide side, int amount) => _grid.grid.Padding(side, amount);
+            public void PaddingAdd(PaddingSide side, int amount) => _grid.grid.PaddingAdd(side, amount);
+            public void Add(BaseComponent element) => _grid.Add(element);
+            public GridLayoutGroup GetGrid() => _grid.grid;
         }
     }
 }

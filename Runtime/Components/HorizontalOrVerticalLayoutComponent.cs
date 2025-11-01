@@ -19,23 +19,6 @@ namespace UCGUI
             return this;
         }
 
-        public HorizontalOrVerticalLayoutComponent Padding(RectOffset padding)
-        {
-            return this;
-        }
-
-        public HorizontalOrVerticalLayoutComponent Padding(PaddingSide side, int amount)
-        {
-            GetLayout().Padding(side, amount);
-            return this;
-        }
-
-        public HorizontalOrVerticalLayoutComponent PaddingAdd(PaddingSide side, int amount)
-        {
-            GetLayout().PaddingAdd(side, amount);
-            return this;
-        }
-
         public HorizontalOrVerticalLayoutComponent ChildAlignment(TextAnchor childAlignment)
         {
             GetLayout().childAlignment = childAlignment;

@@ -84,4 +84,19 @@
 - Added new [DebugOptions](Runtime/Components/Support/DebugOptions.cs) and `DebugMode(DebugOptions)` for basic editor gizmos.
 - Smaller reordering of code and comments for improved maintenance and legibility
 
-
+## [1.0.12] - 2025-11-01
+### Labels, TextAnimator, Layouts, DragViews & much more!
+- Overhauled and improved [ButtonComponent](Runtime/Components/ButtonComponent.cs).
+  - UCGUI's button now uses a [LabelComponent](Runtime/Components/LabelComponent.cs) for basic rendering, increasing the ease of use, whilst maintaining the option to be as flexible as before.
+- Added [TextAnimator](Runtime/Components/Animation/TextAnimator.cs) for animations on texts.
+  - Animations support three different modes: `Letter`, `Word` and `Sentence`.
+- Added a new element into the layout element hierarchy: [SwitchLayoutComponent](Runtime/Components/SwitchLayoutComponent.cs).
+- Any [LayoutComponent](Runtime/Components/LayoutComponent.cs) now disables its `ContentSizeFitter` if the size is set manually after creation.
+- Improves stretching behaviour using new `StretchHorizontally`, `StretchVertically` and `Maximize` functionalities.
+- Simplified the [DraggableViewComponent](Runtime/Components/DragViewComponent.cs) and the View family overall.
+- Style presets now live inside their own classes, allowing for easier and more intuitive access.
+- A new [ComponentFinder](Runtime/Service/ComponentFinder.cs) allows for a built-in global dictionary for components, as well as registering instances for classes.
+- Removed the `Runtime/Demo` folder as any example functionality is being migrated to [the examples repository](https://github.com/GiorgioKalmund/UCGUI-Examples) 
+  - Also removed other irrelevant scripts not core to the library
+    <!-- TODO: REMOVE WHEN READY -->
+  - *private for now, will be made public when ready*

@@ -15,8 +15,8 @@ namespace UCGUI.Game
         {
             base.Start();
 
-            ForegroundImage.Rotation(0);
-            ButtonText.Rotation(0);
+            image.Rotation(0);
+            text.Rotation(0);
         }
 
         public override void HandlePointerEnter(PointerEventData eventData)
@@ -28,7 +28,7 @@ namespace UCGUI.Game
         public override void HandlePointerExit(PointerEventData eventData)
         {
             base.HandlePointerEnter(eventData);
-            this.UnFocus();
+            this.Unfocus();
         }
     }
 }

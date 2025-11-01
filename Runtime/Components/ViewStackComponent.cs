@@ -69,10 +69,13 @@ namespace UCGUI
         public virtual void Push(ViewComponent viewComponent)
         {
             if (!viewComponent)
+            {
+                UCGUILogger.LogError($"Cannot push to ViewStack \"{DisplayName}\". New element is null!");
                 return;
+            }
             if (stack.Contains(viewComponent))
             {
-                UCGUILogger.LogWarning($"ViewStack already contains {viewComponent}. Cannot forward to it again!");
+                UCGUILogger.LogWarning($"ViewStack already contains {viewComponent}. Cannot push it again!");
                 return;
             }
             

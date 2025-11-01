@@ -28,7 +28,7 @@ namespace UCGUI
     /// <item><description><see cref="disableWhileHovering"/> - A list containing all other input actions which are to be disabled when hovering over the scroll view.</description></item>
     /// </list>
     /// </summary>
-    public partial class ScrollViewComponent : BaseComponent 
+    public partial class ScrollViewComponent : BaseComponent, IPointerEnterHandler, IPointerExitHandler, IEnabled
     {
         public ImageComponent content;
 
@@ -123,7 +123,7 @@ namespace UCGUI
         }
 
         // -- Idea: Disable certain controls when hovering over scroll views, to avoid scrolling in other areas as well -- //
-        public void HandlePointerEnter(PointerEventData eventData)
+        public virtual void HandlePointerEnter(PointerEventData eventData)
         {
             foreach (var inputAction in disableWhileHovering)
             {
@@ -131,30 +131,35 @@ namespace UCGUI
             }
         }
 
-        public void HandlePointerExit(PointerEventData eventData)
+        public virtual void HandlePointerExit(PointerEventData eventData)
         {
             foreach (var inputAction in disableWhileHovering)
             {
                 inputAction.Enable();
             }
         }
+        
+        
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            HandlePointerEnter(eventData);
+        }
 
-        public ScrollViewComponent Enabled(bool e)
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            HandlePointerExit(eventData);
+        }
+
+        public void Enabled(bool e)
         {
             scrollRect.enabled = e;
-            return this;
         }
 
         public partial class ScrollViewBuilder
         {
             private readonly ScrollViewComponent _scrollView;
-
-            public ScrollViewBuilder(ScrollViewComponent scrollViewComponent) { _scrollView = scrollViewComponent; }
-
-            public void Add(params BaseComponent[] content)
-            {
-                _scrollView.Add(content);
-            }
+            public ScrollViewBuilder(ScrollViewComponent scrollViewComponent) => _scrollView = scrollViewComponent;
+            public void Add(params BaseComponent[] content) => _scrollView.Add(content);
         }
     }
 }

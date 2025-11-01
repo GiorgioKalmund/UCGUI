@@ -33,6 +33,7 @@ namespace UCGUI
         protected static readonly string NamePrefix = "TextComponent";
         private readonly Vector2 _defaultSize = new Vector2(100, 100);
         private static TMP_FontAsset _globalFont;
+        protected TextAnimator Animator;
 
         public static void GlobalFont(TMP_FontAsset asset)
         {
@@ -52,6 +53,7 @@ namespace UCGUI
             this.Size(_defaultSize);
 
             Font(_globalFont);
+            Style(TextStyle.Primary);
         }
 
         public virtual void Start()
@@ -124,7 +126,7 @@ namespace UCGUI
         
         public TextComponent VAlignCenter()
         {
-            return VAlignment(VerticalAlignmentOptions.Geometry);
+            return VAlignment(VerticalAlignmentOptions.Middle);
         }
         
         public TextComponent OverflowMode(TextOverflowModes overflowModes)
@@ -155,9 +157,10 @@ namespace UCGUI
             return this;
         }
 
-        public TextComponent FitToContents(bool fit = true)
+        public TextComponent FitToContents(bool fit = true, ScrollViewDirection direction = ScrollViewDirection.Horizontal)
         {
             _textMesh.autoSizeTextContainer = fit;
+            AddFitter(fit ? direction : ScrollViewDirection.None);
             return this;
         }
 
@@ -165,15 +168,12 @@ namespace UCGUI
         public TextComponent Italic() { return FontStyle(FontStyles.Italic); }
         public TextComponent Underline() { return FontStyle(FontStyles.Underline); }
 
-        public TextMeshProUGUI GetTextMesh()
-        {
-            return _textMesh;
-        }
+        public TextMeshProUGUI GetTextMesh() => _textMesh;
         
-        public override Graphic GetGraphic()
-        {
-            return _textMesh;
-        }
+        /// <summary>
+        /// Return the graphic required by <see cref="GraphicComponent{TextComponent}"/>
+        /// </summary>
+        public override Graphic GetGraphic() => _textMesh;
 
         public new TextComponent Copy(bool fullyCopyRect = true)
         {
@@ -201,9 +201,9 @@ namespace UCGUI
                 textComponent.AutoSize(text.fontSizeMin, text.fontSizeMax);
         }
 
-        public TextComponent AutoSize(float minSize = 18, float maxSize = 72)
+        public TextComponent AutoSize(float minSize = 18, float maxSize = 72, bool active = true)
         {
-            _textMesh.enableAutoSizing = true;
+            _textMesh.enableAutoSizing = active;
             _textMesh.fontSizeMin = minSize;
             _textMesh.fontSizeMax = maxSize;
             return this;
@@ -213,10 +213,10 @@ namespace UCGUI
         protected override void OnDrawGizmosSelected()
         {
             base.OnDrawGizmosSelected();
-            if (Defaults.State.DebugMode)
+            if (debugOptions.HasFlag(DebugOptions.TextOnly))
             {
-                Handles.Label(transform.position, $"\"{GetText()}\"\nBold:{(_textMesh.fontStyle & FontStyles.Bold) == FontStyles.Bold}\nItalic:{(_textMesh.fontStyle & FontStyles.Italic) == FontStyles.Italic}\nUnderline:{(_textMesh.fontStyle & FontStyles.Underline) == FontStyles.Underline}", Defaults.State.DebugStyle2);
-                Handles.Label(transform.position + new Vector3(0.2f, 0.2f, 0), $"\"{GetText()}\"\nBold:{(_textMesh.fontStyle & FontStyles.Bold) == FontStyles.Bold}\nItalic:{(_textMesh.fontStyle & FontStyles.Italic) == FontStyles.Italic}\nUnderline:{(_textMesh.fontStyle & FontStyles.Underline) == FontStyles.Underline}", Defaults.State.DebugStyle);
+                Handles.Label(transform.position, $"\"{GetText()}\"\nBold:{(_textMesh.fontStyle & FontStyles.Bold) == FontStyles.Bold}\nItalic:{(_textMesh.fontStyle & FontStyles.Italic) == FontStyles.Italic}\nUnderline:{(_textMesh.fontStyle & FontStyles.Underline) == FontStyles.Underline}", Defaults.Debug.DebugBlack());
+                Handles.Label(transform.position + new Vector3(0.2f, 0.2f, 0), $"\"{GetText()}\"\nBold:{(_textMesh.fontStyle & FontStyles.Bold) == FontStyles.Bold}\nItalic:{(_textMesh.fontStyle & FontStyles.Italic) == FontStyles.Italic}\nUnderline:{(_textMesh.fontStyle & FontStyles.Underline) == FontStyles.Underline}", Defaults.Debug.DebugWhite());
             }
         }
         #endif
@@ -224,6 +224,24 @@ namespace UCGUI
         public TextComponent Style(TextStyle style)
         {
             style.Apply(this);
+            return this;
+        }
+        
+        /// <summary>
+        /// Creates an <see cref="TextAnimator"/> and adds it to the object. If one is already present, it will 
+        /// return the existing.
+        /// </summary>
+        /// <returns><see cref="Animator"/></returns>
+        public TextAnimator AddAnimator()
+        {
+            Animator = gameObject.GetOrAddComponent<TextAnimator>();
+            Animator.DisplayName(DisplayName);
+            return Animator;
+        }
+
+        public TextComponent Margin(RectOffset rectOffset)
+        {
+            _textMesh.margin = new Vector4(rectOffset.left, rectOffset.right, rectOffset.top, rectOffset.bottom);
             return this;
         }
     }

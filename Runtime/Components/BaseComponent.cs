@@ -2,6 +2,7 @@ using UCGUI.Services;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace UCGUI
@@ -11,7 +12,7 @@ namespace UCGUI
         
 #if DEBUG
         [Header("Debug")]
-        [SerializeField] protected DebugOptions debugOptions = DebugOptions.None;
+        [SerializeField] public DebugOptions debugOptions = DebugOptions.None;
         protected virtual void OnDrawGizmos()
         {
             if (debugOptions.HasFlag(DebugOptions.RectOnly))
@@ -23,10 +24,7 @@ namespace UCGUI
             if (debugOptions.HasFlag(DebugOptions.TextOnly))
             {
                 RectTransform rect = gameObject.GetComponent<RectTransform>();
-                var style = new GUIStyle();
-                style.normal.textColor = Color.red;
-                style.fontSize = 8;
-                Handles.Label(transform.position + new Vector3(-rect.sizeDelta.x / 2, rect.sizeDelta.y / 2, 0),  $"{rect.sizeDelta.x}x{rect.sizeDelta.y}", style);
+                Handles.Label(transform.position + new Vector3(-rect.sizeDelta.x / 2, rect.sizeDelta.y / 2, 0),  $"{rect.sizeDelta.x}x{rect.sizeDelta.y}", Defaults.Debug.DebugRed(8));
             }
         }
         protected virtual void OnDrawGizmosSelected()
@@ -44,6 +42,7 @@ namespace UCGUI
             return this;
         }
         
+        // TODO: proper offset into WorldSpace when anchor is not central
         protected void DrawRect(RectTransform rect)
         {
             Gizmos.DrawWireCube(
@@ -55,9 +54,6 @@ namespace UCGUI
         
         private RectTransform _rect;
         
-        [HideInInspector] public bool paddingApplied = false;
-        [HideInInspector] public bool posApplied = false;
-
         private string _displayName = "BaseComponent";
         public string DisplayName
         {
@@ -72,7 +68,6 @@ namespace UCGUI
         protected float CanvasWidthFactor => GUIService.WidthScale;
         protected float CanvasHeightFactor => GUIService.HeightScale;
 
-
         [HideInInspector] public LayoutElement layoutElement;
         public HorizontalLayoutGroup HorizontalLayout { get; protected set; }
         public VerticalLayoutGroup VerticalLayout { get; protected set; }
@@ -82,8 +77,15 @@ namespace UCGUI
         public virtual void Awake()
         {
             _rect = gameObject.GetOrAddComponent<RectTransform>();
+            OnAwake();
         }
-    
+
+        public virtual BaseComponent OnAwake(UnityAction action = null)
+        {
+            action?.Invoke();
+            return this;
+        }
+
         public RectTransform GetRect()
         {
             if (!_rect)
@@ -142,10 +144,10 @@ namespace UCGUI
             return MinimumSize(new Vector2(x, y));
         }
 
-        public Vector2 GetMinimumSize()
+        public Vector2? GetMinimumSize()
         {
             if (!layoutElement)
-                AddLayoutElement();
+                return null;
             return new Vector2(layoutElement.preferredWidth, layoutElement.preferredHeight);
         }
         
@@ -154,12 +156,14 @@ namespace UCGUI
         {
             if (other.HorizontalLayout)
             {
-                copyComponent.AddHorizontalLayout();
+                if (!copyComponent.HorizontalLayout)
+                    copyComponent.AddHorizontalLayout();
                 copyComponent.HorizontalLayout.CopyFrom(other.HorizontalLayout);
             }
             if (other.VerticalLayout)
             {
-                copyComponent.AddVerticalLayout();
+                if (!copyComponent.VerticalLayout)
+                    copyComponent.AddVerticalLayout();
                 copyComponent.VerticalLayout.CopyFrom(other.VerticalLayout);
             }
         }
@@ -230,15 +234,37 @@ namespace UCGUI
 
         public BaseComponent AddHorizontalLayout(float spacing = 0f, TextAnchor childAlignment = TextAnchor.MiddleCenter, bool childControlWidth = false, bool childControlHeight = false, bool childForceExpandWidth = false, bool childForceExpandHeight = false, bool reverseArrangement = false) 
         {
+            if (HorizontalLayout)
+            {
+                UCGUILogger.LogError($"Cannot add additional horizontal layout to {DisplayName}. Component already has one attached. Please modify the existing one.");
+                return this;
+            }
             HorizontalLayout = CreateLayout<HorizontalLayoutGroup>(gameObject, spacing, childAlignment, childControlWidth, childControlHeight, childForceExpandWidth, childForceExpandHeight, reverseArrangement);
             return this;
         }
         public BaseComponent AddVerticalLayout(float spacing = 0f, TextAnchor childAlignment = TextAnchor.MiddleCenter, bool childControlWidth = false, bool childControlHeight = false, bool childForceExpandWidth = false, bool childForceExpandHeight = false, bool reverseArrangement = false) 
         {
+            if (VerticalLayout)
+            {
+                UCGUILogger.LogError($"Cannot add additional vertical layout to {DisplayName}. Component already has one attached. Please modify the existing one.");
+                return this;
+            }
+
+            if (!gameObject)
+            {
+                UCGUILogger.LogError("GO NULL!");
+                return this;
+            }
             VerticalLayout = CreateLayout<VerticalLayoutGroup>(gameObject, spacing, childAlignment, childControlWidth, childControlHeight, childForceExpandWidth, childForceExpandHeight, reverseArrangement);
             return this;
         }
 
+        /// <summary>
+        /// Adds a <see cref="ContentSizeFitter"/> to the element. If one is already added, will simply apply the options to the existing one.
+        /// </summary>
+        /// <param name="dir">The direction(s) the fitter will act in.</param>
+        /// <param name="fitMode">Optional specific mode, will default to <see cref="ContentSizeFitter.FitMode.PreferredSize"/>.</param>
+        /// <returns></returns>
         public BaseComponent AddFitter(ScrollViewDirection dir, ContentSizeFitter.FitMode fitMode = ContentSizeFitter.FitMode.PreferredSize)
         {
             ContentSizeFitter = gameObject.GetOrAddComponent<ContentSizeFitter>();
@@ -247,23 +273,33 @@ namespace UCGUI
             return this;
         }
 
-        public BaseComponent Padding(RectOffset padding, ScrollViewDirection direction)
+        /// <summary>
+        /// Controls the padding of <see cref="HorizontalLayout"/> and <see cref="VerticalLayout"/>.
+        /// </summary>
+        /// <param name="padding">A <see cref="RectOffset"/> specifying the padding amounts on every side.</param>
+        /// <param name="direction">Which layout to apply it to. Defaults to <see cref="ScrollViewDirection.Both"/>,
+        /// but will only apply if the layout of that direction is present!</param>
+        public BaseComponent Padding(RectOffset padding, ScrollViewDirection direction = ScrollViewDirection.Both)
         {
-            if (direction.HasFlag(ScrollViewDirection.Vertical))
+            if (direction.HasFlag(ScrollViewDirection.Vertical) && VerticalLayout)
             {
                 VerticalLayout.padding = padding;
             }
-            if (direction.HasFlag(ScrollViewDirection.Horizontal))
+            if (direction.HasFlag(ScrollViewDirection.Horizontal) && HorizontalLayout)
             {
                 HorizontalLayout.padding = padding;
             }
             return this;
         }
-        public BaseComponent Padding(int amount, ScrollViewDirection direction)
-        {
-            return Padding(PaddingSide.All, amount, direction);
-        }
-        public BaseComponent Padding(PaddingSide side, int amount, ScrollViewDirection direction)
+        
+        /// <summary>
+        /// Controls the padding of <see cref="HorizontalLayout"/> and <see cref="VerticalLayout"/>.
+        /// </summary>
+        /// <param name="side">The <see cref="PaddingSide"/> to apply the padding.</param>
+        /// <param name="amount">The padding amount.</param>
+        /// <param name="direction">Which layout to apply it to. Defaults to <see cref="ScrollViewDirection.Both"/>,
+        /// but will only apply if the layout of that direction is present!</param>
+        public BaseComponent Padding(PaddingSide side, int amount, ScrollViewDirection direction = ScrollViewDirection.Both)
         {
             if (side.HasFlag(PaddingSide.Leading)) { if (HorizontalLayout && direction.HasFlag(ScrollViewDirection.Horizontal)) HorizontalLayout.padding.left = amount; if (VerticalLayout&& direction.HasFlag(ScrollViewDirection.Vertical)) VerticalLayout.padding.left = amount;}
             if (side.HasFlag(PaddingSide.Trailing)) { if (HorizontalLayout&& direction.HasFlag(ScrollViewDirection.Horizontal)) HorizontalLayout.padding.right = amount;  if (VerticalLayout&& direction.HasFlag(ScrollViewDirection.Vertical)) VerticalLayout.padding.right = amount;}
@@ -271,6 +307,17 @@ namespace UCGUI
             if (side.HasFlag(PaddingSide.Bottom)) { if (HorizontalLayout&& direction.HasFlag(ScrollViewDirection.Horizontal)) HorizontalLayout.padding.bottom = amount;  if (VerticalLayout&& direction.HasFlag(ScrollViewDirection.Vertical)) VerticalLayout.padding.bottom = amount;}
             return this;
         }
+        
+        /// <summary>
+        /// Applies padding to <see cref="PaddingSide.All"/> for <see cref="HorizontalLayout"/> and <see cref="VerticalLayout"/>.
+        /// </summary>
+        /// <param name="amount">The padding amount.</param>
+        /// <param name="direction">Which layout to apply it to. Defaults to <see cref="ScrollViewDirection.Both"/>,
+        /// but will only apply if the layout of that direction is present!</param>
+        public BaseComponent Padding(int amount, ScrollViewDirection direction = ScrollViewDirection.Both) =>
+            Padding(PaddingSide.All, amount, direction);
+
+
 
         public BaseComponent Copy(bool fullyCopyRect = true)
         {
@@ -290,5 +337,16 @@ namespace UCGUI
             CopyLayouts(other, this);
             return this;
         }
+
+        /// <summary>
+        /// Registers this to the global map of the <see cref="ComponentFinder"/>.
+        /// </summary>
+        /// <param name="registrationId">The id to register under.</param>
+        public void Register(string registrationId) => ComponentFinder.Put(registrationId, this);
+        
+        /// <summary>
+        /// Registers this object as an instance of its class in the <see cref="ComponentFinder"/> instances map.
+        /// </summary>
+        public void RegisterInstance() => ComponentFinder.PutInstance(this);
     }
 }

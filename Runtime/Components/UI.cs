@@ -47,11 +47,18 @@ namespace UCGUI
         /// <returns>
         /// The resulting UCGUI <see cref="ImageComponent"/>. Use this to then continue building your desired Image Component.
         /// </returns>
-        public static ImageComponent Image(Sprite sprite, Image.Type type = UnityEngine.UI.Image.Type.Simple,
+        public static ImageComponent Image([CanBeNull] Sprite sprite, Image.Type type = UnityEngine.UI.Image.Type.Simple,
             float ppum = 1f)
         {
             ImageComponent imageComponent = N<ImageComponent>();
             imageComponent.Sprite(sprite, type, ppum);
+            return imageComponent;
+        }
+        
+        public static ImageComponent Image(Color color, float alpha = 1f)
+        {
+            ImageComponent imageComponent = N<ImageComponent>();
+            imageComponent.Color(color, alpha);
             return imageComponent;
         }
 
@@ -87,7 +94,7 @@ namespace UCGUI
         /// </code>
         /// </example>
 
-        public static ButtonComponent Button(string text = null, UnityAction action = null,
+        public static ButtonComponent Button([CanBeNull] string text, UnityAction action = null,
             UnityAction<ButtonComponent.ButtonBuilder> label = null)
         {
             ButtonComponent buttonComponent = N<ButtonComponent>();
@@ -103,6 +110,10 @@ namespace UCGUI
 
             return buttonComponent;
         }
+
+        public static ButtonComponent Button(UnityAction action = null,
+            UnityAction<ButtonComponent.ButtonBuilder> label = null)
+            => Button(null, action, label);
 
         /// <summary>
         /// UCGUI's default Scroll View. Similar to UGUI's <see cref="ScrollRect"/>.
@@ -155,6 +166,7 @@ namespace UCGUI
 
             return viewComponent;
         }
+
         /// <summary>
         /// UCGUI's default View. Can be opened and closed manually or using <see cref="InputAction"/>.
         /// </summary>
@@ -162,14 +174,30 @@ namespace UCGUI
         /// <returns>
         /// The resulting UCGUI <see cref="ViewComponent"/>.
         /// </returns>
-        public static ViewComponent View(UnityAction<ViewComponent.ViewBuilder> viewBuilder)
+        public static ViewComponent View(UnityAction<ViewComponent.ViewBuilder> viewBuilder) => View(null, viewBuilder);
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="canvas"></param>
+        /// <param name="viewBuilder"></param>
+        /// <returns></returns>
+        public static DragViewComponent DragView(Canvas canvas, UnityAction<DragViewComponent.DragViewBuilder> viewBuilder)
         {
-            ViewComponent viewComponent = N<ViewComponent>();
+            DragViewComponent dragViewComponent = N<DragViewComponent>();
             
-            viewBuilder(new ViewComponent.ViewBuilder(viewComponent));
+            viewBuilder(new DragViewComponent.DragViewBuilder(dragViewComponent, canvas));
 
-            return viewComponent;
+            return dragViewComponent;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dragViewBuilder"></param>
+        /// <returns></returns>
+        public static DragViewComponent DragView(UnityAction<DragViewComponent.DragViewBuilder> dragViewBuilder) =>
+            DragView(null, dragViewBuilder);
         
         /// <summary>
         /// A controlling component for opening and closing multiple <see cref="ViewComponent"/>s.
@@ -187,11 +215,10 @@ namespace UCGUI
         }
 
         /// <inheritdoc cref="ViewStack(Behaviour)"/>
-        public static ViewStackComponent ViewStack(Transform parent = null)
+        public static ViewStackComponent ViewStack(Transform parent)
         {
-            ViewStackComponent viewStackComponent = ViewStack((Behaviour)null);
-            if (parent)
-                viewStackComponent.Parent(parent);
+            ViewStackComponent viewStackComponent = ViewStack();
+            viewStackComponent.Parent(parent);
             return viewStackComponent;
         }
 
@@ -217,18 +244,18 @@ namespace UCGUI
         {
             HStackComponent layout = N<HStackComponent>();
             layout.Spacing(spacing).ChildAlignment(childAlignment);
-            var builder = new LayoutBuilder(layout.HorizontalLayout);
+            var builder = new LayoutBuilder(layout, layout.HorizontalLayout);
             contents(builder);
             return layout;
         }
         /// <inheritdoc cref="HStack(float, TextAnchor, Action{LayoutBuilder})"/>
-        public static ImageComponent HStack(Action<LayoutBuilder> contents)
-            => HStack(0f, TextAnchor.MiddleCenter, contents);
+        public static HStackComponent HStack(Action<LayoutBuilder> contents)
+            => HStack(0f, contents);
         /// <inheritdoc cref="HStack(float, TextAnchor, Action{LayoutBuilder})"/>
-        public static ImageComponent HStack(float spacing, Action<LayoutBuilder> contents)
-            => HStack(spacing, TextAnchor.MiddleCenter, contents);
+        public static HStackComponent HStack(float spacing, Action<LayoutBuilder> contents)
+            => HStack(spacing, TextAnchor.UpperCenter, contents);
         /// <inheritdoc cref="HStack(float, TextAnchor, Action{LayoutBuilder})"/>
-        public static ImageComponent HStack(TextAnchor childAlignment, Action<LayoutBuilder> contents)
+        public static HStackComponent HStack(TextAnchor childAlignment, Action<LayoutBuilder> contents)
             => HStack(0f, childAlignment, contents);
         
         /// <summary>
@@ -253,16 +280,16 @@ namespace UCGUI
         {
             VStackComponent layout = N<VStackComponent>();
             layout.Spacing(spacing).ChildAlignment(childAlignment);
-            var builder = new LayoutBuilder(layout.VerticalLayout);
+            var builder = new LayoutBuilder(layout, layout.VerticalLayout);
             contents(builder);
             return layout;
         }
         /// <inheritdoc cref="VStack(float, TextAnchor, Action{LayoutBuilder})"/>
         public static VStackComponent VStack(Action<LayoutBuilder> contents)
-            => VStack(0f, TextAnchor.MiddleCenter, contents);
+            => VStack(0f, contents);
         /// <inheritdoc cref="VStack(float, TextAnchor, Action{LayoutBuilder})"/>
         public static VStackComponent VStack(float spacing, Action<LayoutBuilder> contents)
-            => VStack(spacing, TextAnchor.MiddleCenter, contents);
+            => VStack(spacing, TextAnchor.MiddleLeft, contents);
         /// <inheritdoc cref="VStack(float, TextAnchor, Action{LayoutBuilder})"/>
         public static VStackComponent VStack(TextAnchor childAlignment, Action<LayoutBuilder> contents)
             => VStack(0f, childAlignment, contents);
@@ -297,7 +324,7 @@ namespace UCGUI
 
 
         /// <summary>
-        /// UCGUI's default <see cref="InputComponent"/>.
+        /// An input / text field based on <see cref="TMP_InputField"/>.
         /// </summary>
         /// <param name="placeholder">Placeholder string for the input field.</param>
         /// <param name="contentType"><see cref="TMP_InputField.ContentType"/> for the input field.</param>
@@ -315,6 +342,17 @@ namespace UCGUI
 
             return inputComponent;
         }
+        
+        /// <summary>
+        /// An input / text field based on <see cref="TMP_InputField"/>.
+        /// </summary>
+        /// <param name="placeholder">Placeholder string for the input field.</param>
+        /// <param name="builder"><see cref="InputComponent.InputBuilder"/> to configure the input further.</param>
+        /// <returns>
+        /// The resulting <see cref="InputComponent"/>.
+        /// </returns>
+        public static InputComponent Input(string placeholder, Action<InputComponent.InputBuilder> builder) =>
+            Input(placeholder, TMP_InputField.ContentType.Standard, builder);
         
         /// <summary>
         /// UCGUI's default Slider Component. Emulates Unity's uGUI native slider element.
@@ -370,20 +408,42 @@ namespace UCGUI
             return slider;
         }
 
-        
-        
         /// <summary>
-        /// UCGUI's default <see cref="InputComponent"/>.
+        /// Creates a <see cref="LabelComponent"/>.
         /// </summary>
-        /// <param name="placeholder">Placeholder string for the input field.</param>
-        /// <param name="builder"><see cref="InputComponent.InputBuilder"/> to configure the input further.</param>
+        /// <param name="text">The text of the label.</param>
+        /// <param name="image">The optional image of the label as a <see cref="Sprite"/>.</param>
         /// <returns>
-        /// The resulting <see cref="InputComponent"/>.
+        /// The resulting <see cref="LabelComponent"/>.
         /// </returns>
-        public static InputComponent Input(string placeholder, Action<InputComponent.InputBuilder> builder) =>
-            Input(placeholder, TMP_InputField.ContentType.Standard, builder);
+        public static LabelComponent Label(string text, Sprite image)
+        {
+            LabelComponent label = N<LabelComponent>();
+            label.Init(text, image);
+            
+            return label;
+        }
 
         
+        /// <summary>
+        /// Creates a <see cref="LabelComponent"/>.
+        /// </summary>
+        /// <param name="text">The text of the label.</param>
+        /// <param name="texture">The optional image of the label as a <see cref="Texture2D"/>.</param>
+        /// <returns>
+        /// The resulting <see cref="LabelComponent"/>.
+        /// </returns>
+        public static LabelComponent Label(string text, Texture2D texture) => Label(text, texture?.ToSprite());
+        
+        /// <summary>
+        /// Creates a <see cref="LabelComponent"/>.
+        /// </summary>
+        /// <param name="text">The text of the label.</param>
+        /// <returns>
+        /// The resulting <see cref="LabelComponent"/>.
+        /// </returns>
+        public static LabelComponent Label(string text) => Label(text, (Sprite)null);
+
         /// <summary>
         /// UCGUI's default Wheel Menu.
         /// </summary>
@@ -400,35 +460,6 @@ namespace UCGUI
             contents(new WheelMenu.WheelMenuBuilder(wheelMenu));
 
             return wheelMenu;
-        }
-        
-        
-        /// <summary>
-        /// UCGUI's default Window Component.
-        /// </summary>
-        /// <param name="name">
-        /// The name of the window. Will also automatically make this the window's title.
-        /// </param>
-        /// <param name="builder">
-        /// <see cref="WindowComponent.WindowBuilder"/> with most of the commonly used functions used to configure your window.
-        /// </param>
-        /// <returns>
-        /// The resulting UCGUI <see cref="WindowComponent"/>.
-        /// </returns>
-        public static WindowComponent Window(string name, Action<WindowComponent.WindowBuilder> builder = null)
-        {
-            WindowComponent window = N<WindowComponent>(name);
-
-            if (builder != null)
-            {
-                var build = new WindowComponent.WindowBuilder(window);
-                build.VerticalLayout(10, new RectOffset(10, 10, 10, 10));
-                build.FitToContents(ScrollViewDirection.Both);
-                build.Header(name, Color.gray8);
-                builder(build);
-            }
-
-            return window;
         }
     }
 }

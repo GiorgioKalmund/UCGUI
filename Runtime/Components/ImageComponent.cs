@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using UCGUI.Services;
 using UnityEngine;
 using UnityEngine.UI;
@@ -53,11 +54,11 @@ namespace UCGUI
                 _toggleInputAction.performed += _ => ToggleVisibility();
         }
 
-        public ImageComponent Sprite(Sprite sprite, Image.Type? imageType = null, float pixelsPerUnitMultiplier = 1f) 
+        public ImageComponent Sprite([CanBeNull] Sprite sprite, Image.Type? imageType = null, float pixelsPerUnitMultiplier = 1f) 
         {
             _image.sprite = sprite;
             // Only set if not already set from somewhere else
-            this.SafeDisplayName(NamePrefix + ": " + sprite?.name);
+            this.SafeDisplayName(NamePrefix + ": " + (sprite?.name ?? "null"));
             if (imageType.HasValue)
                 ImageType(imageType.Value);
             PixelsPerUnitMultiplier(pixelsPerUnitMultiplier);
@@ -206,9 +207,14 @@ namespace UCGUI
             return this;
         }
 
+        /// <summary>
+        /// Creates an <see cref="SpriteAnimator"/> and adds it to the object. If one is already present, it will 
+        /// return the existing.
+        /// </summary>
+        /// <returns><see cref="Animator"/></returns>
         public SpriteAnimator AddAnimator()
         {
-            Animator = gameObject.AddComponent<SpriteAnimator>();
+            Animator = gameObject.GetOrAddComponent<SpriteAnimator>();
             Animator.DisplayName(DisplayName);
             return Animator;
         }

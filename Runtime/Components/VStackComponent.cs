@@ -19,7 +19,7 @@ namespace UCGUI
         public override void Start()
         {
             base.Start();
-            this.DisplayName("VStack");
+            DisplayName = "VStack";
         }
     }
 }

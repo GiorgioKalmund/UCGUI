@@ -5,13 +5,13 @@ namespace UCGUI
     public abstract partial class SimpleScreen : BaseComponent
     {
         public Canvas canvas;
-        protected Transform CanvasParent;
+        protected Transform canvasParent;
         public override void Awake()
         {
             base.Awake();
 
             canvas = GetCanvas();
-            CanvasParent = canvas?.gameObject.transform;
+            canvasParent = canvas?.gameObject.transform;
         }
 
         private void Start()

@@ -47,11 +47,11 @@ namespace UCGUI
 
             slider = gameObject.GetOrAddComponent<Slider>();
 
-            background = UI.Image(ImageService.White).Color(Color.gray7).Parent(slider).DisplayName("Background").Stretch();
-            _fillArea = UI.Image(null).Alpha(0).Stretch().Parent(slider).DisplayName("Fill Area");
-            foreground = UI.Image(ImageService.White).Parent(_fillArea).Filled(Image.FillMethod.Horizontal, Value).DisplayName("Foreground");
-            _handleSlideArea = UI.Image(null).Alpha(0).Stretch().Parent(slider).DisplayName("Handle Slide Area");
-            handle = UI.Image(ImageService.White).Color(Color.gray3).Parent(_handleSlideArea).DisplayName("Handle");
+            background = UI.Image(null).Color(Color.gray7).Parent(slider).DisplayName("Background").StretchHorizontally();
+            _fillArea = UI.Image(null).Alpha(0).StretchHorizontally().Parent(slider).DisplayName("Fill Area");
+            foreground = UI.Image(null).Parent(_fillArea).Filled(Image.FillMethod.Horizontal, Value).DisplayName("Foreground");
+            _handleSlideArea = UI.Image(null).Alpha(0).StretchHorizontally().Parent(slider).DisplayName("Handle Slide Area");
+            handle = UI.Image(null).Color(Color.gray3).Parent(_handleSlideArea).DisplayName("Handle");
 
             slider.targetGraphic = handle.GetImage();
             slider.handleRect = handle.GetRect();

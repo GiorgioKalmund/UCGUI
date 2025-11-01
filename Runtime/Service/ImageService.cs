@@ -1,13 +1,14 @@
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace UCGUI.Services
 {
-    
     public partial class ImageService
     {
-        public static readonly string MissingTextureLocation = "Textures/missing";
+        public static string MissingTextureLocation => Defaults.Services.MissingTexture2DLocation;
         public static readonly Sprite MissingSprite = GetSprite(MissingTextureLocation);
-        public static Sprite White => GetSprite("white");
+        
+        [CanBeNull]
         public static Texture2D GetTexture2D(string path, FilterMode filterMode = FilterMode.Point)
         {
             if (string.IsNullOrEmpty(path))
@@ -17,16 +18,41 @@ namespace UCGUI.Services
             Texture2D texture = Resources.Load<Texture2D>(path);
             if (!texture)
             {
-                //Debug.LogWarning("No image found for: " + path);
+                UCGUILogger.LogError($"Resource loading error! Not Texture2D found at '{path}'");
                 texture = Resources.Load<Texture2D>(MissingTextureLocation);
+                return texture;
             }
             texture.filterMode = filterMode;
             return texture;
         }
+        
+        public static Sprite GetSprite(string path, string resourceFolder = "Textures/")
+        {
+            Texture2D texture = GetTexture2D(resourceFolder + path);
+            return texture.ToSprite();
+        }
+        
+        public static Sprite GetSpriteDirectly(string path, string resourceFolder = "Textures/")
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                UCGUILogger.LogWarning("Could not get image. Path empty.");
+                return MissingSprite;
+            }
+            Sprite sprite = Resources.Load<Sprite>(resourceFolder + path);
+            if (!sprite)
+            {
+                UCGUILogger.LogError($"Resource loading error! Not Sprite found at '{path}'");
+                return MissingSprite;
+            }
+            return sprite;
+        }
     
         public static Sprite GetSpriteFromAsset(string asset, string spriteName)
         {
-            var sprites = Resources.LoadAll<Sprite>("Aseprite/" + asset);
+            const string root = "Aseprite/";
+            
+            var sprites = Resources.LoadAll<Sprite>(root + asset);
             Sprite toReturn = null;
             foreach (var sprite in sprites)
             {
@@ -39,33 +65,10 @@ namespace UCGUI.Services
 
             if (!toReturn)
             {
-                Debug.LogWarning("No image found for: Aseprite/" + asset + ": " + spriteName);
-                return GetSprite("missing");
+                UCGUILogger.LogError($"No image found for: {root}" + asset + ": " + spriteName);
+                return MissingSprite;
             }
-
             return toReturn;
-        }
-    
-        public static Sprite GetSpriteDirectly(string path, string resourceFolder = "Textures/")
-        {
-            if (string.IsNullOrEmpty(path))
-            {
-                Debug.LogWarning("Could not get image. Path empty.");
-                return GetSprite(MissingTextureLocation);
-            }
-            Sprite sprite = Resources.Load<Sprite>(resourceFolder + path);
-            if (!sprite)
-            {
-                Debug.LogWarning("Could not get image:" + resourceFolder + path);
-                return GetSprite(MissingTextureLocation);
-            }
-            return sprite;
-        }
-    
-        public static Sprite GetSprite(string path, string resourceFolder = "Textures/")
-        {
-            Texture2D texture = GetTexture2D(resourceFolder + path);
-            return texture.ToSprite();
         }
     }
 }

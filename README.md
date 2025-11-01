@@ -6,6 +6,10 @@
 </div>
 A code-based graphics library for the Unity Game Engine
 
+> [!WARNING]
+> **UCGUI is still in very early development. Components, classes and functions are currently 
+still subject to change at any time.** 
+
 ## Why UCGUI?
 
 Simple UIs can easily be created in the editor, however they often need assistance from scripts and other libraries to do things like animation, transitions, etc.
@@ -300,6 +304,7 @@ These styles are also exist for other built-in components such as the [TextStyle
 | **[BaseComponent](Runtime/Components/BaseComponent.cs)**             | Foundation of UCGUI's component system. By itself similar to an empty GameObject with a `RectTransform.` |
 | **[TextComponent](Runtime/Components/TextComponent.cs)**             | Displays text using the builtin `TextMeshPro` text component.                                            |
 | **[ImageComponent](Runtime/Components/ImageComponent.cs)**           | Displays images using the builtin uGUI `Image`.                                                          |
+| **[LabelComponent](Runtime/Components/LabelComponent.cs)**           | A basic combination of some text and an optional accompanying Sprite.                                    |
 | **[ButtonComponent](Runtime/Components/ButtonComponent.cs)**         | A button based on uGUI's `Button`.                                                                       |
 | **[InputComponent](Runtime/Components/InputComponent.cs)**           | Input field based on TextMeshPro's `TMP_InputField`.                                                     |
 | **[SliderComponent](Runtime/Components/SliderComponent.cs)**         | Slider based on uGUI's `Slider`.                                                                         |
@@ -311,7 +316,17 @@ These styles are also exist for other built-in components such as the [TextStyle
 | **[ViewStackComponent](Runtime/Components/ViewStackComponent.cs)**   | Manages the visibility and ordering of `View` components .                                               |
 | **[ViewStackComponent](Runtime/Components/ViewStackComponent.cs)**   | Manages the visibility and ordering of `View` components .                                               |
 
-### Supporting 
-| Name                                                                 | Description                                        |
-|:---------------------------------------------------------------------|:---------------------------------------------------|
-| **[SpriteAnimator](Runtime/Components/Animation/SpriteAnimator.cs)** | Controls complex animations for `ImageComponent`s. |
+### Animation
+| Name                                                                 | Description                                               |
+|:---------------------------------------------------------------------|:----------------------------------------------------------|
+| **[SpriteAnimator](Runtime/Components/Animation/SpriteAnimator.cs)** | Controls animations for `ImageComponent`s.                |
+| **[TextAnimator](Runtime/Components/Animation/TextAnimator.cs)**     | Controls animations for `TextComponent`s.                 |
+
+
+### Support
+| Name                                                      | Description                                                                              |
+|:----------------------------------------------------------|:-----------------------------------------------------------------------------------------|
+| **[ImageService](Runtime/Service/ImageService.cs)**       | Service for finding Sprites and Textures located under `Asstest/Resources/`.             |
+| **[ComponentFinder](Runtime/Service/ComponentFinder.cs)** | Service for creating, finding and deleting instances global element references.          |
+| **[GUIService](Runtime/Service/GUIService.cs)**           | Service for locating the main Canvas and Camera scripts and retrieving their attributes. |
+| **[MaterialService](Runtime/Service/MaterialService.cs)** | Service for finding Materials located under `Asstest/Resources/`.                        |
