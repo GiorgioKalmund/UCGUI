@@ -11,11 +11,11 @@ namespace UCGUI.Services
         // =============================================================== //
         //                 Regular global key-value storage                //
         // =============================================================== //
-        private static Dictionary<string, BaseComponent> _register = new();
+        private static Dictionary<string, MonoBehaviour> _register = new();
 
-        public static bool Put(string registrationId, BaseComponent baseComponent)
+        public static bool Put(string registrationId, MonoBehaviour behaviour)
         {
-            if(!_register.TryAdd(registrationId, baseComponent))
+            if(!_register.TryAdd(registrationId, behaviour))
             {
                 UCGUILogger.LogError($"Trying to register an a global refernce for key {registrationId}, " +
                                        $"but there is already an element registered for that key!" +
@@ -30,9 +30,9 @@ namespace UCGUI.Services
         }
         
         [CanBeNull]
-        public static T Get<T>(string registeredComponentId) where T : BaseComponent
+        public static T Get<T>(string registeredBehaviourId) where T : MonoBehaviour
         {
-            if (_register.TryGetValue(registeredComponentId, out var value))
+            if (_register.TryGetValue(registeredBehaviourId, out var value))
             {
                 return (T)value;
             }
@@ -40,27 +40,27 @@ namespace UCGUI.Services
         }
 
         [CanBeNull]
-        public static BaseComponent Get(string registeredComponentId) => Get<BaseComponent>(registeredComponentId);
+        public static MonoBehaviour Get(string registeredBehaviourId) => Get<MonoBehaviour>(registeredBehaviourId);
         
         
         // =============================================================== //
         //                 Global Instances                                //
         // =============================================================== //
-        private static Dictionary<Type, BaseComponent> _instances = new();
+        private static Dictionary<Type, MonoBehaviour> _instances = new();
 
-        public static bool PutInstance(BaseComponent baseComponent)
+        public static bool PutInstance(MonoBehaviour behaviour)
         {
-            if (!_instances.TryAdd(baseComponent.GetType(), baseComponent))
+            if (!_instances.TryAdd(behaviour.GetType(), behaviour))
             {
-                UCGUILogger.LogError($"Trying to register an Instance of type {baseComponent.GetType()}, " +
+                UCGUILogger.LogError($"Trying to register an Instance of type {behaviour.GetType()}, " +
                                        $"but there is already an Instance registered for that type" +
-                                       $"Consider calling ComponentFinder.DeleteInstance<{baseComponent.GetType()}>() first!");
+                                       $"Consider calling ComponentFinder.DeleteInstance<{behaviour.GetType()}>() first!");
                 return false;
             }
             return true;
         } 
 
-        public static T CreateInstance<T>() where T : BaseComponent
+        public static T CreateInstance<T>() where T : MonoBehaviour
         {
             T instance = UI.N<T>();
             if (!PutInstance(instance))
@@ -70,7 +70,7 @@ namespace UCGUI.Services
             return instance;
         }
 
-        public static bool DeleteInstance<T>() where T : BaseComponent
+        public static bool DeleteInstance<T>() where T : MonoBehaviour
         {
             if (_instances.TryGetValue(typeof(T), out var instance))
             {
@@ -83,7 +83,7 @@ namespace UCGUI.Services
         }
 
         [CanBeNull]
-        public static T GetInstance<T>() where T : BaseComponent
+        public static T GetInstance<T>() where T : MonoBehaviour
         {
             if (_instances.TryGetValue(typeof(T), out var value))
             {
