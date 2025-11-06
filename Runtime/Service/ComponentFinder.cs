@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
 using Unity;
+using Unity.VisualScripting;
+using Object = UnityEngine.Object;
 
 namespace UCGUI.Services
 {
@@ -62,10 +64,10 @@ namespace UCGUI.Services
 
         public static T CreateInstance<T>() where T : MonoBehaviour
         {
-            T instance = UI.N<T>();
+            T instance = Object.Instantiate(new GameObject("Instance - " + typeof(T).Name)).AddComponent<T>();
             if (!PutInstance(instance))
             {
-                UnityEngine.Object.Destroy(instance.gameObject);
+                Object.Destroy(instance.gameObject);
             }
             return instance;
         }
@@ -74,7 +76,7 @@ namespace UCGUI.Services
         {
             if (_instances.TryGetValue(typeof(T), out var instance))
             {
-                UnityEngine.Object.Destroy(instance);
+                Object.Destroy(instance);
                 _instances.Remove(typeof(T));
                 return true;
             }
