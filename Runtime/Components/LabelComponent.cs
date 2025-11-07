@@ -87,8 +87,10 @@ namespace UCGUI
         public new LabelComponent CopyFrom(LabelComponent other, bool fullyCopyRect = true)
         {
             base.CopyFrom(other, fullyCopyRect);
-            text.CopyFrom(other.text, fullyCopyRect);
-            image.CopyFrom(other.image, fullyCopyRect);
+            if (other._text != null)
+                text.CopyFrom(other._text, fullyCopyRect);
+            if (other._image != null)
+                image.CopyFrom(other._image, fullyCopyRect);
             return this;
         }
 

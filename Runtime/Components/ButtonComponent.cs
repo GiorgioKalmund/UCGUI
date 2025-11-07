@@ -226,8 +226,8 @@ namespace UCGUI
         {
             base.Enabled(on);
             button.interactable = on;
-            image.Enabled(on);
-            text.Enabled(on);
+            _image.Enabled(on);
+            _text.Enabled(on);
             if (HorizontalLayout) HorizontalLayout.enabled = on;
             if (VerticalLayout) VerticalLayout.enabled = on;
             if (ContentSizeFitter) ContentSizeFitter.enabled = on;
