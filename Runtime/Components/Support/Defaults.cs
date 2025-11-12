@@ -13,7 +13,12 @@ namespace UCGUI{
         /// </summary>
         public static class State
         {
-          
+            
+        }
+        
+        public static class Screen 
+        {
+            public static Vector2 ReferenceResolution = new Vector2(1920, 1080);
         }
 
         public static class Debug
@@ -72,8 +77,8 @@ namespace UCGUI{
 
             public static bool StartsOpen = true;
             
-            public static Color DefaultBackdropColor = Color.black;
-            public static float DefaultBackdropAlpha = 0.6f;
+            public static Color DefaultBackdropColor = Color.clear;
+            public static float DefaultBackdropAlpha = 1f;
         }
 
         public static class Services

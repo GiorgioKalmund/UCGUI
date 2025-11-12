@@ -30,5 +30,11 @@ namespace UCGUI
             GetLayout().ReverseArrangement(reverse);
             return this;
         }
+        
+        public HorizontalOrVerticalLayoutComponent ReverseArrangementToggle()
+        {
+            GetLayout().ReverseArrangement(!GetLayout().reverseArrangement);
+            return this;
+        }
     }
 }

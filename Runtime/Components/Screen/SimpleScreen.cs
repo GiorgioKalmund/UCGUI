@@ -22,7 +22,7 @@ namespace UCGUI
             {
                 Debug.LogWarning("SimpleScreen (Awake): No canvas bound to screen!");
             }
-            this.FullScreen(canvas);
+            this.Maximize();
         }
 
         public abstract void Setup();

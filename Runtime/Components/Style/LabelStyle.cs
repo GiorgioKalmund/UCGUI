@@ -9,26 +9,26 @@ namespace UCGUI
         // =============================================================== //
         public static LabelStyle IconOnly => new LabelStyle(label =>
         {
-            label.image.gameObject.SetActive(true);
-            label.text.gameObject.SetActive(false);
+            if (label.HasImage()) label.image.gameObject.SetActive(true);
+            if (label.HasText()) label.text.gameObject.SetActive(false);
         });
         
         public static LabelStyle TextOnly => new LabelStyle(label =>
         {
-            label.image.gameObject.SetActive(false);
-            label.text.gameObject.SetActive(true);
+            if (label.HasImage()) label.image.gameObject.SetActive(false);
+            if (label.HasText()) label.text.gameObject.SetActive(true);
         });
         
         public static LabelStyle IconAndText => new LabelStyle(label =>
         {
-            label.image.gameObject.SetActive(true);
-            label.text.gameObject.SetActive(true);
+            if (label.HasImage()) label.image.gameObject.SetActive(true);
+            if (label.HasText()) label.text.gameObject.SetActive(true);
         });
         
         public static LabelStyle Hidden => new LabelStyle(label =>
         {
-            label.image.gameObject.SetActive(false);
-            label.text.gameObject.SetActive(false);
+            if (label.HasImage()) label.image.gameObject.SetActive(false);
+            if (label.HasText()) label.text.gameObject.SetActive(false);
         });
         
         // =============================================================== //

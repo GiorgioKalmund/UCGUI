@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
@@ -53,8 +54,8 @@ namespace UCGUI
         /// </summary>
         public UnityEvent OnClose { get; protected set; }
 
-        private Canvas _canvas;
-        private CanvasGroup _canvasGroup;
+        [CanBeNull] protected Canvas canvas;
+        public CanvasGroup canvasGroup;
         
         public bool IsLocked { get; protected set; }
 
@@ -72,7 +73,7 @@ namespace UCGUI
         {
             base.Awake();
 
-            _canvasGroup = gameObject.GetOrAddComponent<CanvasGroup>();
+            canvasGroup = gameObject.GetOrAddComponent<CanvasGroup>();
 
             if (Defaults.View.AutoAddEvents)
                 Events();
@@ -129,7 +130,7 @@ namespace UCGUI
             if (IsLocked)
                 return;
             
-            _canvasGroup.alpha = 1f;
+            canvasGroup.alpha = 1f;
             RaycastTarget(true);
 
             IsOpen = true;
@@ -151,7 +152,7 @@ namespace UCGUI
             if (IsLocked)
                 return;
             
-            _canvasGroup.alpha = 0f;
+            canvasGroup.alpha = 0f;
             RaycastTarget(false);
             
             IsOpen = false;
@@ -272,9 +273,10 @@ namespace UCGUI
         /// <returns></returns>
         public ViewComponent Link(Canvas canvas)
         {
-            _canvas = canvas;
-            this.FullScreen(_canvas);
-            return this.Parent(canvas);
+            this.canvas = canvas;
+            this.Parent(canvas);
+            this.Maximize();
+            return this;
         }
 
         /// <summary>

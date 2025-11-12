@@ -43,7 +43,7 @@ namespace UCGUI.Services
             return new Vector2(GetCanvasWidth(), GetCanvasHeight());
         }
 
-        public static float WidthScale => GetCanvasWidth() / 1170;
-        public static float HeightScale => GetCanvasHeight() / 2532;
+        public static float WidthScale => GetCanvasWidth() / Defaults.Screen.ReferenceResolution.x;
+        public static float HeightScale => GetCanvasHeight() / Defaults.Screen.ReferenceResolution.y;
     }
 }

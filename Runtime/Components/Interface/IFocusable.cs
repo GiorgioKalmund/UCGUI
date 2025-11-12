@@ -91,7 +91,6 @@ namespace UCGUI
                     if (value.Equals(_value))
                         return;
                     
-                    UCGUILogger.Log($"State change from {_value} to {value}");
                     _value = value;
                     if (_value.HasValue)
                     {
@@ -160,6 +159,36 @@ namespace UCGUI
                             return;
                         }
                         nextIndex = 0;
+                    }
+                    focusMap[values[nextIndex]].Focus();
+                }
+            }
+            
+            public void Previous(bool nullCycle = true)
+            {
+                if (focusMap.Count == 0)
+                {
+                    UCGUILogger.LogWarning("FocusState.Next(): Focus Map is empty. Cannot focus elements if FocusState is empty! Please add elements using `.Focusable(FocusState, Enum)` on IFocusable elements.");
+                    return;
+                }
+                var values = focusMap.Keys.ToList();
+                var current = Value;
+                
+                if (!current.HasValue)
+                {
+                    focusMap[values[^1]].Focus();
+                }
+                else
+                {
+                    int nextIndex = (values.IndexOf(current.Value) - 1);
+                    if (nextIndex < 0)
+                    {
+                        if (nullCycle)
+                        {
+                            focusMap[values[0]].Unfocus();
+                            return;
+                        }
+                        nextIndex = values.Count - 1;
                     }
                     focusMap[values[nextIndex]].Focus();
                 }

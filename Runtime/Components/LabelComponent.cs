@@ -88,10 +88,20 @@ namespace UCGUI
         {
             base.CopyFrom(other, fullyCopyRect);
             if (other._text != null)
-                text.CopyFrom(other._text, fullyCopyRect);
+                text.CopyFrom(other.text, fullyCopyRect);
             if (other._image != null)
-                image.CopyFrom(other._image, fullyCopyRect);
+                image.CopyFrom(other.image, fullyCopyRect);
             return this;
+        }
+
+        public new bool HasImage()
+        {
+            return _image != null;
+        }
+        
+        public new bool HasText()
+        {
+            return _text != null;
         }
 
         public void Init(string s, Sprite sprite = null)

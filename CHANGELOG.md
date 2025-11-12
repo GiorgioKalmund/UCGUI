@@ -98,5 +98,7 @@
 - A new [ComponentFinder](Runtime/Service/ComponentFinder.cs) allows for a built-in global dictionary for components, as well as registering instances for classes.
 - Removed the `Runtime/Demo` folder as any example functionality is being migrated to [the examples repository](https://github.com/GiorgioKalmund/UCGUI-Examples) 
   - Also removed other irrelevant scripts not core to the library
-    <!-- TODO: REMOVE WHEN READY -->
-  - *private for now, will be made public when ready*
+
+## [1.0.13] - 2025-11-12
+### //FIXME :)
+- Various fixes and improvements

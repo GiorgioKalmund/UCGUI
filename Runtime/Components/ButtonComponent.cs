@@ -140,18 +140,6 @@ namespace UCGUI
             return this;
         }
 
-        public ButtonComponent Lock()
-        {
-            button.interactable = false;
-            return this;
-        }
-
-        public ButtonComponent Unlock()
-        {
-            button.interactable = true;
-            return this;
-        }
-
         public ButtonComponent Interactable(bool i)
         {
             button.interactable = i;
@@ -212,22 +200,19 @@ namespace UCGUI
             style.Apply(this);
             return this;
         }
-        
-        
-        public void ReverseArrangement(ScrollViewDirection affectedDirectionLayout)
-        {
-            if (affectedDirectionLayout.HasFlag(ScrollViewDirection.Vertical) && VerticalLayout)
-                VerticalLayout.ReverseArrangement();
-            if (affectedDirectionLayout.HasFlag(ScrollViewDirection.Horizontal) && HorizontalLayout)
-                HorizontalLayout.ReverseArrangement();
-        }
 
+        public ButtonComponent TargetGraphic(Graphic g)
+        {
+            button.targetGraphic = g;
+            return this;
+        }
+        
         public override void Enabled(bool on)
         {
             base.Enabled(on);
             button.interactable = on;
-            _image.Enabled(on);
-            _text.Enabled(on);
+            _image?.Enabled(on);
+            _text?.Enabled(on);
             if (HorizontalLayout) HorizontalLayout.enabled = on;
             if (VerticalLayout) VerticalLayout.enabled = on;
             if (ContentSizeFitter) ContentSizeFitter.enabled = on;

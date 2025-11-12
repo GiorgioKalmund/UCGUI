@@ -120,6 +120,18 @@ namespace UCGUI
         {
             return Offset(renderable, new Vector3(xOffset, yOffset, zOffset));
         }
+        
+        public static T OffsetX<T>(this T renderable, float offset)
+            where T : BaseComponent
+        {
+            return Offset(renderable, new Vector3(offset, 0, 0));
+        }
+        
+        public static T OffsetY<T>(this T renderable, float offset)
+            where T : BaseComponent
+        {
+            return Offset(renderable, new Vector3(offset, 0, 0));
+        }
 
         public static T OffsetMin<T>(this T renderable, Vector2 offsetMin) where T : BaseComponent
         {
@@ -258,19 +270,6 @@ namespace UCGUI
         public static T AddWidth<T>(this T renderable, float extraWidth) where T : BaseComponent
         {
             return Size(renderable, renderable.GetWidth() + extraWidth, renderable.GetHeight());
-        }
-
-        public static T FullScreen<T>(this T renderable, Canvas canvas) where T : BaseComponent
-        {
-            if (canvas)
-            {
-                RectTransform canvasRect = canvas.GetComponent<RectTransform>();
-                return Size(renderable, canvasRect.sizeDelta);
-            }
-
-            Debug.LogError(renderable.DisplayName +
-                           ": Cannot go fullscreen, as no canvas is linked to the object. Please supply a valid canvas to the Fullscreen() function!");
-            return renderable;
         }
 
         // Scaling
