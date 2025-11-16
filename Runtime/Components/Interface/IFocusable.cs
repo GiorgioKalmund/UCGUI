@@ -297,21 +297,5 @@ namespace UCGUI
         {
             focusable.OnUnfocusEvent ??= new UnityEvent();
         }
-        
-        #if UNITY_DEBUG
-        public static void DrawFocusableDebug<T>(this T forElement) where T : BaseComponent, IFocusable
-        {
-            if (forElement.debugOptions.HasFlag(DebugOptions.TextOnly))
-            {
-                RectTransform rect = forElement.gameObject.GetComponent<RectTransform>();
-                var currentGroup = forElement.CurrentGroup;
-                var leader = IFocusable.GetFocusedElement(currentGroup);
-                var focusMessage = $"<u>Focus</u>\nGroup:{currentGroup}\nFocused:{forElement.IsFocused()}";
-                string leaderName = leader is MonoBehaviour l ? l.gameObject.name : "null";
-                focusMessage += $"\nLeader:{leaderName}";
-                Handles.Label(forElement.transform.position + new Vector3(-rect.sizeDelta.x / 2, -12 + rect.sizeDelta.y / 2, 0),  focusMessage, Defaults.Debug.DebugRed());
-            }
-        }
-        #endif
     }
 }

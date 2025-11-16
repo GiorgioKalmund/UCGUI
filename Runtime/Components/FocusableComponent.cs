@@ -12,13 +12,5 @@ namespace UCGUI
         public void HandleFocus() { }
 
         public void HandleUnfocus() { }
-        
-        #if UNITY_EDITOR
-        protected override void OnDrawGizmosSelected()
-        {
-            base.OnDrawGizmosSelected();
-            this.DrawFocusableDebug();
-        }
-        #endif
     }
 }

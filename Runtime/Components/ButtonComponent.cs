@@ -218,14 +218,6 @@ namespace UCGUI
             if (ContentSizeFitter) ContentSizeFitter.enabled = on;
         }
 
-        #if UNITY_EDITOR
-        protected override void OnDrawGizmosSelected()
-        {
-            base.OnDrawGizmosSelected();
-            this.DrawFocusableDebug();
-        }
-        #endif
-
         public partial class ButtonBuilder
         {
             private ButtonComponent _button;
