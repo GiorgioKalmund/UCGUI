@@ -1,4 +1,3 @@
-using PlasticGui.WorkspaceWindow.Items;
 using UnityEngine;
 using UnityEngine.Events;
 

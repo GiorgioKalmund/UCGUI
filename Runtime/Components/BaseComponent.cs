@@ -27,6 +27,8 @@ namespace UCGUI
                 Handles.Label(transform.position + new Vector3(-rect.sizeDelta.x / 2, rect.sizeDelta.y / 2, 0),  $"{rect.sizeDelta.x}x{rect.sizeDelta.y}", Defaults.Debug.DebugRed(8));
             }
         }
+        
+        #if UNITY_EDITOR
         protected virtual void OnDrawGizmosSelected()
         {
             if (debugOptions.HasFlag(DebugOptions.RectOnly))
@@ -35,6 +37,7 @@ namespace UCGUI
                 DrawRect(gameObject.GetComponent<RectTransform>());
             }
         }
+        #endif
 
         public BaseComponent DebugMode(DebugOptions options)
         {

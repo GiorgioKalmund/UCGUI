@@ -203,11 +203,14 @@ namespace UCGUI
         public UnityEvent OnUnfocusEvent { get; set; }
         public virtual void HandleFocus() { Input.Select(); }
         public virtual void HandleUnfocus() { Input.ReleaseSelection(); }
+        
+        #if UNITY_EDITOR
         protected override void OnDrawGizmosSelected()
         {
             base.OnDrawGizmosSelected();
             this.DrawFocusableDebug();
         }
+        #endif
 
         public class InputBuilder
         {
