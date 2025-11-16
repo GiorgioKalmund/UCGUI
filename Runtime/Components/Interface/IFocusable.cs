@@ -298,6 +298,7 @@ namespace UCGUI
             focusable.OnUnfocusEvent ??= new UnityEvent();
         }
         
+        #if UNITY_DEBUG
         public static void DrawFocusableDebug<T>(this T forElement) where T : BaseComponent, IFocusable
         {
             if (forElement.debugOptions.HasFlag(DebugOptions.TextOnly))
@@ -311,5 +312,6 @@ namespace UCGUI
                 Handles.Label(forElement.transform.position + new Vector3(-rect.sizeDelta.x / 2, -12 + rect.sizeDelta.y / 2, 0),  focusMessage, Defaults.Debug.DebugRed());
             }
         }
+        #endif
     }
 }
