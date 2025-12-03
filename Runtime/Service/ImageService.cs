@@ -29,11 +29,14 @@ namespace UCGUI.Services
         
         public static Sprite GetSprite(string path, string resourceFolder = "Textures/")
         {
-            if (string.IsNullOrEmpty(path))
+            if (path == "")
             {
-                UCGUILogger.LogWarning("Could not get image. Path empty or null.");
+                UCGUILogger.LogWarning("Could not get image. Path empty.");
                 return MissingSprite;
             }
+            if (path == null)
+                return null;
+            
             Texture2D texture = GetTexture2D(resourceFolder + path);
             return texture.ToSprite();
         }
