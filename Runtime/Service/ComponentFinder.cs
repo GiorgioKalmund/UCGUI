@@ -52,10 +52,10 @@ namespace UCGUI.Services
         /// Creates a Singleton-like Instance of for this class, storing it in a static map.
         /// </summary>
         /// <param name="behaviour">The <see cref="MonoBehaviour"/> to make an Instance.</param>
-        /// <param name="replaceOld">Whether to delete and replace the previous Instance (if present) before creating a new one.</param>
+        /// <param name="replaceOld">Whether to delete and replace the previous Instance (if present) before creating a new one. Defaults to true.</param>
         /// <returns>Whether the instance creation was successful.</returns>
         /// <remarks><b>Beware: Try combining it with <see cref="DeleteInstance"/> during "OnDestroy" to avoid unwanted behaviour or calling it with <see cref="replaceOld"/> set to true.</b></remarks>
-        public static bool PutInstance<T>(T behaviour, bool replaceOld) where T : MonoBehaviour
+        public static bool PutInstance<T>(T behaviour, bool replaceOld = true) where T : MonoBehaviour
         {
             if (replaceOld)
                 DeleteInstance<T>();
