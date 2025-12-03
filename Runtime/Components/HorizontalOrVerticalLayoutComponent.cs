@@ -5,10 +5,19 @@ namespace UCGUI
 {
     public abstract class HorizontalOrVerticalLayoutComponent : LayoutComponent 
     {
+        protected HorizontalOrVerticalLayoutComponent() {}
+        
         public override void Awake()
         {
             base.Awake();
             AddFitter(ScrollViewDirection.Both);
+        }
+
+        public override void Start()
+        {
+            base.Start();
+            
+            LayoutRebuilder.ForceRebuildLayoutImmediate(GetRect());
         }
 
         protected abstract HorizontalOrVerticalLayoutGroup GetLayout();

@@ -6,6 +6,7 @@ using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using TMPro;
+using UCGUI.Services;
 
 namespace UCGUI
 {
@@ -53,6 +54,12 @@ namespace UCGUI
             ImageComponent imageComponent = N<ImageComponent>();
             imageComponent.Sprite(sprite, type, ppum);
             return imageComponent;
+        }
+
+        public static ImageComponent Image(string pathName = null, Image.Type type = UnityEngine.UI.Image.Type.Simple,
+            float ppum = 1f)
+        {
+            return Image(ImageService.GetSprite(pathName), type, ppum);
         }
         
         public static ImageComponent Image(Color color, float alpha = 1f)
@@ -154,27 +161,27 @@ namespace UCGUI
         /// UCGUI's default View. Can be opened and closed manually or using <see cref="InputAction"/>.
         /// </summary>
         /// <param name="canvas">The canvas the view attaches to. If set will <see cref="FullScreen{T}"/> if no other <see cref="Size{T}(T,UnityEngine.Vector2)"/> is specified.</param>
-        /// <param name="viewBuilder"><see cref="ViewComponent.ViewBuilder"/> to add content and further customize the view.</param>
+        /// <param name="viewBuilder"><see cref="AbstractViewComponent.ViewBuilder"/> to add content and further customize the view.</param>
         /// <returns>
-        /// The resulting UCGUI <see cref="ViewComponent"/>.
+        /// The resulting UCGUI <see cref="AbstractViewComponent"/>.
         /// </returns>
-        public static ViewComponent View(Canvas canvas, UnityAction<ViewComponent.ViewBuilder> viewBuilder)
+        public static ViewComponent View(Canvas canvas, UnityAction<AbstractViewComponent.ViewBuilder> viewBuilder)
         {
-            ViewComponent viewComponent = N<ViewComponent>();
+            ViewComponent abstractViewComponent = N<ViewComponent>();
             
-            viewBuilder(new ViewComponent.ViewBuilder(viewComponent, canvas));
+            viewBuilder(new AbstractViewComponent.ViewBuilder(abstractViewComponent, canvas));
 
-            return viewComponent;
+            return abstractViewComponent;
         }
 
         /// <summary>
         /// UCGUI's default View. Can be opened and closed manually or using <see cref="InputAction"/>.
         /// </summary>
-        /// <param name="viewBuilder"><see cref="ViewComponent.ViewBuilder"/> to add content and further customize the view.</param>
+        /// <param name="viewBuilder"><see cref="AbstractViewComponent.ViewBuilder"/> to add content and further customize the view.</param>
         /// <returns>
-        /// The resulting UCGUI <see cref="ViewComponent"/>.
+        /// The resulting UCGUI <see cref="AbstractViewComponent"/>.
         /// </returns>
-        public static ViewComponent View(UnityAction<ViewComponent.ViewBuilder> viewBuilder) => View(null, viewBuilder);
+        public static AbstractViewComponent View(UnityAction<AbstractViewComponent.ViewBuilder> viewBuilder) => View(null, viewBuilder);
         
         /// <summary>
         /// 
@@ -200,7 +207,7 @@ namespace UCGUI
             DragView(null, dragViewBuilder);
         
         /// <summary>
-        /// A controlling component for opening and closing multiple <see cref="ViewComponent"/>s.
+        /// A controlling component for opening and closing multiple <see cref="AbstractViewComponent"/>s.
         /// </summary>
         /// <param name="parent">(Optional) parent to directly attach to.</param>
         /// <returns>
@@ -299,18 +306,35 @@ namespace UCGUI
         /// </summary>
         /// <param name="constraint"><see cref="GridLayoutGroup.Constraint"/> for the layout.</param>
         /// <param name="constraintCount">The count for the given constraint (if applicable).</param>
+        /// <param name="childAlignment">The alignment of the grid's children within it.</param>
         /// <param name="grid"><see cref="GridComponent.GridBuilder"/> to configure the grid further.</param>
         /// <returns>
         /// The resulting <see cref="GridComponent"/>.
         /// </returns>
-        public static GridComponent Grid(GridLayoutGroup.Constraint constraint, int constraintCount, Action<GridComponent.GridBuilder> grid)
+        public static GridComponent Grid(GridLayoutGroup.Constraint constraint, int constraintCount, TextAnchor childAlignment, Action<GridComponent.GridBuilder> grid)
         {
             GridComponent gridComponent = N<GridComponent>();
             var builder = new GridComponent.GridBuilder(gridComponent);
             builder.GetGrid().constraint = constraint;
             builder.GetGrid().constraintCount = constraintCount;
+            builder.GetGrid().childAlignment = childAlignment;
             grid(builder);
             return gridComponent;
+        }
+
+        /// <summary>
+        /// A grid layout element based on Unity's <see cref="GridLayoutGroup"/>.
+        /// </summary>
+        /// <param name="constraint"><see cref="GridLayoutGroup.Constraint"/> for the layout.</param>
+        /// <param name="constraintCount">The count for the given constraint (if applicable).</param>
+        /// <param name="grid"><see cref="GridComponent.GridBuilder"/> to configure the grid further.</param>
+        /// <returns>
+        /// The resulting <see cref="GridComponent"/>.
+        /// </returns>
+        public static GridComponent Grid(GridLayoutGroup.Constraint constraint, int constraintCount,
+            Action<GridComponent.GridBuilder> grid)
+        {
+            return Grid(constraint, constraintCount, TextAnchor.MiddleCenter, grid);
         }
 
         /// <summary>
@@ -321,6 +345,16 @@ namespace UCGUI
         /// The resulting <see cref="GridComponent"/>.
         /// </returns>
         public static GridComponent Grid(Action<GridComponent.GridBuilder> grid) => Grid(GridLayoutGroup.Constraint.Flexible, 0, grid);
+        
+        /// <summary>
+        /// A grid layout element based on Unity's <see cref="GridLayoutGroup"/>.
+        /// </summary>
+        /// <param name="childAlignment">The alignment of the grid's children within it.</param>
+        /// <param name="grid"><see cref="GridComponent.GridBuilder"/> to configure the grid further.</param>
+        /// <returns>
+        /// The resulting <see cref="GridComponent"/>.
+        /// </returns>
+        public static GridComponent Grid(TextAnchor childAlignment, Action<GridComponent.GridBuilder> grid) => Grid(GridLayoutGroup.Constraint.Flexible, 0, childAlignment, grid);
 
 
         /// <summary>

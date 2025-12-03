@@ -6,6 +6,8 @@ namespace UCGUI
 {
     public class SwitchLayoutComponent<T>: HorizontalOrVerticalLayoutComponent, ICopyable<T> where T : SwitchLayoutComponent<T>
     {
+        protected SwitchLayoutComponent() {}
+        
         public override void Awake()
         {
             base.Awake();

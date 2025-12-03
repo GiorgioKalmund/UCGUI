@@ -1,11 +1,10 @@
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace UCGUI
 {
     /// <summary>
-    /// UCGUI's DragViewComponent. Inherits from ViewComponment but can be dragged around.
+    /// UCGUI's DragViewComponent. Inherits from ViewComponent but can be dragged around.
     /// Optionally limited within a confined space.
     /// <br></br>
     /// <br></br>
@@ -14,25 +13,28 @@ namespace UCGUI
     /// <item><description><see cref="Bounds"/> - Specify an area in which the view can move inside. Optionally specify an offset to allow for padding / movement of the area.</description></item>
     /// </list>
     /// </summary>
-    public partial class DragViewComponent : ViewComponent, IDragHandler
+    public partial class DragViewComponent : AbstractViewComponent, IDragHandler
     {
+        protected DragViewComponent() {}
+        
         protected Rect boundArea;
         protected RectOffset boundsOffset;
         public bool HasBounds => boundArea.size.magnitude > 0;
         
-        public override void Awake()
+        public override void CreateView()
         {
-            base.Awake();
+            this.Pos(-this.GetWidth() / 2, this.GetHeight() / 2);
             this.Pivot(PivotPosition.UpperLeft);
         }
 
         public override void Start()
         {
             base.Start();
-            this.Pos(-this.GetWidth() / 2, this.GetHeight() / 2);
             DisplayName = "DragViewComponent";
         }
-        
+
+        public override void Render() { }
+
         /// <summary>
         /// Creates an invisible bounding box for the view to move in.
         /// </summary>
@@ -49,6 +51,12 @@ namespace UCGUI
             
             return this;
         }
+
+        /// <summary>
+        /// Creates an invisible bounding box for the view to move in.
+        /// </summary>
+        /// <param name="canvasBounds">The canvas which bounds to inherit.</param>
+        public virtual DragViewComponent Bounds(Canvas canvasBounds) => Bounds(canvasBounds.GetSize());
 
         public virtual DragViewComponent BoundsOffset(RectOffset offset)
         {

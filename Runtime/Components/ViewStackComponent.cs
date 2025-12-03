@@ -11,13 +11,15 @@ namespace UCGUI
     /// <item><description><see cref="Push"/> - Pushes a view to the stack.</description></item>.
     /// <item><description><see cref="Pop"/> - Pops a view from the stack.</description></item>.
     /// <item><description><see cref="PopUntil"/> - Pops until the given view is on top of the stack.</description></item>.
-    /// <item><description><see cref="Peek"/> - Returns the <see cref="ViewComponent"/> on top of the stack.</description></item>.
+    /// <item><description><see cref="Peek"/> - Returns the <see cref="AbstractViewComponent"/> on top of the stack.</description></item>.
     /// <item><description><see cref="Collapse"/> - <see cref="Pop"/>s <b>all</b> views from the stack.</description></item>.
     /// </list>
     /// </summary>
     public class ViewStackComponent : BaseComponent
     {
-        public Stack<ViewComponent> stack = new Stack<ViewComponent>();
+        protected ViewStackComponent() {}
+        
+        public Stack<AbstractViewComponent> stack = new Stack<AbstractViewComponent>();
         public void Start()
         {
             DisplayName = "ViewStack";
@@ -28,11 +30,11 @@ namespace UCGUI
         /// </summary>
         ///
         /// <remarks>
-        /// <i><see cref="ViewComponent.OnStackLeft"/> is invoked on the view here.</i>
+        /// <i><see cref="AbstractViewComponent.OnStackLeft"/> is invoked on the view here.</i>
         /// </remarks>
         public virtual void Pop()
         {
-            if (stack.TryPop(out ViewComponent top))
+            if (stack.TryPop(out AbstractViewComponent top))
                 top.OnStackLeft().Close();
             else
                 UCGUILogger.LogWarning("Cannot go back on already empty stack!");
@@ -41,55 +43,56 @@ namespace UCGUI
         /// <summary>
         /// Goes back to a specific view in the stack if present. If the target view is not part of the stack will not do anything.
         /// </summary>
-        /// <param name="viewComponent">The view to go back to.</param>
-        public virtual void PopUntil(ViewComponent viewComponent)
+        /// <param name="abstractViewComponent">The view to go back to.</param>
+        public virtual bool PopUntil(AbstractViewComponent abstractViewComponent)
         {
-            ViewComponent current = Peek();
-            if (!stack.Contains(viewComponent))
+            AbstractViewComponent current = Peek();
+            if (!stack.Contains(abstractViewComponent))
             {
-                UCGUILogger.LogWarning($"ViewStack does not contain {viewComponent}. Cannot go back to it!");
-                return;
+                UCGUILogger.LogWarning($"ViewStack does not contain {abstractViewComponent}. Cannot go back to it!");
+                return false;
             }
-            while (current != viewComponent && stack.Count != 0)
+            while (current != abstractViewComponent && stack.Count != 0)
             {
                 Pop();
-                PopUntil(viewComponent);
+                PopUntil(abstractViewComponent);
                 current = Peek();
             }
+            return true;
         }
         
         /// <summary>
         /// Pushes a view to the stack and opens it.
         /// </summary>
-        /// <param name="viewComponent">The view to add to the stack.</param>
+        /// <param name="abstractViewComponent">The view to add to the stack.</param>
         ///
         /// <remarks>
-        /// <i><see cref="ViewComponent.OnStackJoined"/> is invoked on the view here to allow it to hold a reference to the stack it is in.</i>
+        /// <i><see cref="AbstractViewComponent.OnStackJoined"/> is invoked on the view here to allow it to hold a reference to the stack it is in.</i>
         /// </remarks>
-        public virtual void Push(ViewComponent viewComponent)
+        public virtual void Push(AbstractViewComponent abstractViewComponent)
         {
-            if (!viewComponent)
+            if (!abstractViewComponent)
             {
                 UCGUILogger.LogError($"Cannot push to ViewStack \"{DisplayName}\". New element is null!");
                 return;
             }
-            if (stack.Contains(viewComponent))
+            if (stack.Contains(abstractViewComponent))
             {
-                UCGUILogger.LogWarning($"ViewStack already contains {viewComponent}. Cannot push it again!");
+                UCGUILogger.LogWarning($"ViewStack already contains {abstractViewComponent}. Cannot push it again!");
                 return;
             }
             
-            stack.Push(viewComponent); 
-            viewComponent.OnStackJoined(this).Open();
+            stack.Push(abstractViewComponent); 
+            abstractViewComponent.OnStackJoined(this).Open();
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns>The top view in the stack without removing it.</returns>
-        public ViewComponent Peek()
+        public AbstractViewComponent Peek()
         {
-            return stack.TryPeek(out ViewComponent top) ? top : null;
+            return stack.TryPeek(out AbstractViewComponent top) ? top : null;
         }
 
         /// <summary>

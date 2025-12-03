@@ -4,10 +4,12 @@ namespace UCGUI
 {
     public abstract class LayoutComponent : ImageComponent
     {
+        protected LayoutComponent() {}
+        
         public override void Awake()
         {
             base.Awake();
-            ToggleVisibility();
+            Color(UnityEngine.Color.clear);
         }
 
         public virtual void Add(params BaseComponent[] elements) 

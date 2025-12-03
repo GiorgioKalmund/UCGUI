@@ -28,6 +28,8 @@ namespace UCGUI
     /// </summary>
     public partial class InputComponent : ImageComponent , IStylable<InputComponent, InputStyle>, IFocusable, ICopyable<InputComponent>
     {
+        protected InputComponent() {}
+        
         protected TMP_InputField Input;
 
         protected TextComponent TextElement;

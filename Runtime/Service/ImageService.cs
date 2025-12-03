@@ -13,6 +13,7 @@ namespace UCGUI.Services
         {
             if (string.IsNullOrEmpty(path))
             {
+                UCGUILogger.LogWarning("Could not get image. Path empty or null.");
                 return Resources.Load<Texture2D>(MissingTextureLocation);
             }
             Texture2D texture = Resources.Load<Texture2D>(path);
@@ -28,6 +29,11 @@ namespace UCGUI.Services
         
         public static Sprite GetSprite(string path, string resourceFolder = "Textures/")
         {
+            if (string.IsNullOrEmpty(path))
+            {
+                UCGUILogger.LogWarning("Could not get image. Path empty or null.");
+                return MissingSprite;
+            }
             Texture2D texture = GetTexture2D(resourceFolder + path);
             return texture.ToSprite();
         }
@@ -36,7 +42,7 @@ namespace UCGUI.Services
         {
             if (string.IsNullOrEmpty(path))
             {
-                UCGUILogger.LogWarning("Could not get image. Path empty.");
+                UCGUILogger.LogWarning("Could not get image. Path empty or null.");
                 return MissingSprite;
             }
             Sprite sprite = Resources.Load<Sprite>(resourceFolder + path);
@@ -50,7 +56,7 @@ namespace UCGUI.Services
     
         public static Sprite GetSpriteFromAsset(string asset, string spriteName)
         {
-            const string root = "Aseprite/";
+            const string root = "Aseprite/"; // TODO
             
             var sprites = Resources.LoadAll<Sprite>(root + asset);
             Sprite toReturn = null;

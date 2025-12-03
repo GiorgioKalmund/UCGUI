@@ -5,6 +5,8 @@ namespace UCGUI
 {
     public class LabelComponent : SwitchLayoutComponent<LabelComponent>, IStylable<LabelComponent, LabelStyle>, ICopyable<LabelComponent>
     {
+        protected LabelComponent() {}
+        
         protected ImageComponent _image;
 
         public ImageComponent image
@@ -78,13 +80,13 @@ namespace UCGUI
             return this;
         }
 
-        public new LabelComponent Copy(bool fullyCopyRect = true)
+        public new virtual LabelComponent Copy(bool fullyCopyRect = true)
         {
             LabelComponent copyLabel = this.BaseCopy(this);
             return copyLabel.CopyFrom(this, fullyCopyRect);
         }
 
-        public new LabelComponent CopyFrom(LabelComponent other, bool fullyCopyRect = true)
+        public new virtual LabelComponent CopyFrom(LabelComponent other, bool fullyCopyRect = true)
         {
             base.CopyFrom(other, fullyCopyRect);
             if (other._text != null)
@@ -99,7 +101,7 @@ namespace UCGUI
             return _image != null;
         }
         
-        public new bool HasText()
+        public bool HasText()
         {
             return _text != null;
         }

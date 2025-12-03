@@ -4,6 +4,7 @@ namespace UCGUI
 {
     public class FocusableComponent : BaseComponent, IFocusable
     {
+        protected FocusableComponent() {}
         public virtual string FocusGroup { get; set; }
         public UnityEvent OnFocusEvent { get; set; }
         

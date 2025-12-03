@@ -23,13 +23,15 @@ namespace UCGUI
     /// <item><description><see cref="ScrollToBottom"/> - Scrolls to the bottom of the scroll view.</description></item>
     /// <item><description><see cref="ScrollToTop"/> - Scrolls to the top of the scroll view.</description></item>
     /// <item><description><see cref="ScrollViewDirection"/> - Specifies the <see cref="ScrollViewDirection"/>(s) in which the scroll view should scroll.</description></item>
-    /// <item><description><see cref="Add"/> - Adds specified content to the scroll view as a child.</description></item>
+    /// <item><description><see cref="Add(BaseComponent)"/> - Adds specified content to the scroll view as a child.</description></item>
     /// <item><description><see cref="ContentPadding"/> - Specifies the inner padding to be applied within the bounds of the scroll view.</description></item>
     /// <item><description><see cref="disableWhileHovering"/> - A list containing all other input actions which are to be disabled when hovering over the scroll view.</description></item>
     /// </list>
     /// </summary>
     public partial class ScrollViewComponent : BaseComponent, IPointerEnterHandler, IPointerExitHandler, IEnabled
     {
+        protected ScrollViewComponent() {}
+        
         public ImageComponent content;
 
         public RectMask2D mask;
@@ -61,7 +63,7 @@ namespace UCGUI
 
         public ScrollViewComponent ContentPadding(PaddingSide side, int amount)
         {
-            base.Padding(side, amount, ScrollViewDirection.Both);
+            Padding(side, amount);
             return this;
         }
 

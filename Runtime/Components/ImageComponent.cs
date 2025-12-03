@@ -31,13 +31,15 @@ namespace UCGUI
     /// </summary>
     public partial class ImageComponent : GraphicComponent<ImageComponent>, ICopyable<ImageComponent>
     {
+        protected ImageComponent() {}
+        
         private Image _image;
         protected static string NamePrefix = "ImageComponent";
         protected readonly static Vector2 DefaultSize = new Vector2(100, 100);
         
         private InputAction _toggleInputAction;
         
-        protected SpriteAnimator Animator;
+        protected SpriteAnimator animator;
 
         public override void Awake()
         {
@@ -176,10 +178,10 @@ namespace UCGUI
 
         public static void CopyAnimator(ImageComponent other, ImageComponent copyImage)
         {
-            if (other.Animator)
+            if (other.animator)
             {
                 copyImage.AddAnimator();
-                copyImage.Animator.CopyFrom(other.Animator);
+                copyImage.animator.CopyFrom(other.animator);
             }
         }
 
@@ -211,17 +213,17 @@ namespace UCGUI
         /// Creates an <see cref="SpriteAnimator"/> and adds it to the object. If one is already present, it will 
         /// return the existing.
         /// </summary>
-        /// <returns><see cref="Animator"/></returns>
+        /// <returns><see cref="animator"/></returns>
         public SpriteAnimator AddAnimator()
         {
-            Animator = gameObject.GetOrAddComponent<SpriteAnimator>();
-            Animator.DisplayName(DisplayName);
-            return Animator;
+            animator = gameObject.GetOrAddComponent<SpriteAnimator>();
+            animator.DisplayName(DisplayName);
+            return animator;
         }
 
         public SpriteAnimator GetAnimator()
         {
-            return Animator;
+            return animator;
         }
     }
 

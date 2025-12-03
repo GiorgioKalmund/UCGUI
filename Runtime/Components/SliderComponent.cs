@@ -1,4 +1,3 @@
-using UCGUI.Services;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,6 +10,8 @@ namespace UCGUI
     /// </summary>
     public partial class SliderComponent : BaseComponent
     {
+        protected SliderComponent() {}
+        
         public static readonly Vector2 DefaultSize = new (300, 20);
         
         public Slider slider;
@@ -47,11 +48,11 @@ namespace UCGUI
 
             slider = gameObject.GetOrAddComponent<Slider>();
 
-            background = UI.Image(null).Color(Color.gray7).Parent(slider).DisplayName("Background").StretchHorizontally();
-            _fillArea = UI.Image(null).Alpha(0).StretchHorizontally().Parent(slider).DisplayName("Fill Area");
-            foreground = UI.Image(null).Parent(_fillArea).Filled(Image.FillMethod.Horizontal, Value).DisplayName("Foreground");
-            _handleSlideArea = UI.Image(null).Alpha(0).StretchHorizontally().Parent(slider).DisplayName("Handle Slide Area");
-            handle = UI.Image(null).Color(Color.gray3).Parent(_handleSlideArea).DisplayName("Handle");
+            background = UI.Image().Color(Color.gray7).Parent(slider).DisplayName("Background").StretchHorizontally();
+            _fillArea = UI.Image().Alpha(0).StretchHorizontally().Parent(slider).DisplayName("Fill Area");
+            foreground = UI.Image().Parent(_fillArea).Filled(Image.FillMethod.Horizontal, Value).DisplayName("Foreground");
+            _handleSlideArea = UI.Image().Alpha(0).StretchHorizontally().Parent(slider).DisplayName("Handle Slide Area");
+            handle = UI.Image().Color(Color.gray3).Parent(_handleSlideArea).DisplayName("Handle");
 
             slider.targetGraphic = handle.GetImage();
             slider.handleRect = handle.GetRect();

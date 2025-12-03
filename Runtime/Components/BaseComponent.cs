@@ -1,16 +1,20 @@
 using UCGUI.Services;
 using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace UCGUI
 {
     public partial class BaseComponent : MonoBehaviour, ICopyable<BaseComponent>
     {
-        
-#if DEBUG
+
+    #if UNITY_EDITOR
+        #region Gizmos and Debug
         [Header("Debug")]
         [SerializeField] public DebugOptions debugOptions = DebugOptions.None;
         protected virtual void OnDrawGizmos()
@@ -28,7 +32,6 @@ namespace UCGUI
             }
         }
         
-        #if UNITY_EDITOR
         protected virtual void OnDrawGizmosSelected()
         {
             if (debugOptions.HasFlag(DebugOptions.RectOnly))
@@ -37,8 +40,12 @@ namespace UCGUI
                 DrawRect(gameObject.GetComponent<RectTransform>());
             }
         }
-        #endif
 
+        /// <summary>
+        /// Toggles the debug options of the component. Only available when acting inside the Unity Editor.
+        /// </summary>
+        /// <param name="options"><see cref="DebugOptions"/> to use.</param>
+        /// <returns></returns>
         public BaseComponent DebugMode(DebugOptions options)
         {
             debugOptions = options;
@@ -53,7 +60,10 @@ namespace UCGUI
                 new Vector3(rect.sizeDelta.x, rect.sizeDelta.y, 0.01f)
             );
         }
-#endif
+        #endregion
+    #endif
+        
+        protected BaseComponent() {}
         
         private RectTransform _rect;
         
@@ -113,9 +123,7 @@ namespace UCGUI
         
         public LayoutElement AddLayoutElement()
         {
-            if (layoutElement)
-                return layoutElement;
-            layoutElement = gameObject.GetOrAddComponent<LayoutElement>();
+            layoutElement ??= gameObject.GetOrAddComponent<LayoutElement>();
             return layoutElement;
         }
 
@@ -253,11 +261,6 @@ namespace UCGUI
                 return this;
             }
 
-            if (!gameObject)
-            {
-                UCGUILogger.LogError("GO NULL!");
-                return this;
-            }
             VerticalLayout = CreateLayout<VerticalLayoutGroup>(gameObject, spacing, childAlignment, childControlWidth, childControlHeight, childForceExpandWidth, childForceExpandHeight, reverseArrangement);
             return this;
         }
@@ -322,7 +325,7 @@ namespace UCGUI
 
 
 
-        public BaseComponent Copy(bool fullyCopyRect = true)
+        public virtual BaseComponent Copy(bool fullyCopyRect = true)
         {
             BaseComponent copyComponent = this.BaseCopy(this);
             return copyComponent.CopyFrom(this, fullyCopyRect);
@@ -332,7 +335,7 @@ namespace UCGUI
         {
             if (!other)
             {
-                UCGUILogger.LogError("<b>Cannot copy from null!</b>");
+                UCGUILogger.LogError("<b>Cannot copy null!</b>");
                 return this;
             }
             CopyRect(other.GetRect(), this, fullyCopyRect);
@@ -350,6 +353,6 @@ namespace UCGUI
         /// <summary>
         /// Registers this object as an instance of its class in the <see cref="ComponentFinder"/> instances map.
         /// </summary>
-        public void RegisterInstance() => ComponentFinder.PutInstance(this);
+        public void RegisterInstance(bool replaceOld) => ComponentFinder.PutInstance(this, replaceOld);
     }
 }

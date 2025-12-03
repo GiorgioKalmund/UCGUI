@@ -9,6 +9,7 @@ namespace UCGUI
         // =============================================================== //
         public static ButtonStyle Plain => new ButtonStyle(button=>
         {
+            button.Color(UnityEngine.Color.white);
             button.FitToContents(20, 20);
             button.text.Style(TextStyle.ButtonText);
         });

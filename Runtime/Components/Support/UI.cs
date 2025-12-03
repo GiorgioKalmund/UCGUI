@@ -130,7 +130,7 @@ namespace UCGUI
         public static T OffsetY<T>(this T renderable, float offset)
             where T : BaseComponent
         {
-            return Offset(renderable, new Vector3(offset, 0, 0));
+            return Offset(renderable, new Vector3(0, offset, 0));
         }
 
         public static T OffsetMin<T>(this T renderable, Vector2 offsetMin) where T : BaseComponent

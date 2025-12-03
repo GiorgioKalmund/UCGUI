@@ -5,6 +5,8 @@ namespace UCGUI
 {
     public class VStackComponent : HorizontalOrVerticalLayoutComponent
     {
+        protected VStackComponent() {}
+        
         public override void Awake()
         {
             base.Awake();
@@ -20,6 +22,7 @@ namespace UCGUI
         {
             base.Start();
             DisplayName = "VStack";
+            VerticalLayout.CalculateLayoutInputVertical();
         }
     }
 }

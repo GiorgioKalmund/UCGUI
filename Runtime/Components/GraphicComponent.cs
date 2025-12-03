@@ -18,6 +18,7 @@ namespace UCGUI
     /// <typeparam name="T">The extending member itself.</typeparam>
     public abstract class GraphicComponent<T> : BaseComponent, IPointerEnterHandler, IPointerExitHandler, IEnabled where T : GraphicComponent<T>
     {
+        protected GraphicComponent() {}
         
         public abstract Graphic GetGraphic();
         private UnityAction clickAction;

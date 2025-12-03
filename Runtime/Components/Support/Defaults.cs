@@ -1,5 +1,4 @@
 using TMPro;
-using UnityEditor;
 using UnityEngine;
 
 namespace UCGUI{
@@ -66,19 +65,18 @@ namespace UCGUI{
         }
 
         /// <summary>
-        /// Default behaviours and options for the <see cref="ViewComponent"/>.
+        /// Default behaviours and options for the <see cref="AbstractViewComponent"/>.
         /// </summary>
         public static class View
         {
             /// <summary>
-            /// Automatically adds events <see cref="ViewComponent.OnOpen"/> and <see cref="ViewComponent.OnClose"/> for every View.
+            /// Automatically adds events <see cref="AbstractViewComponent.OnOpen"/> and <see cref="AbstractViewComponent.OnClose"/> for every View.
             /// </summary>
             public static bool AutoAddEvents = false;
 
-            public static bool StartsOpen = true;
-            
+            public static bool StartsOpen = false;
+
             public static Color DefaultBackdropColor = Color.clear;
-            public static float DefaultBackdropAlpha = 1f;
         }
 
         public static class Services

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
@@ -12,7 +11,6 @@ namespace UCGUI
     /// UCGUI's default Button Component.
     /// Noteworthy formatting functions:
     /// <list type="bullet">
-    /// <item><description><see cref="Foreground"/> - Adds a secondary image sitting between text and background. Hidden by default.</description></item>
     /// <item><description><see cref="Function"/> - Adds a listener function for when the button is clicked.</description></item>
     /// <item><description><see cref="FitToContents(int,float,UCGUI.ScrollViewDirection)"/> - Allows the button to fit to its contents, as well as aligning text and foreground image (if present) horizontally. <b>For better control and flexibility use the built-in <see cref="UI.Button"/>.</b></description></item>
     /// </list>
@@ -22,6 +20,8 @@ namespace UCGUI
     /// </summary>
     public partial class ButtonComponent : LabelComponent, IFocusable, ICopyable<ButtonComponent>, IStylable<ButtonComponent, ButtonStyle>
     {
+        protected ButtonComponent() {}
+        
         public Button button;
 
         protected readonly List<UnityAction> listeners = new List<UnityAction>();
@@ -30,7 +30,6 @@ namespace UCGUI
         {
             base.Awake();
             
-            GetGraphic().enabled = true;
             button = gameObject.GetOrAddComponent<Button>();
             Style(ButtonStyle.Plain);
         }
@@ -146,13 +145,13 @@ namespace UCGUI
             return this;
         }
         
-        public new ButtonComponent Copy(bool fullyCopyRect = true)
+        public new virtual ButtonComponent Copy(bool fullyCopyRect = true)
         {
             ButtonComponent copyButton = this.BaseCopy(this);
             return copyButton.CopyFrom(this, fullyCopyRect);
         }
 
-        public ButtonComponent CopyFrom(ButtonComponent other, bool fullyCopyRect = true)
+        public virtual ButtonComponent CopyFrom(ButtonComponent other, bool fullyCopyRect = true)
         {
             if (other.ContentSizeFitter)
                 FitToContents();

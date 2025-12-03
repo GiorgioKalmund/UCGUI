@@ -6,6 +6,8 @@ namespace UCGUI
 {
     public class GridComponent : LayoutComponent
     {
+        protected GridComponent() {}
+        
         public GridLayoutGroup grid;
         public override void Awake()
         {
@@ -44,7 +46,7 @@ namespace UCGUI
             public void Padding(RectOffset padding) => _grid.grid.padding = padding;
             public void Padding(PaddingSide side, int amount) => _grid.grid.Padding(side, amount);
             public void PaddingAdd(PaddingSide side, int amount) => _grid.grid.PaddingAdd(side, amount);
-            public void Add(BaseComponent element) => _grid.Add(element);
+            public void Add(params BaseComponent[] element) => _grid.Add(element);
             public GridLayoutGroup GetGrid() => _grid.grid;
         }
     }

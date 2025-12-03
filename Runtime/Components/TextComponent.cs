@@ -1,9 +1,12 @@
 using TMPro;
 using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using FontStyles = TMPro.FontStyles;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace UCGUI
 {
@@ -29,11 +32,13 @@ namespace UCGUI
     /// </summary>
     public partial class TextComponent : GraphicComponent<TextComponent>, ICopyable<TextComponent>, IStylable<TextComponent, TextStyle>
     {
+        protected TextComponent() {}
+        
         private TextMeshProUGUI _textMesh;
         protected static readonly string NamePrefix = "TextComponent";
         private readonly Vector2 _defaultSize = new Vector2(100, 100);
         private static TMP_FontAsset _globalFont;
-        protected TextAnimator Animator;
+        protected TextAnimator animator;
 
         public static void GlobalFont(TMP_FontAsset asset)
         {
@@ -175,7 +180,7 @@ namespace UCGUI
         /// </summary>
         public override Graphic GetGraphic() => _textMesh;
 
-        public new TextComponent Copy(bool fullyCopyRect = true)
+        public new virtual TextComponent Copy(bool fullyCopyRect = true)
         {
             TextComponent textCopy = this.BaseCopy(this);
             return textCopy.CopyFrom(this, fullyCopyRect);
@@ -231,12 +236,12 @@ namespace UCGUI
         /// Creates an <see cref="TextAnimator"/> and adds it to the object. If one is already present, it will 
         /// return the existing.
         /// </summary>
-        /// <returns><see cref="Animator"/></returns>
+        /// <returns><see cref="animator"/></returns>
         public TextAnimator AddAnimator()
         {
-            Animator = gameObject.GetOrAddComponent<TextAnimator>();
-            Animator.DisplayName(DisplayName);
-            return Animator;
+            animator = gameObject.GetOrAddComponent<TextAnimator>();
+            animator.DisplayName(DisplayName);
+            return animator;
         }
 
         public TextComponent Margin(RectOffset rectOffset)

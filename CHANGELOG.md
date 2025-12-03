@@ -102,3 +102,17 @@
 ## [1.0.13] - 2025-11-12
 ### //FIXME :)
 - Various fixes and improvements
+
+## [1.0.14] - 2025-12-03
+### Faster Layouts, Improved Views in Stacks & more
+- The [Grid](Runtime/Components/GridComponent.cs) is now in feature parity with all the other layouts for various builder interactions.
+- [Layouts](Runtime/Components/LayoutComponent.cs) no longer disable their graphic automatically. Instead, they change their color to .clear.
+  - Horizontal and vertical layouts are also now marked for <b>immediate</b> rebuilding to reduce visual inconsistencies.
+    - Might however change in the future due to the associated performance cost.
+- Improved the [ViewComponent](Runtime/Components/ViewComponent.cs) by creating a common [Abstract Ancestor](Runtime/Components/AbstractViewComponent.cs).
+  - Closing is now also split into a 'force' mode and a regular one, with the regular one additionally checking if the view is currently part of a [ViewStack](Runtime/Components/ViewStackComponent.cs). This change only allows views to be closed if they are at the top of a ViewStack (if they are part of one).
+- The [SimpleScreen](Runtime/Components/Screen/SimpleScreen.cs) has new initializers, encouraging creation of the screen during the 'Awake' stage.
+- [FocusState](Runtime/Components/Interface/IFocusable.cs)s can now be properly initialized and will initialize correctly if built during the 'Awake' stage.
+- `UI.Image(...)` call now directly supports a string as a path to a texture, making use of the [ImageService](Runtime/Service/ImageService.cs)'s functionality even more.
+- Constructors of all components are now protected, mirroring Unity's approach to MonoBehaviour instantiation.
+- Fixed an issue where OffsetY would offset the element into the x direction.

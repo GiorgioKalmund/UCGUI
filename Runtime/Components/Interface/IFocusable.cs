@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -92,16 +91,39 @@ namespace UCGUI
                         return;
                     
                     _value = value;
-                    if (_value.HasValue)
+                    UpdateState();
+                }
+            }
+
+            [CanBeNull]
+            public IFocusable Get()
+            {
+                if (Value.HasValue)
+                {
+                    if (focusMap.TryGetValue(Value.Value, out var value))
                     {
-                        focusMap.TryGetValue(_value.Value, out var focusable);
-                        if (!focusable.IsFocused())
-                            focusable.Focus();
+                        return value;
                     }
-                    else
+                }
+                return null;
+            }
+
+            public void UpdateState()
+            {
+                if (_value != null)
+                {
+                    var focusable = Get();
+                    if (focusable is MonoBehaviour foc && !foc)
                     {
-                        UnfocusGroupId(FocusHash);
+                        UCGUILogger.LogError("The element you are trying to focus does not exist anymore. :(");
+                        return;
                     }
+                    if (focusable != null && !focusable.IsFocused())
+                        focusable.Focus();
+                }
+                else
+                {
+                    UnfocusGroupId(FocusHash);
                 }
             }
 
@@ -113,11 +135,9 @@ namespace UCGUI
                     UCGUILogger.LogError($"FocusState.Add(): Cannot add element with key `{key}` because there is already an entry for this key (`{focusMap[key]}`). Make sure key associations are unique!");
                     return;
                 };
-                
-                focusable.CreateFocusEvent();
-                focusable.OnFocusEvent?.AddListener(() => Value = key );
-                focusable.CreateUnfocusEvent();
-                focusable.OnUnfocusEvent?.AddListener(() =>
+
+                focusable.CreateFocusEvent().AddListener(() => Value = key );
+                focusable.CreateUnfocusEvent().AddListener(() =>
                 {
                     /*
                      * Only set the value to null if the group also looses its focus. If not null, this means there has been a direct
@@ -214,9 +234,14 @@ namespace UCGUI
             
 
             IFocusable lastFocused = IFocusable.GetFocusedElement(focusable.CurrentGroup);
-            IFocusable.FocusGroups[focusable.CurrentGroup] = focusable;
+            if (lastFocused is MonoBehaviour foc && !foc)
+            {
+                UCGUILogger.LogError("The element you are trying to unfocus does not exist anymore. :(\nDid you forget unfocusing it when it was destroyed?");
+                return;
+            }
             if (lastFocused != null && !lastFocused.Equals(focusable))
                 lastFocused.Unfocus();
+            IFocusable.FocusGroups[focusable.CurrentGroup] = focusable;
             focusable.HandleFocus();
             focusable.OnFocusEvent?.Invoke();
         }
@@ -285,17 +310,28 @@ namespace UCGUI
         public static T Focusable<T, V>(this T focusable, IFocusable.FocusState<V> state, V value) where V : struct, Enum where T : IFocusable
         {
             state.Add(value, focusable);
+            state.UpdateState();
             return focusable;
         }
 
-
-        public static void CreateFocusEvent<T>(this T focusable) where T : IFocusable
+        /// <summary>
+        /// Creates an event which can be observed when the focusable is focused.
+        /// </summary>
+        /// <returns>The <see cref="UnityEvent"/> handler</returns>
+        public static UnityEvent CreateFocusEvent<T>(this T focusable) where T : IFocusable
         {
             focusable.OnFocusEvent ??= new UnityEvent();
+            return focusable.OnFocusEvent;
         }
-        public static void CreateUnfocusEvent<T>(this T focusable) where T : IFocusable
+        
+        /// <summary>
+        /// Creates an event which can be observed when the focusable looses its focus.
+        /// </summary>
+        /// <returns>The <see cref="UnityEvent"/> handler</returns>
+        public static UnityEvent CreateUnfocusEvent<T>(this T focusable) where T : IFocusable
         {
             focusable.OnUnfocusEvent ??= new UnityEvent();
+            return focusable.OnUnfocusEvent;
         }
     }
 }
