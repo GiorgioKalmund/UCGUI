@@ -40,6 +40,11 @@ namespace UCGUI
             DisplayName = "Button";
         }
 
+        public void Press()
+        {
+            button.onClick.Invoke();
+        }
+
         public ButtonComponent FitToContents(PaddingSide side, int amount, float spacing, ScrollViewDirection direction = ScrollViewDirection.Both)
         {
             AddFitter(direction);

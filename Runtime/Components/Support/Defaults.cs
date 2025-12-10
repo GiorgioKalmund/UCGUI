@@ -49,6 +49,14 @@ namespace UCGUI{
             }
         }
 
+        public static class Spacer
+        {
+            /// <summary>
+            /// The default width or height of the spacer into its non-stretching dimension.
+            /// </summary>
+            public static float AlternateDirectionExtents = 25f;
+        }
+
         /// <summary>
         /// Default options for <see cref="IFocusable"/>.
         /// </summary>

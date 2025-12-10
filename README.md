@@ -310,6 +310,7 @@ These styles are also exist for other built-in components such as the [TextStyle
 | **[SliderComponent](Runtime/Components/SliderComponent.cs)**         | Slider based on uGUI's `Slider`.                                                                         |
 | **[HStackComponent](Runtime/Components/HStackComponent.cs)**         | A layout element to horizontally align its children. Based on uGUI's `HorizontalLayoutGroup`.            |
 | **[VStackComponent](Runtime/Components/VStackComponent.cs)**         | A layout element to vertically align its children. Based on uGUI's `VerticalLayoutGroup`.                |
+| **[SpacerComponent](Runtime/Components/SpacerComponent.cs)**         | A layout element to automatically fill all left over space inside a layout.                              |
 | **[GridComponent](Runtime/Components/GridComponent.cs)**             | A layout element to align its children in a grid. Based on uGUI's `GridLayoutGroup`.                     |
 | **[ScrollViewComponent](Runtime/Components/ScrollViewComponent.cs)** | A view allowing for scrolling content in both horizontal and vertical directions.                        |
 | **[ViewComponent](Runtime/Components/ViewComponent.cs)**             | Dynamic component which can be shown and hidden at any time.                                             |

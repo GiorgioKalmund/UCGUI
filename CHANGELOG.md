@@ -116,3 +116,10 @@
 - `UI.Image(...)` call now directly supports a string as a path to a texture, making use of the [ImageService](Runtime/Service/ImageService.cs)'s functionality even more.
 - Constructors of all components are now protected, mirroring Unity's approach to MonoBehaviour instantiation.
 - Fixed an issue where OffsetY would offset the element into the x direction.
+
+## [1.0.15] - 2025-12-10
+### Spacers
+- Introduced a new [Spacer](Runtime/Components/SpacerComponent.cs) which automatically resizes inside a fixed layout to fill as much space as possible.
+  - The Spacer as an associated `Defaults.Spacer.AlternateDirectionExtents` variable which determines its extents into the non-stretching direction.
+- Added the `Press()` function for buttons to allow easier coordination of actions (i.e. between different input methods).
+- Smaller adjustments

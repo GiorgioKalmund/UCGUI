@@ -24,5 +24,10 @@ namespace UCGUI
         {
             _layout.Add(components);
         }
+
+        public void Spacer()
+        {
+            Add(UI.Spacer());
+        }
     }
 }

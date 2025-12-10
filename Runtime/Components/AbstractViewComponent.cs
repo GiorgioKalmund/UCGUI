@@ -97,6 +97,9 @@ namespace UCGUI
             CreateView();
         }
 
+        /// <summary>
+        /// Called during the 'Awake' phase of the Unity lifecycle. Build and configure your content here.
+        /// </summary>
         public abstract void CreateView();
         
         public override void Start()

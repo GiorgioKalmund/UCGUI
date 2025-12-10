@@ -26,7 +26,7 @@ namespace UCGUI
         }
 
         /// <summary>
-        /// Called during the 'Awake' phase of the Unity lifecycle. Build and configure all of your element in here.
+        /// Called during the 'Awake' phase of the Unity lifecycle. Build and configure all of your elements in here.
         /// </summary>
         public abstract void Create();
         /// <summary>

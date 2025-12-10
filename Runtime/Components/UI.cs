@@ -301,6 +301,12 @@ namespace UCGUI
         public static VStackComponent VStack(TextAnchor childAlignment, Action<LayoutBuilder> contents)
             => VStack(0f, childAlignment, contents);
 
+        public static SpacerComponent Spacer()
+        {
+            SpacerComponent spacer = N<SpacerComponent>();
+            return spacer;
+        }
+
         /// <summary>
         /// A grid layout element based on Unity's <see cref="GridLayoutGroup"/>.
         /// </summary>
