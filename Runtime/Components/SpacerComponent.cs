@@ -5,109 +5,20 @@ using UnityEngine.UI;
 
 namespace UCGUI
 {
-    public interface ISpacerBehaviour
-    {
-        void Apply(SpacerComponent spacer);
-    }
-
-    public class HorizontalSpacerBehaviour : ISpacerBehaviour
-    {
-        public void Apply(SpacerComponent spacer)
-        {
-            var layout = spacer.GetComponentInParent<HStackComponent>();
-            if (layout == null)
-            {
-                UCGUILogger.LogError("HorizontalSpacerBehaviour: Cannot apply because no HStack is present in parent!\n");
-                spacer.Enabled(false);
-                return;
-            }
-
-            if (layout.ContentSizeFitter.enabled && layout.ContentSizeFitter.horizontalFit != ContentSizeFitter.FitMode.Unconstrained)
-            {
-                UCGUILogger.LogError("HorizontalSpacerBehaviour: Cannot apply because the parent HStack is dynamically sized.\nSpacers are currently only supported in statically sized layouts!\n");
-                spacer.Enabled(false);
-                return;
-            }
-            
-            
-            var width = layout.GetWidth();
-            var spacing = layout.HorizontalLayout.spacing;
-            var childCount = layout.transform.childCount;
-            var childrenWidth = 0f;
-            var spacerCount = 0;
-            foreach (RectTransform child in layout.transform)
-            {
-                var go = child.gameObject;
-                if (!go.GetComponent<SpacerComponent>())
-                    childrenWidth += child.sizeDelta.x;
-                else
-                    spacerCount++;
-            }
-
-            float totalSpacing = (childCount - 1) * spacing;
-            float totalPadding = layout.HorizontalLayout.padding.left + layout.HorizontalLayout.padding.right;
-            var rest = width - childrenWidth - totalSpacing - totalPadding;
-            var perSpacer = rest / spacerCount;
-            //Debug.Log($"W:{width}, SP:{spacing}, CC:{childCount}, T:{totalSpacing}, C:{childrenWidth}, R:{rest}, S:{spacerCount}");
-            if (rest < spacing)
-            {
-                UCGUILogger.LogWarning("HorizontalSpacerBehaviour: Cannot insert spacer. Not enough horizontal space! Disabled spacer.\n");
-                spacer.Enabled(false);
-            }
-            spacer.Size(perSpacer, Defaults.Spacer.AlternateDirectionExtents);
-            LayoutRebuilder.MarkLayoutForRebuild(layout.GetRect());
-        }
-    }
-
-    public class VerticalSpacerBehaviour : ISpacerBehaviour
-    {
-        public void Apply(SpacerComponent spacer)
-        {
-            var layout = spacer.GetComponentInParent<VStackComponent>();
-            if (layout == null)
-            {
-                UCGUILogger.LogError("VerticalSpacerBehaviour: Cannot apply because no VStack is present in parent!");
-                spacer.Enabled(false);
-                return;
-            }
-
-            if (layout.ContentSizeFitter.enabled && layout.ContentSizeFitter.verticalFit != ContentSizeFitter.FitMode.Unconstrained)
-            {
-                UCGUILogger.LogError("VerticalSpacerBehaviour: Cannot apply because the parent VStack is dynamically sized.\nSpacers are currently only supported in statically sized layouts!");
-                spacer.Enabled(false);
-                return;
-            }
-            
-            var height = layout.GetHeight();
-            var spacing = layout.VerticalLayout.spacing;
-            var childCount = layout.transform.childCount;
-            var childrenHeight = 0f;
-            var spacerCount = 0;
-            foreach (RectTransform child in layout.transform)
-            {
-                var go = child.gameObject;
-                if (!go.GetComponent<SpacerComponent>())
-                    childrenHeight += child.sizeDelta.y;
-                else
-                    spacerCount++;
-            }
-
-            float totalSpacing = (childCount - 1) * spacing;
-            float totalPadding = layout.VerticalLayout.padding.top + layout.VerticalLayout.padding.bottom;
-            var rest = height - childrenHeight - totalSpacing - totalPadding;
-            var perSpacer = rest / spacerCount;
-            //Debug.Log($"W:{width}, SP:{spacing}, CC:{childCount}, T:{totalSpacing}, C:{childrenWidth}, R:{rest}, S:{spacerCount}");
-            if (rest < spacing)
-            {
-                UCGUILogger.LogWarning("VerticalSpacerBehaviour: Cannot insert spacer. Not enough vertical space!\nDisabled spacer.");
-                spacer.Enabled(false);
-            }
-            spacer.Size(Defaults.Spacer.AlternateDirectionExtents, perSpacer);
-            LayoutRebuilder.MarkLayoutForRebuild(layout.GetRect());
-        }
-        
-    }
-
+    /// <summary>
+    /// The SpacerComponent can act as a greedy space allocator inside of layouts to maximally spread elements apart.
+    /// <br></br>
+    /// <br></br>
+    /// Functions:
+    /// <list type="bullet">
+    /// <item><description><see cref="SetBehaviour"/> - Sets a custom <see cref="ISpacerBehaviour"/> which is going to be applied during the 'Start' phase.</description></item>
+    /// <item><description><see cref="ReplaceBehaviour"/> - Replaces the current <see cref="ISpacerBehaviour"/> and applies it.</description></item>
+    /// <item><description><see cref="AutoSetBehaviour"/> - Automatically determines the correct behaviour in the current context and sets it.</description></item>
+    /// <item><description><see cref="Render"/> - Applies the <see cref="_behaviour"/> after one frame.</description></item>
+    /// <item><description><see cref="RenderImmediate"/> - Immediately applies the <see cref="_behaviour"/>.</description></item>
+    /// <item><description><see cref="Enabled"/> - Sets the active state of the game object.</description></item>
+    /// </list>
+    /// </summary>
     public class SpacerComponent : BaseComponent, IEnabled, IRenderable
     {
         private ISpacerBehaviour _behaviour;
@@ -128,6 +39,10 @@ namespace UCGUI
             Render();
         }
 
+        /// <summary>
+        /// Sets the internal <see cref="ISpacerBehaviour"/>.
+        /// </summary>
+        /// <param name="behaviour">The behaviour to set.</param>
         public SpacerComponent SetBehaviour(ISpacerBehaviour behaviour)
         {
             if (behaviour == null)
@@ -146,6 +61,10 @@ namespace UCGUI
             return this;
         }
 
+        /// <summary>
+        /// Replaces the currently active behaviour and applies it.
+        /// </summary>
+        /// <param name="behaviour">The behaviour to replace the currently active one.</param>
         public void ReplaceBehaviour(ISpacerBehaviour behaviour)
         {
             if (behaviour == null)
@@ -158,6 +77,10 @@ namespace UCGUI
             _behaviour.Apply(this);
         }
 
+        /// <summary>
+        /// Automatically sets the behaviour based on the context the Spacer is in.
+        /// </summary>
+        /// <param name="overrideExisting">If set to true, allows to override any existing behaviour. If not set, will not allow setting a new behaviour if one is already present.</param>
         public void AutoSetBehaviour(bool overrideExisting = false)
         {
             if (!overrideExisting && _behaviour != null)
@@ -176,11 +99,18 @@ namespace UCGUI
             }
         }
 
+        /// <summary>
+        /// Sets the active state of the game object.
+        /// </summary>
+        /// <param name="on">Boolean controlling the active state.</param>
         public void Enabled(bool on)
         {
             gameObject.SetActive(on);
         }
 
+        /// <summary>
+        /// Renders the Spacer by calling the behaviour's <see cref="ISpacerBehaviour.Apply"/> function one frame later to allow all sub-layouts to first properly compute and build.
+        /// </summary>
         public void Render()
         {
             // We wait here to allow all sub-hierarchies and layouts to also build beforehand, otherwise the 
@@ -188,10 +118,17 @@ namespace UCGUI
             StartCoroutine(RenderRoutine());
         }
 
+        /// <summary>
+        /// Immediately applies the attached <see cref="ISpacerBehaviour"/>.
+        /// </summary>
+        public void RenderImmediate()
+        {
+            _behaviour.Apply(this);
+        }
+
         private IEnumerator RenderRoutine()
         {
             yield return new WaitForEndOfFrame();
-            _behaviour.Apply(this);
         }
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using JetBrains.Annotations;
-using UCGUI.Game;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -301,9 +300,25 @@ namespace UCGUI
         public static VStackComponent VStack(TextAnchor childAlignment, Action<LayoutBuilder> contents)
             => VStack(0f, childAlignment, contents);
 
+        /// <summary>
+        /// A greedy layout element which takes as much space as it can according to its specified <see cref="ISpacerBehaviour"/>.
+        /// </summary>
+        /// <returns>The resulting <see cref="SpacerComponent"/>.</returns>
         public static SpacerComponent Spacer()
         {
             SpacerComponent spacer = N<SpacerComponent>();
+            return spacer;
+        }
+        
+        /// <summary>
+        /// A greedy layout element which takes as much space as it can according to its specified <see cref="ISpacerBehaviour"/>.
+        /// </summary>
+        /// <param name="behaviour">Custom <see cref="ISpacerBehaviour"/> which the spacer should use.</param>
+        /// <returns>The resulting <see cref="SpacerComponent"/>.</returns>
+        public static SpacerComponent Spacer(ISpacerBehaviour behaviour)
+        {
+            SpacerComponent spacer = N<SpacerComponent>();
+            spacer.SetBehaviour(behaviour);
             return spacer;
         }
 
@@ -463,7 +478,6 @@ namespace UCGUI
             
             return label;
         }
-
         
         /// <summary>
         /// Creates a <see cref="LabelComponent"/>.
@@ -483,23 +497,5 @@ namespace UCGUI
         /// The resulting <see cref="LabelComponent"/>.
         /// </returns>
         public static LabelComponent Label(string text) => Label(text, (Sprite)null);
-
-        /// <summary>
-        /// UCGUI's default Wheel Menu.
-        /// </summary>
-        /// <param name="radius">The radius of the menu itself.</param>
-        /// <param name="contents"><see cref="WheelMenu.WheelMenuBuilder"/> to add content to the menu.</param>
-        /// <returns>
-        /// The resulting UCGUI <see cref="UCGUI.Game.WheelMenu"/>.
-        /// </returns>
-        public static WheelMenu WheelMenu(float radius, Action<WheelMenu.WheelMenuBuilder> contents)
-        {
-            WheelMenu wheelMenu = N<WheelMenu>();
-            wheelMenu.Radius(radius);
-
-            contents(new WheelMenu.WheelMenuBuilder(wheelMenu));
-
-            return wheelMenu;
-        }
     }
 }

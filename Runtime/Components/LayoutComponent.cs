@@ -39,5 +39,25 @@ namespace UCGUI
             base.HandleSizeChanged(x, y);
             return this;
         }
+
+        
+        /// <summary>
+        /// Calls <see cref="SpacerComponent.RenderImmediate"/> or <see cref="SpacerComponent.Render"/> on all containing <see cref="SpacerComponent"/>s.
+        /// </summary>
+        /// <param name="immediate">Whether to immediately re-render the spacer or not.</param>
+        public void RerenderSpacers(bool immediate = true)
+        {
+            foreach (RectTransform child in GetRect().transform)
+            {
+                var spacer = child.gameObject.GetComponent<SpacerComponent>();
+                if (spacer)
+                {
+                    if (immediate)
+                        spacer.RenderImmediate();
+                    else
+                        spacer.Render();
+                }
+            }
+        }
     }
 }
