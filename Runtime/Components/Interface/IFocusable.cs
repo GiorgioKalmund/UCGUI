@@ -69,11 +69,65 @@ namespace UCGUI
         [Serializable]
         public class FocusState<T> where T : struct, Enum
         {
+            /// <summary>
+            /// A map storing a reference between the respective enum value and its connected <see cref="IFocusable"/>.
+            /// </summary>
             private readonly Dictionary<T, IFocusable> focusMap = new Dictionary<T, IFocusable>();
             
             private T? _value;
 
+            /// <summary>
+            /// A hash determining which focus group to be a part of.
+            /// </summary>
             public string FocusHash { get; } = Guid.NewGuid().ToString();
+
+            /// <summary>
+            /// UnityEvent triggered when the focus state changes to the next member.
+            /// <br></br>
+            /// Emits the next value which is either the respective enum member or null.
+            /// </summary>
+            public UnityEvent<T?> OnStateChanged
+            {
+                get
+                {
+                    if (_onStateChanged == null)
+                        _onStateChanged = new UnityEvent<T?>();
+                    return _onStateChanged;
+                }
+                set => _onStateChanged = value;
+            }
+            private UnityEvent<T?> _onStateChanged;
+
+            public class FocusStateChangedResult
+            { 
+                public T? value;
+                public IFocusable member;
+
+                public FocusStateChangedResult(T? value, IFocusable member)
+                {
+                    this.value = value;
+                    this.member = member;
+                }
+
+                public FocusStateChangedResult(){}
+            }
+
+            /// <summary>
+            /// UnityEvent triggered when the focus state changes to the next member.
+            /// <br></br>
+            /// Emits the next value which is either the respective enum member or null, as well as its respective <see cref="IFocusable"/>.
+            /// </summary>
+            public UnityEvent<FocusStateChangedResult> OnStateChangedWithComponent
+            {
+                get
+                {
+                    if (_onStateChangedWithComponent == null)
+                        _onStateChangedWithComponent = new UnityEvent<FocusStateChangedResult>();
+                    return _onStateChangedWithComponent;
+                }
+                set => _onStateChangedWithComponent = value;
+            }
+            private UnityEvent<FocusStateChangedResult> _onStateChangedWithComponent;
 
             public FocusState() : this(null) { }
 
@@ -110,20 +164,27 @@ namespace UCGUI
 
             public void UpdateState()
             {
-                if (_value != null)
+                if (_value.HasValue)
                 {
                     var focusable = Get();
-                    if (focusable is MonoBehaviour foc && !foc)
+                    if (focusable == null || (focusable is MonoBehaviour foc && !foc ))
                     {
                         UCGUILogger.LogError("The element you are trying to focus does not exist anymore. :(");
                         return;
                     }
-                    if (focusable != null && !focusable.IsFocused())
+
+                    if (!focusable.IsFocused())
+                    {
                         focusable.Focus();
+                        OnStateChanged?.Invoke(_value.Value);
+                        OnStateChangedWithComponent?.Invoke(new FocusStateChangedResult(_value.Value, focusMap[_value.Value]));
+                    }
                 }
                 else
                 {
                     UnfocusGroupId(FocusHash);
+                    OnStateChanged?.Invoke(null);
+                    OnStateChangedWithComponent?.Invoke(new FocusStateChangedResult());
                 }
             }
 
@@ -162,26 +223,25 @@ namespace UCGUI
                     return;
                 }
                 var values = focusMap.Keys.ToList();
-                var current = Value;
                 
-                if (!current.HasValue)
+                if (!_value.HasValue)
                 {
-                    focusMap[values[0]].Focus();
+                    Value = values[0];
+                    return;
                 }
-                else
+                
+                int nextIndex = values.IndexOf(_value.Value) + 1;
+                if (nextIndex == values.Count)
                 {
-                    int nextIndex = (values.IndexOf(current.Value) + 1);
-                    if (nextIndex == values.Count)
+                    if (nullCycle)
                     {
-                        if (nullCycle)
-                        {
-                            focusMap[values[^1]].Unfocus();
-                            return;
-                        }
-                        nextIndex = 0;
+                        Value = null;
+                        return;
                     }
-                    focusMap[values[nextIndex]].Focus();
+                    nextIndex = 0;
                 }
+                
+                Value = values[nextIndex];
             }
             
             public void Previous(bool nullCycle = true)
@@ -196,22 +256,21 @@ namespace UCGUI
                 
                 if (!current.HasValue)
                 {
-                    focusMap[values[^1]].Focus();
+                    Value = values[^1];
+                    return;
                 }
-                else
+                int nextIndex = values.IndexOf(current.Value) - 1;
+                if (nextIndex < 0)
                 {
-                    int nextIndex = (values.IndexOf(current.Value) - 1);
-                    if (nextIndex < 0)
+                    if (nullCycle)
                     {
-                        if (nullCycle)
-                        {
-                            focusMap[values[0]].Unfocus();
-                            return;
-                        }
-                        nextIndex = values.Count - 1;
+                        Value = null;
+                        return;
                     }
-                    focusMap[values[nextIndex]].Focus();
+                    nextIndex = values.Count - 1;
                 }
+                //focusMap[values[nextIndex]].Focus();
+                Value = values[nextIndex];
             }
         }
     }
@@ -239,9 +298,12 @@ namespace UCGUI
                 UCGUILogger.LogError("The element you are trying to unfocus does not exist anymore. :(\nDid you forget unfocusing it when it was destroyed?");
                 return;
             }
+            
+            IFocusable.FocusGroups[focusable.CurrentGroup] = focusable;
+            
             if (lastFocused != null && !lastFocused.Equals(focusable))
                 lastFocused.Unfocus();
-            IFocusable.FocusGroups[focusable.CurrentGroup] = focusable;
+            
             focusable.HandleFocus();
             focusable.OnFocusEvent?.Invoke();
         }

@@ -126,9 +126,13 @@ namespace UCGUI
             _behaviour.Apply(this);
         }
 
+        /// <summary>
+        /// Coroutine to render the Spacer one frame later. This is especially helpful to avoid layout inconsistencies due to Unity's layout hierarchy building.
+        /// </summary>
         private IEnumerator RenderRoutine()
         {
             yield return new WaitForEndOfFrame();
+            RenderImmediate();
         }
     }
 }
