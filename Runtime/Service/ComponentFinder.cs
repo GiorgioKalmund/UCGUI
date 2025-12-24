@@ -76,10 +76,10 @@ namespace UCGUI.Services
         /// </summary>
         /// <typeparam name="T">The <see cref="MonoBehaviour"/> type to create an Instance for.</typeparam>
         /// <returns>The newly created instance.</returns>
-        public static T CreateInstance<T>() where T : MonoBehaviour
+        public static T CreateInstance<T>(bool replaceOld = false) where T : MonoBehaviour
         {
             T instance = Object.Instantiate(new GameObject("Instance - " + typeof(T).Name)).AddComponent<T>();
-            if (!PutInstance(instance, false))
+            if (!PutInstance(instance, replaceOld))
             {
                 Object.Destroy(instance.gameObject);
             }

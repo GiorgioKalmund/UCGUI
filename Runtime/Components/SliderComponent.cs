@@ -8,7 +8,8 @@ namespace UCGUI
     /// UCGUI's default Slider Component. <br></br><br></br>
     /// To create and customize it take a look at <see cref="UI.Slider"/> and the <see cref="SliderBuilder"/>.
     /// </summary>
-    public partial class SliderComponent : BaseComponent
+    public partial class SliderComponent : BaseComponent,
+        IStylable<SliderComponent, SliderStyle>
     {
         protected SliderComponent() {}
         
@@ -126,6 +127,12 @@ namespace UCGUI
             }
             public void Value(float val) { _slider.Value = val; }
             public void IntegerSteps(bool steps = true) { _slider.IntegerSteps(steps); }
+        }
+
+        public SliderComponent Style(SliderStyle style)
+        {
+            style.Apply(this);
+            return this;
         }
     }
 }

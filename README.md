@@ -13,7 +13,8 @@ still subject to change at any time.**
 ## Why UCGUI?
 
 Simple UIs can easily be created in the editor, however they often need assistance from scripts and other libraries to do things like animation, transitions, etc.
-This is where UCGUI jumps in. Building on top of [Unity's built in uGUI](https://docs.unity3d.com/Packages/com.unity.ugui@2.0/manual/index.html) components UCGUI not only easy access to these, but additionally adds fully custom and new concepts and components.
+This is where UCGUI jumps in.
+Building on top of [Unity's built in uGUI components](https://docs.unity3d.com/Packages/com.unity.ugui@2.0/manual/index.html) UCGUI offers easy access to a variety of basic components as well as additionally adding fully custom and new concepts and components.
 <br> UCGUI's built in tools allow easy and accessible creation of [Text](Runtime/Components/TextComponent.cs), [Images](Runtime/Components/ImageComponent.cs), [Buttons](Runtime/Components/ButtonComponent.cs), [Input](Runtime/Components/InputComponent.cs), [Sliders](Runtime/Components/SliderComponent.cs), [Views](Runtime/Components/ViewComponent.cs), [Layouts](Runtime/Components/LayoutComponent.cs) and so much more.
 Everything is based on a singular [BaseComponent]() class and every class is created in such a way that it can be easily inherited from and expanded upon.
 <br><br>The main benefit comes from inherent code-based control over your UI at runtime, allowing dynamic UI combinations to be created faster and frictionless.
@@ -23,6 +24,7 @@ Everything is based on a singular [BaseComponent]() class and every class is cre
 
 ## Contents
 - [Installation](#installation)
+- [Documentation](#documentation)
 - [Usage, Patterns, Examples](#usage-patterns-examples)
     - [UI - Builders](#ui---builders)
     - [UI - Base](#ui---base)
@@ -46,6 +48,13 @@ https://github.com/GiorgioKalmund/UCGUI.git
 ```
 
 This will add the latest version of UCGUI to your Unity project.
+
+## Documentation
+
+UCGUI has an [**official docs page**](https://giorgiokalmund.github.io/ucgui-docs) which goes into more detail and offers 
+an overview over every aspect of the package. 
+
+If you are interested in a small quickstart or can't be bothered to read the entire docs either [visit the quickstart page](https://giorgiokalmund.github.io/ucgui-docs/docs/getting-started/quickstart) or just continue reading ;)
 
 ## Usage, Patterns, Examples
 
@@ -82,7 +91,7 @@ UI.Button("MyButton", action =>
 .Parent(parent);
 ```
 This creates a [Button](Runtime/Components/ButtonComponent.cs), which under the principally works just like any other regular uGUI Button. However, it also offers out of the box flexibility for content based resizing in both the horizontal and vertical direction.
-<br> Additionally a optional `label` block can be specified for more visual customization, however the `action` is not when using this pattern builder.
+<br> Additionally an optional `label` block can be specified for more visual customization, however the `action` is not when using this pattern builder.
 
 ### [UI - Base](Runtime/Components/Support/UI.cs)
 This file acts as the second half of the `UI` class and serves as a foundation for creating components in UCGUI. It contains all the builder pattern styling functions applicable to **every** [BaseComponent](Runtime/Components/BaseComponent.cs).
@@ -178,7 +187,7 @@ using UCGUI;
 public class MyScreen : SimpleScreen
 {
     // Called during 'Awake'
-    public void Create()
+    public override void Create()
     {
         // Every screen has a direct reference to the Canvas (`canvas`) it is attached to,
         // allowing quick access for `Parent()`
@@ -190,12 +199,12 @@ public class MyScreen : SimpleScreen
     }
     
     // Called during 'Start'
-    public void Initialize()
+    public override void Initialize()
     {
         // ... Additionally configure your UI here
     }
     
-    public Canvas GetCanvas()
+    public override Canvas GetCanvas()
     {
         return GetComponentInParent<Canvas>();
     }
