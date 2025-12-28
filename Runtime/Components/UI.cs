@@ -180,7 +180,7 @@ namespace UCGUI
         /// <returns>
         /// The resulting UCGUI <see cref="AbstractViewComponent"/>.
         /// </returns>
-        public static AbstractViewComponent View(UnityAction<AbstractViewComponent.ViewBuilder> viewBuilder) => View(null, viewBuilder);
+        public static ViewComponent View(UnityAction<AbstractViewComponent.ViewBuilder> viewBuilder) => View(null, viewBuilder);
         
         /// <summary>
         /// 
@@ -442,14 +442,7 @@ namespace UCGUI
             Action<float> onValueChanged = null)
         {
             SliderComponent slider = N<SliderComponent>();
-            if (!range.IsOrdered)
-            {
-                Debug.LogWarning("Slider range " + range + " was not ordered. Changed to: " + range.Flipped());
-                range.Flip();
-            }
-
-            slider.MinValue = range.minValue;
-            slider.MaxValue = range.maxValue;
+            slider.SetRange(range);
 
             var build = new SliderComponent.SliderBuilder(slider);
             build.HandleWidth(SliderComponent.DefaultSize.y);

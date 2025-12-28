@@ -1,3 +1,5 @@
+using System.Collections;
+using UCGUI.Services;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,15 +15,15 @@ namespace UCGUI
     {
         protected SliderComponent() {}
         
-        public static readonly Vector2 DefaultSize = new (300, 20);
+        public static readonly Vector2Int DefaultSize = new (300, 20);
         
         public Slider slider;
         
         // -- Subcomponents -- //
         public ImageComponent background;
-        private ImageComponent _fillArea;
-        public ImageComponent foreground;
-        private ImageComponent _handleSlideArea;
+        private BaseComponent _fillArea;
+        public ImageComponent fill;
+        private BaseComponent _handleSlideArea;
         public ImageComponent handle;
 
         public Slider.SliderEvent OnValueChanged => slider.onValueChanged;
@@ -48,41 +50,77 @@ namespace UCGUI
             base.Awake();
 
             slider = gameObject.GetOrAddComponent<Slider>();
-
-            background = UI.Image().Color(Color.gray7).Parent(slider).DisplayName("Background").StretchHorizontally();
-            _fillArea = UI.Image().Alpha(0).StretchHorizontally().Parent(slider).DisplayName("Fill Area");
-            foreground = UI.Image().Parent(_fillArea).Filled(Image.FillMethod.Horizontal, Value).DisplayName("Foreground");
-            _handleSlideArea = UI.Image().Alpha(0).StretchHorizontally().Parent(slider).DisplayName("Handle Slide Area");
-            handle = UI.Image().Color(Color.gray3).Parent(_handleSlideArea).DisplayName("Handle");
-
-            slider.targetGraphic = handle.GetImage();
-            slider.handleRect = handle.GetRect();
-            slider.fillRect = foreground.GetRect();
-
-            foreground.RectOffsets(new RectOffset(0, 0, 0, 0));
-            handle.RectOffsets(new RectOffset(0, 0, 0, 0));
-            handle.Pivot(PivotPosition.MiddleLeft, true).Pos(0, 0);
+            
+            var missingSprite = ImageService.MissingSprite;
 
             this.Size(DefaultSize);
+            
+
+            background = UI.Image(missingSprite).Color(Color.gray7).Parent(slider).DisplayName("Background")
+                    .AnchorMin(0, 0.25f).AnchorMax(1, 0.75f)
+                    .RectOffsets(new RectOffset(0, 0, 0, 0))
+                ;
+            _fillArea = UI.N<BaseComponent>()
+                .AnchorMin(0, 0.25f).AnchorMax(1, 0.75f)
+                .RectOffsets(new RectOffset(5, 15, 0, 0))
+                .Parent(slider).DisplayName("Fill Area");
+            fill = UI.Image(missingSprite).Parent(_fillArea)
+                .StretchVertically(VerticalStretchAnchor.Center)
+                .Filled(Image.FillMethod.Horizontal, Value).DisplayName("Fill")
+                .RectOffsets(new RectOffset(-5, -5, 0, 0))
+                ;
+            _handleSlideArea = UI.N<BaseComponent>().AnchorMin(0, 0).AnchorMax(1, 1)
+                .RectOffsets(new RectOffset(DefaultSize.y / 2, DefaultSize.y / 2, 0, 0))
+                .Parent(slider).DisplayName("Handle Slide Area");
+            handle = UI.Image(missingSprite)
+                .Color(Color.gray3).Parent(_handleSlideArea).DisplayName("Handle")
+                .RectOffsets(new RectOffset(0, DefaultSize.y, 0, 0))
+                .Pos(0, 0)
+                ;
+            
+            slider.targetGraphic = handle.GetImage();
+            slider.handleRect = handle.GetRect();
+            slider.fillRect = fill.GetRect();
+        }
+
+        public void Lock()
+        {
+            slider.interactable = false;
+        }
+        public void Unlock()
+        {
+            slider.interactable = true;
         }
 
         private void Start()
         {
             DisplayName = "Slider";
+            handle.Enabled(false);
         }
 
         public override BaseComponent HandleSizeChanged(float x, float y)
         {
             base.HandleSizeChanged(x, y);
-            background.Size(this.GetSize());
-            _handleSlideArea.Size(x, y);
-            _fillArea.Size(this.GetSize());
+            handle?.RectOffsets(new RectOffset(0, -(int)y, 0, 0))
+                .Pos(0, 0);
             return this;
         }
 
         public void IntegerSteps(bool steps = true)
         {
             slider.wholeNumbers = steps;
+        }
+
+        public void SetRange(Range range)
+        {
+            if (!range.IsOrdered)
+            {
+                Debug.LogWarning("Slider range " + range + " was not ordered. Changed to: " + range.Flipped());
+                range.Flip();
+            }
+
+            MinValue = range.minValue;
+            MaxValue = range.maxValue;
         }
 
         /// <summary>
@@ -107,8 +145,8 @@ namespace UCGUI
                 _slider = slider;
             }
             
-            public void Foreground(Sprite sprite, Color? color = null) { _slider.foreground.Sprite(sprite); if (color.HasValue) Foreground(color.Value);}
-            public void Foreground(Color color) { _slider.foreground.Color(color); }
+            public void Foreground(Sprite sprite, Color? color = null) { _slider.fill.Sprite(sprite); if (color.HasValue) Foreground(color.Value);}
+            public void Foreground(Color color) { _slider.fill.Color(color); }
             public void Background(Sprite sprite, Color? color = null) { _slider.background.Sprite(sprite); if (color.HasValue) Background(color.Value);}
             public void Background(Color color) { _slider.background.Color(color); }
             public void Handle(Sprite sprite, Color? color = null) { _slider.handle.Sprite(sprite); if (color.HasValue) Handle(color.Value);}
