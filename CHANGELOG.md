@@ -123,3 +123,10 @@
   - The Spacer as an associated `Defaults.Spacer.AlternateDirectionExtents` variable which determines its extents into the non-stretching direction.
 - Added the `Press()` function for buttons to allow easier coordination of actions (i.e. between different input methods).
 - Smaller adjustments
+
+## [1.0.16] - 2026-01-01
+### Iconography
+- Added `Editor/Icons` which contains variety of mini icons for UCGUI's integrated components
+  - Remaining icons will be set in the upcoming versions whenever I feel like drawing
+- Ignored the **beloved** `.DS_Store` files
+- Removed useless `FocusableComponent` as any component should just directly implement [IFocusable](Runtime/Components/Interface/IFocusable.cs)
