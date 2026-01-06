@@ -126,7 +126,12 @@
 
 ## [1.0.16] - 2026-01-01
 ### Iconography
-- Added `Editor/Icons` which contains variety of mini icons for UCGUI's integrated components
-  - Remaining icons will be set in the upcoming versions whenever I feel like drawing
-- Ignored the **beloved** `.DS_Store` files
-- Removed useless `FocusableComponent` as any component should just directly implement [IFocusable](Runtime/Components/Interface/IFocusable.cs)
+- Added `Editor/Icons` which contains variety of mini icons for UCGUI's integrated components.
+  - Remaining icons will be set in the upcoming versions whenever I feel like drawing.
+- Ignored the **beloved** `.DS_Store` files.
+- Removed useless `FocusableComponent` as any component should just directly implement [IFocusable](Runtime/Components/Interface/IFocusable.cs).
+ 
+## [1.0.17] - 2026-01-06
+### More Focus Transitions
+- Added a `TransitionMode` for `Next()` and `Previous()` calls of [FocusStates](Runtime/Components/Interface/IFocusable.cs).
+  - This allows for three unique behaviours: `Simple`, `Loop` and `LoopWithNull`, defaulting to `Simple`.

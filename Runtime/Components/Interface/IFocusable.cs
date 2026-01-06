@@ -167,7 +167,9 @@ namespace UCGUI
                 if (_value.HasValue)
                 {
                     var focusable = Get();
-                    if (focusable == null || (focusable is MonoBehaviour foc && !foc ))
+                    if (focusable == null) return;
+                    
+                    if (focusable is MonoBehaviour foc && !foc )
                     {
                         UCGUILogger.LogError("The element you are trying to focus does not exist anymore. :(");
                         return;
@@ -210,12 +212,29 @@ namespace UCGUI
                 });
             }
 
+            public enum TransitionMode
+            {
+                /// <summary>
+                /// Cycles through every element in the state until either the left or right border has been hit.
+                /// </summary>
+                Simple = 0, 
+                /// <summary>
+                /// Cycles through every element in the state, looping around to the opposite border after it has been hit.
+                /// </summary>
+                Loop = 1,
+                /// <summary>
+                /// Cycles through every element in the state.
+                /// After a border has been hit the state will first set its value to `null` before looping back to the opposite
+                /// border.
+                /// </summary>
+                LoopWithNull = 2
+            }
+
             /// <summary>
             /// Attempts on focusing the next element in the state cycle
-            /// or resets the focus if the at the end of the cycle and <see cref="nullCycle"/> is true.
             /// </summary>
-            /// <param name="nullCycle">Whether to additionally cycle to null after the last element, resetting the focus state.</param>
-            public void Next(bool nullCycle = true)
+            /// <param name="transition">The <see cref="TransitionMode"/> to apply when iterating through the state.</param>
+            public void Next(TransitionMode transition = TransitionMode.Simple)
             {
                 if (focusMap.Count == 0)
                 {
@@ -233,18 +252,31 @@ namespace UCGUI
                 int nextIndex = values.IndexOf(_value.Value) + 1;
                 if (nextIndex == values.Count)
                 {
-                    if (nullCycle)
+                    switch (transition)
                     {
-                        Value = null;
-                        return;
+                        case TransitionMode.Simple: return;
+                        case TransitionMode.LoopWithNull:
+                        {
+                            Value = null;
+                            return;
+                        }
+                        case TransitionMode.Loop:
+                        {
+                            nextIndex = 0;
+                            break;
+                        }
+                        default: throw new Exception("Case not valid!");
                     }
-                    nextIndex = 0;
                 }
                 
                 Value = values[nextIndex];
             }
             
-            public void Previous(bool nullCycle = true)
+            /// <summary>
+            /// Attempts on focusing the previous element in the state cycle
+            /// </summary>
+            /// <param name="transition">The <see cref="TransitionMode"/> to apply when iterating through the state.</param>
+            public void Previous(TransitionMode transition = TransitionMode.Simple)
             {
                 if (focusMap.Count == 0)
                 {
@@ -262,14 +294,23 @@ namespace UCGUI
                 int nextIndex = values.IndexOf(current.Value) - 1;
                 if (nextIndex < 0)
                 {
-                    if (nullCycle)
+                    switch (transition)
                     {
-                        Value = null;
-                        return;
+                        case TransitionMode.Simple: return;
+                        case TransitionMode.LoopWithNull:
+                        {
+                            Value = null;
+                            return;
+                        }
+                        case TransitionMode.Loop:
+                        {
+                            nextIndex = values.Count - 1;
+                            break;
+                        }
+                        default: throw new Exception("Case not valid!");
                     }
-                    nextIndex = values.Count - 1;
                 }
-                //focusMap[values[nextIndex]].Focus();
+                
                 Value = values[nextIndex];
             }
         }
