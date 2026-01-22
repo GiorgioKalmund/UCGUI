@@ -13,6 +13,12 @@ namespace UCGUI.Services
         // =============================================================== //
         private static Dictionary<string, MonoBehaviour> _register = new();
 
+        /// <summary>
+        /// Stores a refernce to the MonoBehaviour in a global hashmap.
+        /// </summary>
+        /// <param name="registrationId">The unique id to store the behaviour.</param>
+        /// <param name="behaviour">The behaviour to store.</param>
+        /// <returns>True if the operation could be completed, else false.</returns>
         public static bool Put(string registrationId, MonoBehaviour behaviour)
         {
             if(!_register.TryAdd(registrationId, behaviour))
@@ -24,11 +30,24 @@ namespace UCGUI.Services
             }
             return true;
         }
+        
+        /// <summary>
+        /// Removes a given key from the global hashmap.
+        /// </summary>
+        /// <param name="key">The key of which to remove the kv-pair.</param>
+        /// <returns>True if the operation could be completed, else false.</returns>
         public static bool Delete(string key) 
         {
             return _register.Remove(key);
         }
         
+        /// <summary>
+        /// Returns the value for a given key in the global hashmap.
+        /// </summary>
+        /// <remarks>Be aware of Unity's lifetimes! A returned behaviour might become null if the attached GameObject was deleted.</remarks>
+        /// <param name="registeredBehaviourId">The key / id under which the behaviour is stored.</param>
+        /// <typeparam name="T">Any MonoBehaviour</typeparam>
+        /// <returns>The MonoBehaviour for the given key, cast as <see cref="T"/>, if the operation could be completed, else null.</returns>
         [CanBeNull]
         public static T Get<T>(string registeredBehaviourId) where T : MonoBehaviour
         {
@@ -39,12 +58,18 @@ namespace UCGUI.Services
             return null;
         }
 
+        /// <summary>
+        /// Returns the value for a given key in the global hashmap.
+        /// </summary>
+        /// <remarks>Be aware of Unity's lifetimes! A returned behaviour might become null if the attached GameObject was deleted.</remarks>
+        /// <param name="registeredBehaviourId">The key / id under which the behaviour is stored.</param>
+        /// <returns>The MonoBehaviour for the given key if the operation could be completed, else null.</returns>
         [CanBeNull]
         public static MonoBehaviour Get(string registeredBehaviourId) => Get<MonoBehaviour>(registeredBehaviourId);
         
         
         // =============================================================== //
-        //                 Global Instances                                //
+        //                        Global Instances                         //
         // =============================================================== //
         private static Dictionary<Type, MonoBehaviour> _instances = new();
 

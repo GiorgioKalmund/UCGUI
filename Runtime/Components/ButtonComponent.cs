@@ -222,6 +222,18 @@ namespace UCGUI
             if (ContentSizeFitter) ContentSizeFitter.enabled = on;
         }
 
+        /// <summary>
+        /// Initializes the button with some text and an accompanying image.
+        /// </summary>
+        /// <param name="s">The string text of the button.</param>
+        /// <param name="sprite">(Optional) sprite to be shown next to the text.</param>
+        /// <returns></returns>
+        public new ButtonComponent Init(string s, Sprite sprite = null)
+        {
+            base.Init(s, sprite);
+            return this;
+        }
+
         public partial class ButtonBuilder
         {
             private ButtonComponent _button;

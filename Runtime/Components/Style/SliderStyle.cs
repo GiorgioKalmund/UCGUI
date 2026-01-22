@@ -1,3 +1,4 @@
+using UnityEngine;
 using UnityEngine.Events;
 
 namespace UCGUI
@@ -7,6 +8,12 @@ namespace UCGUI
         // =============================================================== //
         //                        Static Slider Styles                     //
         // =============================================================== //
+        public static SliderStyle Default = new SliderStyle(slider =>
+        {
+            slider.background.Color(Color.gray9);
+            slider.fill.Color(Color.white);
+            slider.handle.Color(Color.white);
+        });
       
         
         // =============================================================== //

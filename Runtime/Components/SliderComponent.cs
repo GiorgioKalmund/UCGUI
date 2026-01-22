@@ -56,7 +56,7 @@ namespace UCGUI
             this.Size(DefaultSize);
             
 
-            background = UI.Image(missingSprite).Color(Color.gray7).Parent(slider).DisplayName("Background")
+            background = UI.Image(missingSprite).Parent(slider).DisplayName("Background")
                     .AnchorMin(0, 0.25f).AnchorMax(1, 0.75f)
                     .RectOffsets(new RectOffset(0, 0, 0, 0))
                 ;
@@ -81,6 +81,8 @@ namespace UCGUI
             slider.targetGraphic = handle.GetImage();
             slider.handleRect = handle.GetRect();
             slider.fillRect = fill.GetRect();
+
+            Style(SliderStyle.Default);
         }
 
         public void Lock()
@@ -95,7 +97,6 @@ namespace UCGUI
         private void Start()
         {
             DisplayName = "Slider";
-            handle.Enabled(false);
         }
 
         public override BaseComponent HandleSizeChanged(float x, float y)
@@ -129,7 +130,7 @@ namespace UCGUI
         /// <list type="bullet">
         /// <item><description><see cref="Value"/> - Sets the initial value of the slider.</description></item>
         /// <item><description><see cref="IntegerSteps(bool)"/> - Forces the steps to be whole numbers.</description></item>
-        /// <item><description><see cref="SliderBuilder.Foreground(UnityEngine.Sprite,UnityEngine.Color?)"/> - Sets the sprite of the foreground / fill area. Optionally changes the color as well.</description></item>
+        /// <item><description><see cref="SliderBuilder.Fill(UnityEngine.Sprite,UnityEngine.Color?)"/> - Sets the sprite of the foreground / fill area. Optionally changes the color as well.</description></item>
         /// <item><description><see cref="SliderBuilder.Background(UnityEngine.Sprite,UnityEngine.Color?)"/> - Sets the sprite of the background. Optionally changes the color as well.</description></item>
         /// <item><description><see cref="SliderBuilder.Handle(UnityEngine.Sprite,UnityEngine.Color?)"/> - Sets the sprite of the handle. Optionally changes the color as well.</description></item>
         /// <item><description><see cref="SliderBuilder.HandleWidth(float)"/> - Sets the width of the slider's handle.</description></item>
@@ -145,8 +146,8 @@ namespace UCGUI
                 _slider = slider;
             }
             
-            public void Foreground(Sprite sprite, Color? color = null) { _slider.fill.Sprite(sprite); if (color.HasValue) Foreground(color.Value);}
-            public void Foreground(Color color) { _slider.fill.Color(color); }
+            public void Fill(Sprite sprite, Color? color = null) { _slider.fill.Sprite(sprite); if (color.HasValue) Fill(color.Value);}
+            public void Fill(Color color) { _slider.fill.Color(color); }
             public void Background(Sprite sprite, Color? color = null) { _slider.background.Sprite(sprite); if (color.HasValue) Background(color.Value);}
             public void Background(Color color) { _slider.background.Color(color); }
             public void Handle(Sprite sprite, Color? color = null) { _slider.handle.Sprite(sprite); if (color.HasValue) Handle(color.Value);}

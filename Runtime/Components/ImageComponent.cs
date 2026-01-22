@@ -29,7 +29,7 @@ namespace UCGUI
     /// Also implements <see cref="ICopyable{T}"/> which allows <see cref="ICopyable{T}.CopyFrom"/> and <see cref="ICopyable{T}.Copy"/>.
     /// </para>
     /// </summary>
-    public partial class ImageComponent : GraphicComponent<ImageComponent>, ICopyable<ImageComponent>
+    public partial class ImageComponent : GraphicComponent<ImageComponent>, ICopyable<ImageComponent>, IStylable<ImageComponent, ImageStyle>
     {
         protected ImageComponent() {}
         
@@ -56,14 +56,15 @@ namespace UCGUI
                 _toggleInputAction.performed += _ => ToggleVisibility();
         }
 
-        public ImageComponent Sprite([CanBeNull] Sprite sprite, Image.Type? imageType = null, float pixelsPerUnitMultiplier = 1f) 
+        public ImageComponent Sprite([CanBeNull] Sprite sprite, Image.Type? imageType = null, float pixelsPerUnitMultiplier = -1f) 
         {
             _image.sprite = sprite;
             // Only set if not already set from somewhere else
             this.SafeDisplayName(NamePrefix + ": " + (sprite?.name ?? "null"));
             if (imageType.HasValue)
                 ImageType(imageType.Value);
-            PixelsPerUnitMultiplier(pixelsPerUnitMultiplier);
+            if (pixelsPerUnitMultiplier > 0)
+                PixelsPerUnitMultiplier(pixelsPerUnitMultiplier);
             return this;
         }
         public ImageComponent Sprite(Texture2D texture2D)
@@ -224,6 +225,12 @@ namespace UCGUI
         public SpriteAnimator GetAnimator()
         {
             return animator;
+        }
+
+        public ImageComponent Style(ImageStyle style)
+        {
+            style.Apply(this);
+            return this;
         }
     }
 

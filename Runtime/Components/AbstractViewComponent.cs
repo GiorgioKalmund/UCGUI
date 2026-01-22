@@ -164,11 +164,12 @@ namespace UCGUI
 
             IsOpen = true;
             this.BringToFront();
-            Render();
 
             OnOpen?.Invoke();
            
             EnsureEnabledOfAllChildren(true);
+            
+            Render();
         }
         
         /// <summary>

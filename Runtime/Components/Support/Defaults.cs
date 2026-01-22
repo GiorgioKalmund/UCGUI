@@ -89,7 +89,11 @@ namespace UCGUI{
 
         public static class Services
         {
-            public static string TexturesLocation = "Textures/";
+            /// <summary>
+            /// Path to a texture(2d) which should be displayed if a path is unavailable.
+            /// Defaults to `Assets/Resources/Textures/missing(.png)` when using image service direct sprite access,
+            /// otherwise simply `Assets/Resources/missing(.png)` when using direct texture loading.
+            /// </summary>
             public static string MissingTexture2DLocation = "missing";
         }
     }

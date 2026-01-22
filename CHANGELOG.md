@@ -135,3 +135,11 @@
 ### More Focus Transitions
 - Added a `TransitionMode` for `Next()` and `Previous()` calls of [FocusStates](Runtime/Components/Interface/IFocusable.cs).
   - This allows for three unique behaviours: `Simple`, `Loop` and `LoopWithNull`, defaulting to `Simple`.
+ 
+## [1.0.18] - 2026-01-22
+### Housekeeping!
+- Fixed some initialization issues the slider head.
+- Corrected the render order for views on open.
+- Added ImageStyles.
+- Added documentation to more parts of the codebase.
+- Smaller changes.

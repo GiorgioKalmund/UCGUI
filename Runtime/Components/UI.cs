@@ -31,6 +31,24 @@ namespace UCGUI
                 textComponent.Color(color.Value);
             return textComponent;
         }
+        
+        public static TextComponent Text(int text, Color? color = null)
+        {
+            TextComponent textComponent = N<TextComponent>();
+            textComponent.Text(text);
+            if (color.HasValue)
+                textComponent.Color(color.Value);
+            return textComponent;
+        }
+        
+        public static TextComponent Text(float text, string format, Color? color = null)
+        {
+            TextComponent textComponent = N<TextComponent>();
+            textComponent.Text(text, format);
+            if (color.HasValue)
+                textComponent.Color(color.Value);
+            return textComponent;
+        }
 
         /// <summary>
         /// UCGUI's default Image Component.
@@ -48,7 +66,7 @@ namespace UCGUI
         /// The resulting UCGUI <see cref="ImageComponent"/>. Use this to then continue building your desired Image Component.
         /// </returns>
         public static ImageComponent Image([CanBeNull] Sprite sprite, Image.Type type = UnityEngine.UI.Image.Type.Simple,
-            float ppum = 1f)
+            float ppum = -1f)
         {
             ImageComponent imageComponent = N<ImageComponent>();
             imageComponent.Sprite(sprite, type, ppum);
@@ -56,7 +74,7 @@ namespace UCGUI
         }
 
         public static ImageComponent Image(string pathName = null, Image.Type type = UnityEngine.UI.Image.Type.Simple,
-            float ppum = 1f)
+            float ppum = -1f)
         {
             return Image(ImageService.GetSprite(pathName), type, ppum);
         }
@@ -65,6 +83,13 @@ namespace UCGUI
         {
             ImageComponent imageComponent = N<ImageComponent>();
             imageComponent.Color(color, alpha);
+            return imageComponent;
+        }
+
+        public static ImageComponent Image(string path, Image.Type? type = null, bool direct = false)
+        {
+            ImageComponent imageComponent = N<ImageComponent>();
+            imageComponent.Sprite(path, type, direct);
             return imageComponent;
         }
 

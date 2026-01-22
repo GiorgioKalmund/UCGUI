@@ -78,8 +78,12 @@ namespace UCGUI
             }
         }
     
-        protected float CanvasWidthFactor => GUIService.WidthScale;
-        protected float CanvasHeightFactor => GUIService.HeightScale;
+        /// <inheritdoc cref="GUIService.WidthScale"/>
+        /// Initialized during Awake.
+        protected float canvasWidthFactor;
+        /// <inheritdoc cref="GUIService.HeightScale"/>
+        /// Initialized during Awake.
+        protected float canvasHeightFactor;
 
         [HideInInspector] public LayoutElement layoutElement;
         public HorizontalLayoutGroup HorizontalLayout { get; protected set; }
@@ -90,6 +94,8 @@ namespace UCGUI
         public virtual void Awake()
         {
             _rect = gameObject.GetOrAddComponent<RectTransform>();
+            canvasWidthFactor = GUIService.WidthScale;
+            canvasWidthFactor = GUIService.HeightScale;
             OnAwake();
         }
 

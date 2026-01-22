@@ -106,11 +106,12 @@ namespace UCGUI
             return _text != null;
         }
 
-        public void Init(string s, Sprite sprite = null)
+        public LabelComponent Init(string s, Sprite sprite = null)
         {
             text.Text(s);
             if (sprite != null)
                 image.Sprite(sprite);
+            return this;
         }
 
         protected override HorizontalOrVerticalLayoutGroup GetLayout()

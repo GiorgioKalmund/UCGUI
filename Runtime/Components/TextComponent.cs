@@ -89,6 +89,11 @@ namespace UCGUI
         {
             return Text(text.ToString(), mode:mode);
         }
+        
+        public TextComponent Text(float text, string format, TextMode mode = TextMode.Normal)
+        {
+            return Text(text.ToString(format), mode:mode);
+        }
 
         public TextComponent Clear()
         {
