@@ -86,44 +86,6 @@ namespace UCGUI
             return imageComponent;
         }
 
-        public static ImageComponent Image(string path, Image.Type? type = null, bool direct = false)
-        {
-            ImageComponent imageComponent = N<ImageComponent>();
-            imageComponent.Sprite(path, type, direct);
-            return imageComponent;
-        }
-
-        /// <summary>
-        /// UCGUI's default Button Component. Similar to Unity's UGUI's <see cref="UnityEngine.UI.Button"/>, however more flexible out of the box.
-        /// </summary>
-        /// <param name="text">
-        /// (Optional) text to be displayed on the button.
-        /// </param>
-        /// <param name="action">
-        /// The action being executed when pressing the button.
-        /// </param>
-        /// <param name="label">
-        /// Label <see cref="ButtonComponent.ButtonBuilder"/> to configure the visuals and formatting behaviour.
-        /// </param>
-        /// <returns>
-        /// The resulting UCGUI <see cref="ButtonComponent"/>.
-        /// </returns>
-        /// <example>
-        /// <code>
-        /// 
-        /// UCGUI.Button("Press me!", () =>
-        /// {
-        ///     Debug.Log("Button pressed!");
-        /// }, label =>
-        /// {
-        ///     label.TextStyle(Color.white, FontStyles.Bold | FontStyles.Italic);
-        ///     label.FitToContents(spacing:20);
-        ///     label.Padding(new RectOffset(20, 20, 20, 20));
-        ///     label.Foreground(foreground_image);
-        ///     label.Background(Color.gray);
-        /// }).Parent(canvas);
-        /// </code>
-        /// </example>
 
         public static ButtonComponent Button([CanBeNull] string text, UnityAction action = null,
             UnityAction<ButtonComponent.ButtonBuilder> label = null)
