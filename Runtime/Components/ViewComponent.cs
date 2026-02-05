@@ -11,10 +11,11 @@ namespace UCGUI
     public partial class ViewComponent : AbstractViewComponent
     {
         protected ViewComponent() {}
-        public override void CreateView() { }
-        public override void Start()
+
+        public override void Create() { }
+
+        public override void Initialize()
         {
-            base.Start();
             DisplayName = "ViewComponent";
         }
 

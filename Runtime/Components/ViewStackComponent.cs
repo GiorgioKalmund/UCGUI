@@ -30,14 +30,20 @@ namespace UCGUI
         /// </summary>
         ///
         /// <remarks>
-        /// <i><see cref="AbstractViewComponent.OnStackLeft"/> is invoked on the view here.</i>
+        /// <i><see cref="AbstractViewComponent.LeaveStack"/> is invoked on the view here.</i>
+        /// <i><see cref="AbstractViewComponent.OnStackHide"/> is invoked on the popped view here.</i>
+        /// <i><see cref="AbstractViewComponent.OnStackReveal"/> is invoked on the new top view here.</i>
         /// </remarks>
         public virtual void Pop()
         {
             if (stack.TryPop(out AbstractViewComponent top))
-                top.OnStackLeft().Close();
+            {
+                top.LeaveStack().Close();
+                if (stack.TryPeek(out AbstractViewComponent newTop))
+                    newTop.OnStackReveal.Invoke();
+            }
             else
-                UCGUILogger.LogWarning("Cannot go back on already empty stack!");
+                UCGUILogger.LogWarning("Cannot pop from an already empty stack!");
         }
 
         /// <summary>
@@ -67,7 +73,9 @@ namespace UCGUI
         /// <param name="abstractViewComponent">The view to add to the stack.</param>
         ///
         /// <remarks>
-        /// <i><see cref="AbstractViewComponent.OnStackJoined"/> is invoked on the view here to allow it to hold a reference to the stack it is in.</i>
+        /// <i><see cref="AbstractViewComponent.JoinStack"/> is invoked on the view here to allow it to hold a reference to the stack it is in.</i>
+        /// <i><see cref="AbstractViewComponent.OnStackHide"/> is invoked on the previous top view here.</i>
+        /// <i><see cref="AbstractViewComponent.OnStackReveal"/> is invoked on the pushed view here.</i>
         /// </remarks>
         public virtual void Push(AbstractViewComponent abstractViewComponent)
         {
@@ -82,8 +90,10 @@ namespace UCGUI
                 return;
             }
             
+            if (stack.TryPeek(out AbstractViewComponent newTop))
+                newTop.OnStackHide.Invoke();
             stack.Push(abstractViewComponent); 
-            abstractViewComponent.OnStackJoined(this).Open();
+            abstractViewComponent.JoinStack(this).Open();
         }
 
         /// <summary>

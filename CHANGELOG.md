@@ -143,3 +143,9 @@
 - Added ImageStyles.
 - Added documentation to more parts of the codebase.
 - Smaller changes.
+
+## [1.0.19] - 2026-02-05
+### What a View
+- Add optional `OnStackReveal` and `OnStackHide` for views, allowing for cleaner integration with ViewStacks.
+- Cleaned up events all events for views.
+- Fixed a bug where enabling `ClosesOnBackgroundTap` did not work properly.

@@ -39,8 +39,8 @@ namespace UCGUI
     /// </list>
     /// Events:
     /// <list type="bullet">
-    /// <item><description><see cref="OnOpen"/> - Invoked when the view is opened and either <see cref="EventOpen()"/> or <see cref="Events"/> has been called.</description></item>.
-    /// <item><description><see cref="OnClose"/> - Invoked when the view is closed and either <see cref="EventOpen()"/> or <see cref="Events"/> has been called.</description></item>.
+    /// <item><description><see cref="OnOpen"/> - Invoked when the view is opened.</description></item>.
+    /// <item><description><see cref="OnClose"/> - Invoked when the view is closed.</description></item>.
     /// </list>
     /// <para>
     /// Implements <see cref="IRenderable"/>.
@@ -50,15 +50,88 @@ namespace UCGUI
         protected AbstractViewComponent() {}
         public bool IsOpen { get; protected set; } = Defaults.View.StartsOpen;
 
+        #region Events
+
+        #region OnOpen
+
+        private UnityEvent _onOpen;
+
         /// <summary>
-        /// Event fired whenever the view is opened. <br></br> Set it using <see cref="EventOpen()"/> or <see cref="Events"/>.
+        /// Event fired whenever the view is opened. <br></br>
         /// </summary>
-        public UnityEvent OnOpen { get; protected set; }
+        public UnityEvent OnOpen {
+            get
+            {
+                if (_onOpen == null)
+                    _onOpen = new UnityEvent();
+                return _onOpen;
+            }
+            protected set => _onOpen = value;
+        }
+
+        #endregion
+
+        #region OnClose
+
+        private UnityEvent _onClose;
+
+        /// <summary>
+        /// Event fired whenever the view is closed.
+        /// </summary>
+        public UnityEvent OnClose
+        {
+            get
+            {
+                if (_onClose == null)
+                    _onClose = new UnityEvent();
+                return _onClose;
+            }
+            protected set => _onClose = value;
+        }
+
+        #endregion
         
+        #region OnStackReveal
+        
+        private UnityEvent _onStackReveal;
+
         /// <summary>
-        /// Event fired whenever the view is closed. <br></br> Set it using <see cref="EventOpen()"/> or <see cref="Events"/>.
+        /// Event fired whenever the view is part of a <see cref="ViewStackComponent"/> and has been just revealed.
         /// </summary>
-        public UnityEvent OnClose { get; protected set; }
+        public UnityEvent OnStackReveal 
+        {
+            get
+            {
+                if (_onStackReveal == null)
+                    _onStackReveal = new UnityEvent();
+                return _onStackReveal;
+            }
+            protected set => _onStackReveal = value;
+        }
+
+        #endregion
+        
+        #region OnStackHide
+        
+        private UnityEvent _onStackHide;
+
+        /// <summary>
+        /// Event fired whenever the view is part of a <see cref="ViewStackComponent"/> and has been just hidden.
+        /// </summary>
+        public UnityEvent OnStackHide 
+        {
+            get
+            {
+                if (_onStackHide == null)
+                    _onStackHide = new UnityEvent();
+                return _onStackHide;
+            }
+            protected set => _onStackHide = value;
+        }
+
+        #endregion
+        
+        #endregion
 
         [CanBeNull] protected Canvas canvas;
         public CanvasGroup canvasGroup;
@@ -81,34 +154,37 @@ namespace UCGUI
 
             canvasGroup = gameObject.GetOrAddComponent<CanvasGroup>();
 
-            if (Defaults.View.AutoAddEvents)
-                Events();
-
             _button = gameObject.GetOrAddComponent<Button>();
             _button.transition = Selectable.Transition.None;
-            _button.onClick.AddListener(() =>
-            {
-                if (ClosesOnBackgroundTap)
-                    Close();
-            });
             
             Color(Defaults.View.DefaultBackdropColor);
-          
-            CreateView();
+            
+            Create();
         }
 
         /// <summary>
         /// Called during the 'Awake' phase of the Unity lifecycle. Build and configure your content here.
         /// </summary>
-        public abstract void CreateView();
+        public abstract void Create();
         
         public override void Start()
         {
             base.Start();
-            this.DisplayName("View");
+            DisplayName = "AbstractView";
+            
+            if (ClosesOnBackgroundTap)
+                _button.onClick.AddListener(Close);
+            
+            Initialize();
             
             if (IsOpen) ForceOpen(); else ForceClose();
         }
+        
+        /// <summary>
+        /// Called during the 'Start' phase of the Unity lifecycle and after UCGUI has initialized some defaults for the view.
+        /// Initialize your contents here.
+        /// </summary>
+        public abstract void Initialize();
 
         /// <summary>
         /// Sets <see cref="IsOpen"/> to true, resulting in the view to stay open on <see cref="Start"/>.
@@ -156,9 +232,6 @@ namespace UCGUI
         /// </summary>
         public void ForceOpen()
         {
-            if (IsLocked)
-                return;
-            
             canvasGroup.alpha = 1f;
             RaycastTarget(true);
 
@@ -203,9 +276,6 @@ namespace UCGUI
         /// </summary>
         public void ForceClose()
         {
-            if (IsLocked)
-                return;
-            
             canvasGroup.alpha = 0f;
             RaycastTarget(false);
             
@@ -332,36 +402,6 @@ namespace UCGUI
             return this;
         }
 
-        /// <summary>
-        /// Creates an event (<see cref="OnOpen"/>) for when the view is opened.
-        /// </summary>
-        /// <returns></returns>
-        public AbstractViewComponent EventOpen()
-        {
-            OnOpen ??= new UnityEvent();
-            return this;
-        }
-        
-        /// <summary>
-        /// Creates an event (<see cref="OnClose"/>) for when the view is closed.
-        /// </summary>
-        /// <returns></returns>
-        public AbstractViewComponent EventClose()
-        {
-            OnClose ??= new UnityEvent();
-            return this;
-        }
-        
-        /// <summary>
-        /// Creates events for opening and closing the view: <see cref="OnOpen"/> and <see cref="OnClose"/>.
-        /// </summary>
-        /// <returns></returns>
-        public AbstractViewComponent Events()
-        {
-            EventClose();
-            return EventOpen();
-        }
-
 
         /// <summary>
         /// Allows going back to this view instance inside the connected <see cref="ViewStackComponent"/>.
@@ -378,17 +418,19 @@ namespace UCGUI
         /// </summary>
         /// <param name="stackComponent">The stack pushing the view.</param>
         /// <returns></returns>
-        public AbstractViewComponent OnStackJoined(ViewStackComponent stackComponent)
+        public AbstractViewComponent JoinStack(ViewStackComponent stackComponent)
         {
             _viewStackComponent = stackComponent;
+            OnStackReveal.Invoke();
             return this;
         }
         /// <summary>
         /// Invoked when a <see cref="ViewStackComponent"/> pops this view.
         /// </summary>
         /// <returns></returns>
-        public AbstractViewComponent OnStackLeft()
+        public AbstractViewComponent LeaveStack()
         {
+            OnStackHide.Invoke();
             _viewStackComponent = null;
             return this;
         }
@@ -418,8 +460,7 @@ namespace UCGUI
             public ViewBuilder(AbstractViewComponent abstractViewComponent, Canvas canvas = null)
             {
                 this.abstractViewComponent = abstractViewComponent;
-                if (canvas)
-                    abstractViewComponent.Link(canvas);
+                abstractViewComponent.Link(canvas);
             }
             
             /// <inheritdoc cref="AbstractViewComponent.ToggleUsing"/>
@@ -441,15 +482,6 @@ namespace UCGUI
             /// </summary>
             /// <param name="closes">Boolean controlling <see cref="AbstractViewComponent.ClosesOnBackgroundTap"/>.</param>
             public void CloseOnBackgroundTap(bool closes = true) => abstractViewComponent.ClosesOnBackgroundTap = closes;
-            
-            /// <inheritdoc cref="AbstractViewComponent.EventOpen"/>
-            public void EventOpen() => abstractViewComponent.EventOpen();
-            
-            /// <inheritdoc cref="AbstractViewComponent.EventClose"/>
-            public void EventClose() => abstractViewComponent.EventClose();
-            
-            /// <inheritdoc cref="AbstractViewComponent.Events"/>
-            public void Events() => abstractViewComponent.Events();
         }
     }
 }

@@ -77,11 +77,6 @@ namespace UCGUI{
         /// </summary>
         public static class View
         {
-            /// <summary>
-            /// Automatically adds events <see cref="AbstractViewComponent.OnOpen"/> and <see cref="AbstractViewComponent.OnClose"/> for every View.
-            /// </summary>
-            public static bool AutoAddEvents = false;
-
             public static bool StartsOpen = false;
 
             public static Color DefaultBackdropColor = Color.clear;
