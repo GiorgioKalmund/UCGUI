@@ -32,8 +32,8 @@ namespace UCGUI
     /// <item><description><see cref="OpenUsing"/> - Allows the user to supply and <see cref="InputAction"/> to toggle the opening of the view.</description></item>.
     /// <item><description><see cref="CloseUsing"/> - Allows the user to supply and <see cref="InputAction"/> to toggle the closing of the view.</description></item>.
     /// <item><description><see cref="ToggleUsing"/> - Allows the user to supply and <see cref="InputAction"/> to toggle the opening and closing of the view.</description></item>.
-    /// <item><description><see cref="Lock"/> - Locks opening and closing behaviour.</description></item>.
-    /// <item><description><see cref="Unlock"/> - Unlocks opening and closing behaviour.</description></item>.
+    /// <item><description><see cref="Lock"/> - Locks opening and closing behavior.</description></item>.
+    /// <item><description><see cref="Unlock"/> - Unlocks opening and closing behavior.</description></item>.
     /// <item><description><see cref="ToggleLock"/> - Toggles between <see cref="Lock"/> and <see cref="Unlock"/>.</description></item>.
     /// <item><description><see cref="IsOnTopOfViewStack"/> - Returns whether this view is on top of its connected <see cref="ViewStackComponent"/>.</description></item>.
     /// </list>
@@ -62,8 +62,7 @@ namespace UCGUI
         public UnityEvent OnOpen {
             get
             {
-                if (_onOpen == null)
-                    _onOpen = new UnityEvent();
+                _onOpen ??= new UnityEvent();
                 return _onOpen;
             }
             protected set => _onOpen = value;
@@ -82,8 +81,7 @@ namespace UCGUI
         {
             get
             {
-                if (_onClose == null)
-                    _onClose = new UnityEvent();
+                _onClose ??= new UnityEvent();
                 return _onClose;
             }
             protected set => _onClose = value;
@@ -102,8 +100,7 @@ namespace UCGUI
         {
             get
             {
-                if (_onStackReveal == null)
-                    _onStackReveal = new UnityEvent();
+                _onStackReveal ??= new UnityEvent();
                 return _onStackReveal;
             }
             protected set => _onStackReveal = value;
@@ -122,8 +119,7 @@ namespace UCGUI
         {
             get
             {
-                if (_onStackHide == null)
-                    _onStackHide = new UnityEvent();
+                _onStackHide ??= new UnityEvent();
                 return _onStackHide;
             }
             protected set => _onStackHide = value;
@@ -146,7 +142,7 @@ namespace UCGUI
 
         public bool ClosesOnBackgroundTap { get; protected set; }
 
-        private ViewStackComponent _viewStackComponent;
+        [CanBeNull] private ViewStackComponent _viewStackComponent;
 
         public override void Awake()
         {
@@ -165,7 +161,7 @@ namespace UCGUI
         /// <summary>
         /// Called during the 'Awake' phase of the Unity lifecycle. Build and configure your content here.
         /// </summary>
-        public abstract void Create();
+        protected abstract void Create();
         
         public override void Start()
         {
@@ -184,7 +180,7 @@ namespace UCGUI
         /// Called during the 'Start' phase of the Unity lifecycle and after UCGUI has initialized some defaults for the view.
         /// Initialize your contents here.
         /// </summary>
-        public abstract void Initialize();
+        protected abstract void Initialize();
 
         /// <summary>
         /// Sets <see cref="IsOpen"/> to true, resulting in the view to stay open on <see cref="Start"/>.
@@ -226,7 +222,7 @@ namespace UCGUI
         }
 
         /// <summary>
-        /// Performs the actual opnening of the view.
+        /// Performs the actual opening of the view.
         /// <br></br>
         /// Invokes <see cref="OnOpen"/>.
         /// </summary>
@@ -362,7 +358,7 @@ namespace UCGUI
             IsLocked = true;
         }
         /// <summary>
-        /// Sets <see cref="IsLocked"/> to false. This re-enabled opening and closing if the view was previsouly locked.
+        /// Sets <see cref="IsLocked"/> to false. This re-enabled opening and closing if the view was previously locked.
         /// </summary>
         public void Unlock()
         {
@@ -410,7 +406,7 @@ namespace UCGUI
         /// <returns>Whether the operation was successful.</returns>
         public virtual bool BackToSelfInViewStack()
         {
-            return _viewStackComponent.PopUntil(this);
+            return _viewStackComponent?.PopUntil(this) ?? false;
         }
 
         /// <summary>

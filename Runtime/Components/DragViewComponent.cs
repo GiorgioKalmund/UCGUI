@@ -21,14 +21,14 @@ namespace UCGUI
         protected RectOffset boundsOffset;
         public bool HasBounds => boundArea.size.magnitude > 0;
         
-        public override void Create()
+        protected override void Create()
         {
             this.Pos(-this.GetWidth() / 2, this.GetHeight() / 2);
             this.Pivot(PivotPosition.UpperLeft);
         }
 
 
-        public override void Initialize()
+        protected override void Initialize()
         {
             DisplayName = "DragViewComponent";
         }
