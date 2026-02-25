@@ -249,8 +249,6 @@ namespace UCGUI
 
             OnOpen?.Invoke();
            
-            EnsureEnabledOfAllChildren(true);
-            
             Render();
         }
         
@@ -291,8 +289,6 @@ namespace UCGUI
             IsOpen = false;
 
             OnClose?.Invoke();
-            
-            EnsureEnabledOfAllChildren(false);
         }
 
         private void EnsureEnabledOfAllChildren(bool e)
