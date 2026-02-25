@@ -12,7 +12,7 @@ namespace UCGUI
     /// <br></br>
     /// Functions:
     /// <list type="bullet">
-    /// <item><description><see cref="Colorize"/> - Sets the text colors of the text as well as the placeholder.</description></item>
+    /// <item><description><see cref="Colorize(Color)"/> - Sets the text colors of the text as well as the placeholder.</description></item>
     /// <item><description><see cref="FontSize"/> - Control the text's and placeholder's font size.</description></item>
     /// <item><description><see cref="Clear"/> - Clears the input field.</description></item>
     /// <item><description><see cref="GetText"/> - Returns the current text contents of the input field.</description></item>
@@ -30,10 +30,10 @@ namespace UCGUI
     {
         protected InputComponent() {}
         
-        protected TMP_InputField Input;
+        public TMP_InputField Input;
 
-        protected TextComponent TextElement;
-        protected TextComponent PlaceholderElement;
+        public TextComponent TextElement;
+        public TextComponent PlaceholderElement;
 
         protected TMP_InputField.SubmitEvent OnSubmitEvent => Input.onSubmit;
         protected TMP_InputField.OnChangeEvent OnChangedEvent => Input.onValueChanged;
@@ -46,6 +46,7 @@ namespace UCGUI
         public override void Awake()
         {
             base.Awake();
+            DisplayName = "Input";
 
             Input = gameObject.GetOrAddComponent<TMP_InputField>();
 
@@ -115,31 +116,15 @@ namespace UCGUI
             return this;
         }
 
-        public TextComponent GetTextComponent()
+        public InputComponent Text(string text)
         {
-            return TextElement;
+            Input.text = text;
+            return this;
         }
 
         public string GetText()
         {
             return TextElement.GetText();
-        }
-
-        public TextComponent GetPlaceholderComponent()
-        {
-            return PlaceholderElement;
-        }
-
-        public override void Start()
-        {
-            base.Start();
-            
-            DisplayName = "Input";
-        }
-
-        public TMP_InputField GetInput()
-        {
-            return Input;
         }
 
         public void Select()
@@ -215,8 +200,6 @@ namespace UCGUI
             public void InputType(TMP_InputField.InputType inputType) => _input.InputType(inputType);
             public void PaddingLeading(int offset) => _input.PaddingLeading(offset);
             public void PaddingTrailing(int offset) => _input.PaddingTrailing(offset);
-            public TextComponent GetTextComponent() => _input.GetTextComponent();
-            public TextComponent GetPlaceholderComponent() => _input.GetPlaceholderComponent();
         }
 
         public new InputComponent Copy(bool fullyCopyRect = true)

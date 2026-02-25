@@ -10,19 +10,20 @@ namespace UCGUI
         public override void Awake()
         {
             base.Awake();
+            DisplayName = "SimpleScreen";
+            
             canvas = GetCanvas();
             Create();
         }
 
         public virtual void Start()
         {
-            this.SafeDisplayName("SimpleScreen");
-            Initialize();
             if (!canvas)
             {
                 UCGUILogger.LogWarning($"{DisplayName} (Start): No canvas bound to screen!");
             }
             this.Maximize();
+            Initialize();
         }
 
         /// <summary>

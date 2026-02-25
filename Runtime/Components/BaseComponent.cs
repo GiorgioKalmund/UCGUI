@@ -96,13 +96,6 @@ namespace UCGUI
             _rect = gameObject.GetOrAddComponent<RectTransform>();
             canvasWidthFactor = GUIService.WidthScale;
             canvasWidthFactor = GUIService.HeightScale;
-            OnAwake();
-        }
-
-        public virtual BaseComponent OnAwake(UnityAction action = null)
-        {
-            action?.Invoke();
-            return this;
         }
 
         public RectTransform GetRect()
@@ -114,25 +107,48 @@ namespace UCGUI
             }
             return _rect;
         }
-
+        
+        /// <summary>
+        /// Callback which is invoked when the size of the RectTransform changes via UCGUI.
+        /// The incoming values are the NEW sizes of the RectTransform.
+        /// </summary>
+        /// <param name="x">New X size</param>
+        /// <param name="y">New Y size</param>
         public virtual BaseComponent HandleSizeChanged(float x, float y)
         {
             return this;
         }
         
-
-        private void OnValidate()
+        /// <summary>
+        /// Callback which is invoked when the size of the RectTransform changes via UCGUI.
+        /// The incoming values are bold OLD and NEW sizes of the RectTransform.
+        /// </summary>
+        /// <param name="old">Old sizes</param>
+        /// <param name="updated">Updated / new sizes</param>
+        public virtual BaseComponent HandleSizeChanged(Vector2 old, Vector2 updated)
         {
-            this.SafeDisplayName(_displayName);
+            return this;
         }
-        
-        
+
+        /// <summary>
+        /// Adds a 'LayoutElement' component to the GameObject if none is present,
+        /// otherwise returns the existing instance.
+        /// </summary>
+        /// <remarks>LayoutElements can be used to ignore layout restrictions set by parent containers.</remarks>
         public LayoutElement AddLayoutElement()
         {
             layoutElement ??= gameObject.GetOrAddComponent<LayoutElement>();
             return layoutElement;
         }
 
+        /// <summary>
+        /// Adds a 'LayoutElement' component to the GameObject if none is present,
+        /// otherwise returns the existing instance. Additionally, sets the 'minWidth' and 'minHeight'
+        /// properties of the LayoutElement.
+        /// </summary>
+        /// <param name="minWidth">Minimum width of RectTransform.</param>
+        /// <param name="minHeight">Minimum height of RectTransform.</param>
+        /// <remarks>LayoutElements can be used to ignore layout restrictions set by parent containers.</remarks>
         public LayoutElement AddLayoutElement(float minWidth, float minHeight)
         {
             AddLayoutElement();
@@ -140,6 +156,12 @@ namespace UCGUI
             return layoutElement;
         }
 
+        /// <summary>
+        /// Adds a 'LayoutElement' component to the GameObject if none is present, or uses the existing, and sets
+        /// its 'ignoreLayout' property to true.
+        /// </summary>
+        /// <param name="ignore">Whether to completely ignore the layout restrictions set by the parent.</param>
+        /// <remarks>LayoutElements can be used to ignore layout restrictions set by parent containers.</remarks>
         public BaseComponent IgnoreLayout(bool ignore = true)
         {
             if (!layoutElement)
@@ -148,6 +170,13 @@ namespace UCGUI
             return this;
         }
         
+        
+        /// <summary>
+        /// Adds a 'LayoutElement' component to the GameObject if none is present, or uses the existing, and sets
+        /// its 'minWidth' and 'minHeight' properties.
+        /// </summary>
+        /// <param name="size">The minimum size.</param>
+        /// <remarks>LayoutElements can be used to ignore layout restrictions set by parent containers.</remarks>
         public BaseComponent MinimumSize(Vector2 size)
         {
             if (!layoutElement)
@@ -156,6 +185,15 @@ namespace UCGUI
             layoutElement.minHeight = size.y;
             return this;
         }
+        
+        
+        /// <summary>
+        /// Adds a 'LayoutElement' component to the GameObject if none is present, or uses the existing, and sets
+        /// its 'minWidth' and 'minHeight' properties.
+        /// </summary>
+        /// <param name="x">The minimum X size.</param>
+        /// <param name="y">The minimum Y size.</param>
+        /// <remarks>LayoutElements can be used to ignore layout restrictions set by parent containers.</remarks>
         public BaseComponent MinimumSize(float x, float y)
         {
             return MinimumSize(new Vector2(x, y));
@@ -279,7 +317,7 @@ namespace UCGUI
         /// <returns></returns>
         public BaseComponent AddFitter(ScrollViewDirection dir, ContentSizeFitter.FitMode fitMode = ContentSizeFitter.FitMode.PreferredSize)
         {
-            ContentSizeFitter = gameObject.GetOrAddComponent<ContentSizeFitter>();
+            ContentSizeFitter ??= gameObject.GetOrAddComponent<ContentSizeFitter>();
             ContentSizeFitter.verticalFit = dir.HasFlag(ScrollViewDirection.Vertical) ? fitMode : ContentSizeFitter.FitMode.Unconstrained;
             ContentSizeFitter.horizontalFit = dir.HasFlag(ScrollViewDirection.Horizontal) ? fitMode : ContentSizeFitter.FitMode.Unconstrained;
             return this;

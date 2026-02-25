@@ -79,11 +79,16 @@ namespace UCGUI
             return Image(ImageService.GetSprite(pathName), type, ppum);
         }
         
-        public static ImageComponent Image(Color color, float alpha = 1f)
+        public static ImageComponent Image(Color color, float alpha)
         {
             ImageComponent imageComponent = N<ImageComponent>();
             imageComponent.Color(color, alpha);
             return imageComponent;
+        }
+
+        public static ImageComponent Image(Color color)
+        {
+            return Image(color, color.a);
         }
 
 
@@ -97,9 +102,7 @@ namespace UCGUI
             if (action != null)
                 buttonComponent.Function(action);
             if (label != null)
-            {
                 label(new ButtonComponent.ButtonBuilder(buttonComponent));
-            }
 
             return buttonComponent;
         }

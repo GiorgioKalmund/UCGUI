@@ -9,9 +9,9 @@ namespace UCGUI
         // =============================================================== //
         public static readonly InputStyle Default = new InputStyle(input =>
         {
-            input.GetTextComponent().Style(TextStyle.Primary);
-            input.GetPlaceholderComponent().Style(TextStyle.Secondary);
-            input.GetPlaceholderComponent().Alpha(0.55f);
+            input.TextElement.Style(TextStyle.Primary);
+            input.PlaceholderElement.Style(TextStyle.Secondary);
+            input.PlaceholderElement.Alpha(0.55f);
         });
         
         // =============================================================== //

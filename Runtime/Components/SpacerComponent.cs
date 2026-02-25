@@ -23,10 +23,14 @@ namespace UCGUI
     {
         private ISpacerBehaviour _behaviour;
 
+        public override void Awake()
+        {
+            base.Awake();
+            DisplayName = "Spacer";
+        }
+
         public virtual void Start()
         {
-            this.SafeDisplayName("Spacer");
-            
             if (_behaviour == null)
                 AutoSetBehaviour();
             

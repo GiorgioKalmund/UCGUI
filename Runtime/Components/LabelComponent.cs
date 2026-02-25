@@ -3,44 +3,48 @@ using UnityEngine.UI;
 
 namespace UCGUI
 {
+    /// <summary>
+    /// UCGUI's default Label Component.
+    /// </summary>
     public class LabelComponent : SwitchLayoutComponent<LabelComponent>, IStylable<LabelComponent, LabelStyle>, ICopyable<LabelComponent>
     {
         protected LabelComponent() {}
-        
+
         protected ImageComponent _image;
 
         public ImageComponent image
         {
-            get => _image ??= UI.N<ImageComponent>(transform, "Image").RaycastTarget(false).Parent(this);
+            get => _image ??= CreateImage();
             set => _image = value;
+        }
+
+        protected virtual ImageComponent CreateImage()
+        {
+            return UI.N<ImageComponent>(transform).RaycastTarget(false).Parent(this);
         }
 
         protected TextComponent _text;
         
         public TextComponent text
         {
-            get => _text ??=  UI.N<TextComponent>(transform, "Text").Parent(this);
+            get => _text ??= CreateText();
             set => _text = value;
+        }
+        
+        protected virtual TextComponent CreateText()
+        {
+            return UI.N<TextComponent>(transform).Parent(this);   
         }
 
         public override void Awake()
         {
             base.Awake();
-            MakeBody();
-        }
-
-        public override void Start()
-        {
-            base.Start();
             DisplayName = "Label";
-        }
-
-        protected virtual void MakeBody()
-        {
+            
             FitToContents();
             ReverseArrangement();
         }
-        
+
         public LabelComponent Text(string t, TextComponent.TextMode mode = TextComponent.TextMode.Normal, Color? color = null)
         {
             text.Text(t, mode, color);
@@ -70,7 +74,7 @@ namespace UCGUI
         public override LabelComponent FitToContents(bool fit = true)
         {
             base.FitToContents(fit);
-            text.FitToContents(fit);
+            _text?.FitToContents(fit);
             return this;
         }
         

@@ -25,13 +25,11 @@ namespace UCGUI
         {
             this.Pos(-this.GetWidth() / 2, this.GetHeight() / 2);
             this.Pivot(PivotPosition.UpperLeft);
-        }
-
-
-        protected override void Initialize()
-        {
             DisplayName = "DragViewComponent";
         }
+
+
+        protected override void Initialize() { }
 
         public override void Render() { }
 

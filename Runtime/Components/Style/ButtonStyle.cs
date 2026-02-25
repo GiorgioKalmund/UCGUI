@@ -11,7 +11,6 @@ namespace UCGUI
         {
             button.Color(UnityEngine.Color.white);
             button.FitToContents(20, 20);
-            button.text.Style(TextStyle.ButtonText);
         });
         
         // =============================================================== //

@@ -10,6 +10,8 @@ namespace UCGUI
         public override void Awake()
         {
             base.Awake();
+            DisplayName = "HStack";
+            
             AddHorizontalLayout();
         }
 
@@ -21,7 +23,6 @@ namespace UCGUI
         public override void Start()
         {
             base.Start();
-            DisplayName = "HStack";
             HorizontalLayout.CalculateLayoutInputHorizontal();
         }
     }

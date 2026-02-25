@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -8,19 +9,30 @@ namespace UCGUI
         // =============================================================== //
         //                        Static Text Styles                       //
         // =============================================================== //
-        public static readonly TextStyle Primary = new TextStyle(txt =>
+        public static TextStyle Primary = new TextStyle(txt =>
         {
             txt.VAlignCenter().Color(Color.gray1);
         });
 
-        public static readonly TextStyle Secondary = Primary.Expand(txt =>
+        public static TextStyle Secondary = Primary.Expand(txt =>
         {
             txt.Color(Color.gray);
         });
-                
-        public static readonly TextStyle ButtonText = Primary.Expand(txt =>
+        
+        public static TextStyle Tertiary = Primary.Expand(txt =>
         {
-            txt.AlignCenter();
+            txt.Color(Color.gray7);
+        });
+        
+        public static TextStyle Caption = Primary.Expand(txt =>
+        {
+            txt.Color(Color.gray);
+            txt.FontSize(txt.GetTextMesh().fontSize * 0.75f);
+        });
+                
+        public static TextStyle ButtonText = Primary.Expand(txt =>
+        {
+            txt.AlignCenter().OverflowMode(TextOverflowModes.Ellipsis);
         }); 
         
         

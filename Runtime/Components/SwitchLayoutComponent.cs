@@ -11,13 +11,9 @@ namespace UCGUI
         public override void Awake()
         {
             base.Awake();
-            MakeHorizontal();
-        }
-
-        public override void Start()
-        {
-            base.Start();
             DisplayName = "Switch Layout";
+            
+            MakeHorizontal();
         }
 
         public virtual T MakeDirection(ScrollViewDirection dir)
@@ -28,7 +24,7 @@ namespace UCGUI
                 return (T)this;
             }
             
-            var tempChild = UI.N<BaseComponent>(this, "TEMP_LAYOUT_CONVERSION_CHILD");
+            var tempChild = UI.N<BaseComponent>(this).DisplayName("TEMP_LAYOUT_CONVERSION_CHILD");
             if (dir.Equals(ScrollViewDirection.Horizontal))
             {
                 tempChild.AddHorizontalLayout();

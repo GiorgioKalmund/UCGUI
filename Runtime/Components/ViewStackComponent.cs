@@ -20,8 +20,10 @@ namespace UCGUI
         protected ViewStackComponent() {}
         
         public Stack<AbstractViewComponent> stack = new Stack<AbstractViewComponent>();
-        public void Start()
+
+        public override void Awake()
         {
+            base.Awake();
             DisplayName = "ViewStack";
         }
 

@@ -12,14 +12,9 @@ namespace UCGUI
         public override void Awake()
         {
             base.Awake();
+            DisplayName = "Grid";
 
             grid = gameObject.GetOrAddComponent<GridLayoutGroup>();
-        }
-
-        public override void Start()
-        {
-            base.Start();
-            this.DisplayName("Grid");
         }
 
         public class GridBuilder

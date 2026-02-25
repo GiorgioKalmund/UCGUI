@@ -12,12 +12,12 @@ namespace UCGUI
     {
         protected ViewComponent() {}
 
-        protected override void Create() { }
-
-        protected override void Initialize()
+        protected override void Create()
         {
             DisplayName = "ViewComponent";
         }
+
+        protected override void Initialize() { }
 
         public override void Render() { }
     }

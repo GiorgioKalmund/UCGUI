@@ -42,11 +42,13 @@ namespace UCGUI
         public override void Awake()
         {
             base.Awake();
+            DisplayName = "ScrollViewComponent";
 
             scrollRect = gameObject.AddComponent<ScrollRect>();
             mask = gameObject.AddComponent<RectMask2D>();
 
-            content = UI.N<ImageComponent>("Content", transform)
+            content = UI.N<ImageComponent>(transform)
+                    .DisplayName("Content")
                     .Alpha(0)
                 ;
 
@@ -54,11 +56,6 @@ namespace UCGUI
 
             // By default, use Clamped
             scrollRect.movementType = ScrollRect.MovementType.Clamped;
-        }
-
-        public void Start()
-        {
-            DisplayName = "ScrollViewComponent";
         }
 
         public ScrollViewComponent ContentPadding(PaddingSide side, int amount)

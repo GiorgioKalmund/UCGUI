@@ -35,12 +35,14 @@ namespace UCGUI
     /// <item><description><see cref="Lock"/> - Locks opening and closing behavior.</description></item>.
     /// <item><description><see cref="Unlock"/> - Unlocks opening and closing behavior.</description></item>.
     /// <item><description><see cref="ToggleLock"/> - Toggles between <see cref="Lock"/> and <see cref="Unlock"/>.</description></item>.
-    /// <item><description><see cref="IsOnTopOfViewStack"/> - Returns whether this view is on top of its connected <see cref="ViewStackComponent"/>.</description></item>.
+    /// <item><description><see cref="IsOnTopOfViewStack"/> - Returns whether this view is on top of its connected <see cref="UCGUI.ViewStackComponent"/>.</description></item>.
     /// </list>
     /// Events:
     /// <list type="bullet">
     /// <item><description><see cref="OnOpen"/> - Invoked when the view is opened.</description></item>.
     /// <item><description><see cref="OnClose"/> - Invoked when the view is closed.</description></item>.
+    /// <item><description><see cref="OnStackReveal"/> - Invoked when the view is part of a <see cref="UCGUI.ViewStackComponent"/> and has just been revealed.</description></item>.
+    /// <item><description><see cref="OnStackHide"/> - Invoked when the view is part of a <see cref="UCGUI.ViewStackComponent"/> and has just been hidden.</description></item>.
     /// </list>
     /// <para>
     /// Implements <see cref="IRenderable"/>.
@@ -57,7 +59,7 @@ namespace UCGUI
         private UnityEvent _onOpen;
 
         /// <summary>
-        /// Event fired whenever the view is opened. <br></br>
+        /// Event fired whenever the view is opened.
         /// </summary>
         public UnityEvent OnOpen {
             get
@@ -94,7 +96,7 @@ namespace UCGUI
         private UnityEvent _onStackReveal;
 
         /// <summary>
-        /// Event fired whenever the view is part of a <see cref="ViewStackComponent"/> and has been just revealed.
+        /// Event fired whenever the view is part of a <see cref="UCGUI.ViewStackComponent"/> and has just been revealed.
         /// </summary>
         public UnityEvent OnStackReveal 
         {
@@ -113,7 +115,7 @@ namespace UCGUI
         private UnityEvent _onStackHide;
 
         /// <summary>
-        /// Event fired whenever the view is part of a <see cref="ViewStackComponent"/> and has been just hidden.
+        /// Event fired whenever the view is part of a <see cref="UCGUI.ViewStackComponent"/> and has just been hidden.
         /// </summary>
         public UnityEvent OnStackHide 
         {
@@ -132,6 +134,10 @@ namespace UCGUI
         [CanBeNull] protected Canvas canvas;
         public CanvasGroup canvasGroup;
         
+        /// <summary>
+        /// Whether the view is locked. Locked views cannot be opened
+        /// or closed.
+        /// </summary>
         public bool IsLocked { get; protected set; }
 
         private InputAction _toggleAction;
@@ -140,13 +146,21 @@ namespace UCGUI
 
         private Button _button;
 
+        /// <summary>
+        /// If set to true will add a listener to the back pane of the view
+        /// which is bound to <see cref="Close"/>.
+        /// </summary>
         public bool ClosesOnBackgroundTap { get; protected set; }
 
-        [CanBeNull] private ViewStackComponent _viewStackComponent;
+        /// <summary>
+        /// Reference to the <see cref="ViewStackComponent"/>, if the view has joined one.
+        /// </summary>
+        [CanBeNull] protected ViewStackComponent viewStackComponent;
 
         public override void Awake()
         {
             base.Awake();
+            DisplayName = "AbstractView";
 
             canvasGroup = gameObject.GetOrAddComponent<CanvasGroup>();
 
@@ -166,7 +180,6 @@ namespace UCGUI
         public override void Start()
         {
             base.Start();
-            DisplayName = "AbstractView";
             
             if (ClosesOnBackgroundTap)
                 _button.onClick.AddListener(Close);
@@ -242,18 +255,18 @@ namespace UCGUI
         }
         
         /// <summary>
-        /// Closes the view if it is part of a <see cref="ViewStackComponent"/> and on top. If it is not part, will simply close the View.
+        /// Closes the view if it is part of a <see cref="UCGUI.ViewStackComponent"/> and on top. If it is not part, will simply close the View.
         /// </summary>
-        /// <remarks>Errors when the view is part of a <see cref="ViewStackComponent"/> and but isn't on top when trying to close it.</remarks>
+        /// <remarks>Errors when the view is part of a <see cref="UCGUI.ViewStackComponent"/> and but isn't on top when trying to close it.</remarks>
         public virtual void Close()
         {
             if (IsOpen && !IsLocked)
             {
-                if (_viewStackComponent)
+                if (viewStackComponent)
                 {
                     if (IsOnTopOfViewStack())
                     {
-                        _viewStackComponent.Pop();
+                        viewStackComponent.Pop();
                         return;
                     }
                     
@@ -400,40 +413,48 @@ namespace UCGUI
 
 
         /// <summary>
-        /// Allows going back to this view instance inside the connected <see cref="ViewStackComponent"/>.
+        /// Allows going back to this view instance inside the connected <see cref="UCGUI.ViewStackComponent"/>.
         /// <br></br> Preferably you should call <see cref="ViewStackComponent.PopUntil(AbstractViewComponent)"/>.
         /// </summary>
         /// <returns>Whether the operation was successful.</returns>
         public virtual bool BackToSelfInViewStack()
         {
-            return _viewStackComponent?.PopUntil(this) ?? false;
+            return viewStackComponent?.PopUntil(this) ?? false;
         }
 
         /// <summary>
-        /// Invoked when a <see cref="ViewStackComponent"/> pushes this view.
+        /// Invoked when a <see cref="UCGUI.ViewStackComponent"/> pushes this view.
         /// </summary>
         /// <param name="stackComponent">The stack pushing the view.</param>
-        /// <returns></returns>
+        /// <remarks>WARNING: It is recommended to not call this function by itself, rather
+        /// call <see cref="ViewStackComponent.Push"/> with this element. You might encounter an inconsistent state otherwise!
+        /// </remarks>
         public AbstractViewComponent JoinStack(ViewStackComponent stackComponent)
         {
-            _viewStackComponent = stackComponent;
+            viewStackComponent = stackComponent;
             OnStackReveal.Invoke();
             return this;
         }
         /// <summary>
-        /// Invoked when a <see cref="ViewStackComponent"/> pops this view.
+        /// Invoked when a <see cref="UCGUI.ViewStackComponent"/> pops this view.
         /// </summary>
-        /// <returns></returns>
+        /// <remarks>WARNING: It is recommended to not call this function by itself, rather
+        /// call <see cref="ViewStackComponent.Pop"/> when this element is on top. You might encounter an inconsistent state otherwise!
+        /// </remarks>
         public AbstractViewComponent LeaveStack()
         {
             OnStackHide.Invoke();
-            _viewStackComponent = null;
+            viewStackComponent = null;
             return this;
         }
 
+        /// <summary>
+        /// Whether the view is part of a view stack and on top of it.
+        /// </summary>
+        /// <returns></returns>
         public bool IsOnTopOfViewStack()
         {
-            return _viewStackComponent != null && _viewStackComponent.Peek() == this;
+            return viewStackComponent != null && viewStackComponent.Peek() == this;
         }
         
         #if UNITY_EDITOR
@@ -449,7 +470,10 @@ namespace UCGUI
         }
         #endif
 
-        public partial class ViewBuilder
+        /// <summary>
+        /// Minimal builder for small and simple views.
+        /// </summary>
+        public class ViewBuilder
         {
             private readonly AbstractViewComponent abstractViewComponent;
 

@@ -149,3 +149,9 @@
 - Add optional `OnStackReveal` and `OnStackHide` for views, allowing for cleaner integration with ViewStacks.
 - Cleaned up events all events for views.
 - Fixed a bug where enabling `ClosesOnBackgroundTap` did not work properly.
+
+## [1.0.20] - 2026-02-25
+### Housekeeping! V2
+- Added visibility of enclosing viewstack to inheriting members for views
+- Added documentation to more places
+- Fixed some issues 

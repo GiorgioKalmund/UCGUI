@@ -35,8 +35,7 @@ namespace UCGUI
         protected TextComponent() {}
         
         private TextMeshProUGUI _textMesh;
-        protected static readonly string NamePrefix = "TextComponent";
-        private readonly Vector2 _defaultSize = new Vector2(100, 100);
+        protected static readonly string NamePrefix = "Text";
         private static TMP_FontAsset _globalFont;
         protected TextAnimator animator;
 
@@ -53,17 +52,21 @@ namespace UCGUI
         public override void Awake()
         {
             base.Awake();
-            _textMesh = gameObject.GetOrAddComponent<TextMeshProUGUI>();
             DisplayName = NamePrefix;
-            this.Size(_defaultSize);
-
+            
+            _textMesh = gameObject.GetOrAddComponent<TextMeshProUGUI>();
+            this.Size(Defaults.Text.DefaultSize);
+            
             Font(_globalFont);
             Style(TextStyle.Primary);
         }
-
-        public virtual void Start()
+        
+        /// <summary>
+        /// Generates an appropriate name for the component and updates it in the editor.
+        /// </summary>
+        public void GenerateName()
         {
-            this.SafeDisplayName(NamePrefix);
+            DisplayName = NamePrefix + $": \"{_textMesh.text}\"";
         }
 
         public enum TextMode

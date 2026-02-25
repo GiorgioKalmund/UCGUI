@@ -10,9 +10,9 @@ namespace UCGUI
         // =============================================================== //
         public static SliderStyle Default = new SliderStyle(slider =>
         {
-            slider.background.Color(Color.gray9);
+            slider.background.Color(Color.gray7);
             slider.fill.Color(Color.white);
-            slider.handle.Color(Color.white);
+            slider.handle.Color(Color.gray8);
         });
       
         

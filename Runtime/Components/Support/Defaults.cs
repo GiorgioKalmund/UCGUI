@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UCGUI.Services;
 
 namespace UCGUI{
     /// <summary>
@@ -17,6 +18,10 @@ namespace UCGUI{
         
         public static class Screen 
         {
+            /// <summary>
+            /// Reference resolution value. This can be used to dynamically scale your UI based on the real
+            /// resolution of the device the program is running on. Used to calculate <see cref="GUIService.WidthScale"/> and  <see cref="GUIService.HeightScale"/>.
+            /// </summary>
             public static Vector2 ReferenceResolution = new Vector2(1920, 1080);
         }
 
@@ -47,6 +52,11 @@ namespace UCGUI{
                 get => TextComponent.GetGlobalFont();
                 set => TextComponent.GlobalFont(value);
             }
+
+            /// <summary>
+            /// The size a text should be if no size is specified. Defaults to Unity's convention of 100 x 100.
+            /// </summary>
+            public static Vector2 DefaultSize = new Vector2(100, 100);
         }
 
         public static class Spacer
@@ -77,19 +87,33 @@ namespace UCGUI{
         /// </summary>
         public static class View
         {
+            /// <summary>
+            /// Whether the view should start open by default (after creation).
+            /// </summary>
             public static bool StartsOpen = false;
 
+            /// <summary>
+            /// Default backdrop color of the view.
+            /// </summary>
             public static Color DefaultBackdropColor = Color.clear;
         }
 
         public static class Services
         {
             /// <summary>
-            /// Path to a texture(2d) which should be displayed if a path is unavailable.
-            /// Defaults to `Assets/Resources/Textures/missing(.png)` when using image service direct sprite access,
-            /// otherwise simply `Assets/Resources/missing(.png)` when using direct texture loading.
+            /// Path to a Texture(2D) which should be displayed if a path is unavailable.
+            /// Defaults to `Assets/Resources/Textures/{location}(.png)` when using image service direct Sprite access,
+            /// otherwise simply `Assets/Resources/{location}(.png)` when using direct Texture2D loading.
             /// </summary>
             public static string MissingTexture2DLocation = "missing";
+        }
+        
+        public static class Image
+        {
+            /// <summary>
+            /// The size an image should be if no size is specified. Defaults to Unity's convention of 100 x 100.
+            /// </summary>
+            public static Vector2 DefaultSize = new Vector2(100, 100);
         }
     }
 }

@@ -19,24 +19,17 @@ namespace UCGUI
             return toReturn;
         }
 
-        public static T N<T>(BaseComponent parent, string name = "", bool worldPositionStays = false)
+        public static T N<T>(BaseComponent parent, bool worldPositionStays = false)
             where T : BaseComponent
         {
-            return N<T>(name, parent.gameObject.transform, worldPositionStays);
+            return N<T>(parent.gameObject.transform, worldPositionStays);
         }
 
-        public static T N<T>(Transform parent, string name = "", bool worldPositionStays = false)
-            where T : BaseComponent
-        {
-            return N<T>(name, parent, worldPositionStays);
-        }
-
-        public static T N<T>(string name = "", Transform parent = null, bool worldPositionStays = false)
+        public static T N<T>( Transform parent = null, bool worldPositionStays = false)
             where T : BaseComponent
         {
             GameObject toReturn = CreateEmptyGameObjectWithParent(parent, worldPositionStays);
             var t = toReturn.AddComponent<T>();
-            t.DisplayName(name);
             return t;
         }
 
@@ -230,8 +223,10 @@ namespace UCGUI
         // Set Size 
         public static T Size<T>(this T renderable, Vector2 sizeDelta) where T : BaseComponent
         {
+            var old = renderable.GetRect().sizeDelta;
             renderable.GetRect().sizeDelta = sizeDelta;
             renderable.HandleSizeChanged(sizeDelta.x, sizeDelta.y);
+            renderable.HandleSizeChanged(old, sizeDelta);
             return renderable;
         }
 

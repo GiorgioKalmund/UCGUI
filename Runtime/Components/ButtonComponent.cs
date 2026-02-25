@@ -29,15 +29,15 @@ namespace UCGUI
         public override void Awake()
         {
             base.Awake();
+            DisplayName = "Button";
             
             button = gameObject.GetOrAddComponent<Button>();
             Style(ButtonStyle.Plain);
         }
 
-        public override void Start()
+        protected override TextComponent CreateText()
         {
-            base.Start();
-            DisplayName = "Button";
+            return base.CreateText().Style(TextStyle.ButtonText);
         }
 
         public void Press()
@@ -223,14 +223,14 @@ namespace UCGUI
         }
 
         /// <summary>
-        /// Initializes the button with some text and an accompanying image.
+        /// Initializes the button with some text and an accompanying optional image.
         /// </summary>
         /// <param name="s">The string text of the button.</param>
         /// <param name="sprite">(Optional) sprite to be shown next to the text.</param>
         /// <returns></returns>
-        public new ButtonComponent Init(string s, Sprite sprite = null)
+        public ButtonComponent Label(string s, [CanBeNull] Sprite sprite = null)
         {
-            base.Init(s, sprite);
+            Init(s, sprite);
             return this;
         }
 

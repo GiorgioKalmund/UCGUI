@@ -34,8 +34,7 @@ namespace UCGUI
         protected ImageComponent() {}
         
         private Image _image;
-        protected static string NamePrefix = "ImageComponent";
-        protected readonly static Vector2 DefaultSize = new Vector2(100, 100);
+        protected static readonly string NamePrefix = "Image";
         
         private InputAction _toggleInputAction;
         
@@ -44,29 +43,36 @@ namespace UCGUI
         public override void Awake()
         {
             base.Awake();
+            DisplayName = NamePrefix;
+            
             _image = gameObject.GetOrAddComponent<Image>();
-            this.Size(DefaultSize);
+            this.Size(Defaults.Image.DefaultSize);
         }
 
         public virtual void Start()
         {
-            this.SafeDisplayName(NamePrefix);
-
             if (_toggleInputAction != null)
                 _toggleInputAction.performed += _ => ToggleVisibility();
+        }
+
+        /// <summary>
+        /// Generates an appropriate name for the component and updates it in the editor.
+        /// </summary>
+        public void GenerateName()
+        {
+            DisplayName = NamePrefix + $": {_image.sprite.name}";
         }
 
         public ImageComponent Sprite([CanBeNull] Sprite sprite, Image.Type? imageType = null, float pixelsPerUnitMultiplier = -1f) 
         {
             _image.sprite = sprite;
-            // Only set if not already set from somewhere else
-            this.SafeDisplayName(NamePrefix + ": " + (sprite?.name ?? "null"));
             if (imageType.HasValue)
                 ImageType(imageType.Value);
             if (pixelsPerUnitMultiplier > 0)
                 PixelsPerUnitMultiplier(pixelsPerUnitMultiplier);
             return this;
         }
+        
         public ImageComponent Sprite(Texture2D texture2D)
         {
             return Sprite(texture2D.ToSprite());
@@ -203,7 +209,7 @@ namespace UCGUI
             _toggleInputAction?.Disable();
         }
 
-        // For more flexible and efficient use, allowing controlling of instances, we might want to use MaterialPropertyBlock in the future
+        // TODO: For more flexible and efficient use, allowing controlling of instances, we might want to use MaterialPropertyBlock in the future
         public ImageComponent Material(Material material)
         {
             _image.material = material;

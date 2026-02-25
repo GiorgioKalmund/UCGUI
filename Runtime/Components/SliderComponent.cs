@@ -48,6 +48,7 @@ namespace UCGUI
         public override void Awake()
         {
             base.Awake();
+            DisplayName = "Slider";
 
             slider = gameObject.GetOrAddComponent<Slider>();
             
@@ -92,11 +93,6 @@ namespace UCGUI
         public void Unlock()
         {
             slider.interactable = true;
-        }
-
-        private void Start()
-        {
-            DisplayName = "Slider";
         }
 
         public override BaseComponent HandleSizeChanged(float x, float y)

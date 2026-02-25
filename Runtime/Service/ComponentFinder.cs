@@ -88,7 +88,7 @@ namespace UCGUI.Services
             if (!_instances.TryAdd(behaviour.GetType(), behaviour))
             {
                 UCGUILogger.LogError($"Trying to register an Instance of type {behaviour.GetType()}, " +
-                                       $"but there is already an Instance registered for that type" +
+                                       $"but there is already an Instance registered for that type. " +
                                        $"Consider calling ComponentFinder.DeleteInstance<{behaviour.GetType()}>() first or calling" +
                                        $"ComponentFinder.PutInstance(yourInstance, true)!");
                 return false;
