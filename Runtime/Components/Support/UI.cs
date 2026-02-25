@@ -64,7 +64,7 @@ namespace UCGUI
         public static T Parent<T>(this T renderable, Behaviour parent, bool worldPositionStays = false)
             where T : BaseComponent
         {
-            return Parent(renderable, parent.GetTransform(), worldPositionStays);
+            return Parent(renderable, parent?.GetTransform(), worldPositionStays);
         }
 
         // Positioning
