@@ -6,14 +6,8 @@ namespace UCGUI
     /// <summary>
     /// UCGUI's DragViewComponent. Inherits from ViewComponent but can be dragged around.
     /// Optionally limited within a confined space.
-    /// <br></br>
-    /// <br></br>
-    /// Functions:
-    /// <list type="bullet">
-    /// <item><description><see cref="Bounds"/> - Specify an area in which the view can move inside. Optionally specify an offset to allow for padding / movement of the area.</description></item>
-    /// </list>
     /// </summary>
-    public partial class DragViewComponent : AbstractViewComponent, IDragHandler
+    public class DragViewComponent : AbstractViewComponent, IDragHandler
     {
         protected DragViewComponent() {}
         

@@ -8,7 +8,7 @@ namespace UCGUI
     /// <br></br>
     /// Acts as an instantiation instance for a basic <see cref="AbstractViewComponent"/>.
     /// </summary>
-    public partial class ViewComponent : AbstractViewComponent
+    public class ViewComponent : AbstractViewComponent
     {
         protected ViewComponent() {}
 

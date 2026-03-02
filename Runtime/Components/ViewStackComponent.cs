@@ -4,16 +4,6 @@ namespace UCGUI
 {
     /// <summary>
     /// UCGUI's default ViewStack.
-    /// <br></br>
-    /// <br></br>
-    /// Functions:
-    /// <list type="bullet">
-    /// <item><description><see cref="Push"/> - Pushes a view to the stack.</description></item>.
-    /// <item><description><see cref="Pop"/> - Pops a view from the stack.</description></item>.
-    /// <item><description><see cref="PopUntil"/> - Pops until the given view is on top of the stack.</description></item>.
-    /// <item><description><see cref="Peek"/> - Returns the <see cref="AbstractViewComponent"/> on top of the stack.</description></item>.
-    /// <item><description><see cref="Collapse"/> - <see cref="Pop"/>s <b>all</b> views from the stack.</description></item>.
-    /// </list>
     /// </summary>
     public class ViewStackComponent : BaseComponent
     {
@@ -21,7 +11,7 @@ namespace UCGUI
         
         public Stack<AbstractViewComponent> stack = new Stack<AbstractViewComponent>();
 
-        public override void Awake()
+        protected override void Awake()
         {
             base.Awake();
             DisplayName = "ViewStack";

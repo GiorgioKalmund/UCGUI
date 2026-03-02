@@ -36,7 +36,7 @@ namespace UCGUI
             return UI.N<TextComponent>(transform).Parent(this);   
         }
 
-        public override void Awake()
+        protected override void Awake()
         {
             base.Awake();
             DisplayName = "Label";
@@ -50,18 +50,14 @@ namespace UCGUI
             text.Text(t, mode, color);
             return this;
         }
-        
+
         /// <summary>
         /// Adds an <see cref="LayoutElement"/> to the image and sets 'minWidth' and 'minHeight' of
         /// its layout.
         /// </summary>
         /// <param name="minWidth">The minimum width the image will retain.</param>
         /// <param name="minHeight">The minium height the image will retain.</param>
-        public LabelComponent ImageSize(float minWidth, float minHeight)
-        {
-            image.AddLayoutElement(minWidth, minHeight);
-            return this;
-        }
+        public LabelComponent ImageSize(float minWidth, float minHeight) => ImageSize(new Vector2(minWidth, minHeight));
 
         /// <summary>
         /// Adds an <see cref="LayoutElement"/> to the image and sets 'minWidth' and 'minHeight' of
@@ -69,7 +65,11 @@ namespace UCGUI
         /// </summary>
         /// <param name="size">The min width and height.</param>
         /// <seealso cref="ImageSize(float, float)"/>
-        public LabelComponent ImageSize(Vector2 size) => ImageSize(size.x, size.y);
+        public LabelComponent ImageSize(Vector2 size)
+        {
+            image.AddLayoutElement(size, size);
+            return this;
+        } 
 
         public override LabelComponent FitToContents(bool fit = true)
         {

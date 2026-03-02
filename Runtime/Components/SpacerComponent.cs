@@ -7,23 +7,12 @@ namespace UCGUI
 {
     /// <summary>
     /// The SpacerComponent can act as a greedy space allocator inside of layouts to maximally spread elements apart.
-    /// <br></br>
-    /// <br></br>
-    /// Functions:
-    /// <list type="bullet">
-    /// <item><description><see cref="SetBehaviour"/> - Sets a custom <see cref="ISpacerBehaviour"/> which is going to be applied during the 'Start' phase.</description></item>
-    /// <item><description><see cref="ReplaceBehaviour"/> - Replaces the current <see cref="ISpacerBehaviour"/> and applies it.</description></item>
-    /// <item><description><see cref="AutoSetBehaviour"/> - Automatically determines the correct behaviour in the current context and sets it.</description></item>
-    /// <item><description><see cref="Render"/> - Applies the <see cref="_behaviour"/> after one frame.</description></item>
-    /// <item><description><see cref="RenderImmediate"/> - Immediately applies the <see cref="_behaviour"/>.</description></item>
-    /// <item><description><see cref="Enabled"/> - Sets the active state of the game object.</description></item>
-    /// </list>
     /// </summary>
     public class SpacerComponent : BaseComponent, IEnabled, IRenderable
     {
         private ISpacerBehaviour _behaviour;
 
-        public override void Awake()
+        protected override void Awake()
         {
             base.Awake();
             DisplayName = "Spacer";

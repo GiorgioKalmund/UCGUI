@@ -155,3 +155,14 @@
 - Added visibility of enclosing viewstack to inheriting members for views
 - Added documentation to more places
 - Fixed some issues 
+
+## [1.0.21] - 2026-03-02
+### Maintainability & QoL
+- Reduced the documentation at the top of files which referenced available functions and more.
+  - This was is too much of a hastle to maintain at the moment, they might return in the future.
+  - Functions remain unaffected.
+- Added 'ToUpper', 'ToLower', 'Capitalize' and 'CapitalizeFully' shorthands to the TextComponent.
+- Changed the BaseComponent's 'Awake' function visibility from public to protected.
+- Made the usability of `LayoutElement`s more user friendly.
+  - Also added an option for setting the preferred size.
+- Removed partial class annotations for elements as they do not work in this case.

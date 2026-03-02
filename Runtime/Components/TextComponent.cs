@@ -1,3 +1,4 @@
+using System.Linq;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -12,25 +13,11 @@ namespace UCGUI
 {
     /// <summary>
     /// UCGUI's default Text Component.
-    /// <br></br>
-    /// <br></br>
-    /// Functions:
-    /// <list type="bullet">
-    /// <item><description><see cref="Color"/> - Sets the color.</description></item>
-    /// <item><description><see cref="GraphicComponent{T}.Alpha"/> - Sets the alpha.</description></item>
-    /// <item><description><see cref="FontStyle"/> - Sets the <see cref="FontStyles"/>. Can be '|' together to layer them. Shorthands: <see cref="Bold"/>,<see cref="Italic"/>,<see cref="Underline"/></description></item>
-    /// <item><description><see cref="FontSize"/> and <see cref="AutoSize"/> - Control the text's font size.</description></item>
-    /// <item><description><see cref="Alignment"/> - Controls the horizontal alignment. See also <see cref="AlignCenter"/>.</description></item>
-    /// <item><description><see cref="VAlignment"/> - Controls the vertical alignment. See also <see cref="VAlignCenter"/>.</description></item>
-    /// <item><description><see cref="FitToContents"/> - Makes the rect shrink and expand to it's preferred size.</description></item>
-    /// <item><description><see cref="OverflowMode"/> - Controls the overflow behaviour.</description></item>
-    /// <item><description><see cref="WrappingMode"/> - Controls the wrapping behaviour. See also <see cref="NoWrap"/></description></item>
-    /// </list>
     /// <para>
     /// Also implements <see cref="ICopyable{T}"/> which allows <see cref="ICopyable{T}.CopyFrom"/> and <see cref="ICopyable{T}.Copy"/>.
     /// </para>
     /// </summary>
-    public partial class TextComponent : GraphicComponent<TextComponent>, ICopyable<TextComponent>, IStylable<TextComponent, TextStyle>
+    public class TextComponent : GraphicComponent<TextComponent>, ICopyable<TextComponent>, IStylable<TextComponent, TextStyle>
     {
         protected TextComponent() {}
         
@@ -49,7 +36,7 @@ namespace UCGUI
             return _globalFont;
         }
         
-        public override void Awake()
+        protected override void Awake()
         {
             base.Awake();
             DisplayName = NamePrefix;
@@ -98,9 +85,48 @@ namespace UCGUI
             return Text(text.ToString(format), mode:mode);
         }
 
+        /// <summary>
+        /// Clears the text.
+        /// </summary>
         public TextComponent Clear()
         {
             return Text("");
+        }
+
+        /// <summary>
+        /// Capitalizes the first word of the text.
+        /// </summary>
+        public TextComponent Capitalize()
+        {
+            Text(GetText().FirstCharacterToUpper());
+            return this;
+        }
+        
+        /// <summary>
+        /// Capitalizes every individual word in the text.
+        /// </summary>
+        public TextComponent CapitalizeFully()
+        {
+            Text(string.Join(" ", GetText().Split().ToList().Select(word => word.FirstCharacterToUpper())));
+            return this;
+        }
+        
+        /// <summary>
+        /// Converts every letter to its uppercase representation.
+        /// </summary>
+        public TextComponent ToUpper()
+        {
+            Text(GetText().ToUpper());
+            return this;
+        }
+        
+        /// <summary>
+        /// Converts every letter to its lowercase representation.
+        /// </summary>
+        public TextComponent ToLower()
+        {
+            Text(GetText().ToLower());
+            return this;
         }
 
         public string GetText()

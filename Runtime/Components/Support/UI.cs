@@ -1,5 +1,7 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace UCGUI
 {
@@ -460,6 +462,98 @@ namespace UCGUI
             renderable.GetRect().SetAsFirstSibling();
             return renderable;
         }
+        
+        // LayoutElement
+        
+        
+        /// <summary>
+        /// Adds a 'LayoutElement' component to the GameObject if none is present,
+        /// otherwise returns the existing instance.
+        /// </summary>
+        /// <remarks>LayoutElements can be used to ignore layout restrictions set by parent containers.</remarks>
+        public static LayoutElement AddLayoutElement<T>(this T renderable) where T : BaseComponent
+        {
+            renderable.layoutElement ??= renderable.gameObject.GetOrAddComponent<LayoutElement>();
+            return renderable.layoutElement;
+        }
+        
+        /// <summary>
+        /// Adds a 'LayoutElement' component to the GameObject if none is present,
+        /// otherwise returns the existing instance. Additionally, specify the layout elements properties.
+        /// </summary>
+        /// <remarks>LayoutElements can be used to ignore layout restrictions set by parent containers.</remarks>
+        public static LayoutElement AddLayoutElement<T>(this T renderable, Vector2 minimumSize, Vector2 preferredSize, bool ignoreLayout = false) where T : BaseComponent
+        {
+            var layoutElement = renderable.AddLayoutElement();
+            layoutElement.preferredWidth = preferredSize.x;
+            layoutElement.preferredHeight = preferredSize.y;
+            layoutElement.minWidth = minimumSize.x;
+            layoutElement.minHeight = minimumSize.y;
+            layoutElement.ignoreLayout = ignoreLayout;
+            
+            return layoutElement;
+        }
+
+        /// <summary>
+        /// Whether to completely ignore the layout restrictions set by the parent.
+        /// </summary>
+        /// <remarks>LayoutElements can be used to ignore layout restrictions set by parent containers.</remarks>
+        public static T IgnoreLayout<T>(this T renderable, bool ignore = true) where T : BaseComponent
+        {
+            if (!renderable.layoutElement)
+                renderable.AddLayoutElement();
+            renderable.layoutElement.ignoreLayout = ignore;
+            return renderable;
+        }
+        
+        /// <summary>
+        /// Adds a 'LayoutElement' component to the GameObject if none is present, or uses the existing, and sets
+        /// its 'minWidth' and 'minHeight' properties.
+        /// </summary>
+        /// <remarks>LayoutElements can be used to ignore layout restrictions set by parent containers.</remarks>
+        public static T MinimumSize<T>(this T renderable, Vector2 size)  where T : BaseComponent
+        {
+            if (!renderable.layoutElement)
+                renderable.AddLayoutElement();
+            renderable.layoutElement.minWidth = size.x;
+            renderable.layoutElement.minHeight = size.y;
+            return renderable;
+        }
+        
+        
+        /// <summary>
+        /// Adds a 'LayoutElement' component to the GameObject if none is present, or uses the existing, and sets
+        /// its 'minWidth' and 'minHeight' properties.
+        /// </summary>
+        /// <remarks>LayoutElements can be used to ignore layout restrictions set by parent containers.</remarks>
+        public static T MinimumSize<T>(this T renderable, float x, float y) where T : BaseComponent
+        {
+            return renderable.MinimumSize(new Vector2(x, y));
+        }
+        
+        /// <summary>
+        /// Adds a 'LayoutElement' component to the GameObject if none is present, or uses the existing, and sets
+        /// its 'preferredWidth' and 'preferredHeight' properties.
+        /// </summary>
+        /// <remarks>LayoutElements can be used to ignore layout restrictions set by parent containers.</remarks>
+        public static T PreferredSize<T>(this T renderable, Vector2 size)  where T : BaseComponent
+        {
+            if (!renderable.layoutElement)
+                renderable.AddLayoutElement();
+            renderable.layoutElement.preferredWidth = size.x;
+            renderable.layoutElement.preferredHeight = size.y;
+            return renderable;
+        }
+        
+        /// <summary>
+        /// Adds a 'LayoutElement' component to the GameObject if none is present, or uses the existing, and sets
+        /// its 'preferredWidth' and 'preferredHeight' properties.
+        /// </summary>
+        /// <remarks>LayoutElements can be used to ignore layout restrictions set by parent containers.</remarks>
+        public static T PreferredSize<T>(this T renderable, float x, float y) where T : BaseComponent
+        {
+            return renderable.PreferredSize(new Vector2(x, y));
+        }
 
         // Gameobject 
         public static T SetActive<T>(this T renderable, bool active = true) where T : BaseComponent
@@ -468,7 +562,7 @@ namespace UCGUI
             return renderable;
         }
 
-        public static BaseComponent Refresh<V>(this BaseComponent renderable) where V : Behaviour
+        public static T Refresh<V, T>(this T renderable) where V : Behaviour where T : BaseComponent
         {
             V behaviour = renderable.GetComponent<V>();
             if (behaviour)

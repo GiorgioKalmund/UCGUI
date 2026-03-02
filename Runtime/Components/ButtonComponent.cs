@@ -9,16 +9,11 @@ namespace UCGUI
 {
     /// <summary>
     /// UCGUI's default Button Component.
-    /// Noteworthy formatting functions:
-    /// <list type="bullet">
-    /// <item><description><see cref="Function"/> - Adds a listener function for when the button is clicked.</description></item>
-    /// <item><description><see cref="FitToContents(int,float,UCGUI.ScrollViewDirection)"/> - Allows the button to fit to its contents, as well as aligning text and foreground image (if present) horizontally. <b>For better control and flexibility use the built-in <see cref="UI.Button"/>.</b></description></item>
-    /// </list>
     /// <para>
-    /// Also implements <see cref="ICopyable{T}"/> which allows <see cref="ICopyable{T}.CopyFrom"/> and <see cref="ICopyable{T}.Copy"/>.
+    /// Implements <see cref="ICopyable{T}"/> which allows <see cref="ICopyable{T}.CopyFrom"/> and <see cref="ICopyable{T}.Copy"/>.
     /// </para>
     /// </summary>
-    public partial class ButtonComponent : LabelComponent, IFocusable, ICopyable<ButtonComponent>, IStylable<ButtonComponent, ButtonStyle>
+    public class ButtonComponent : LabelComponent, IFocusable, ICopyable<ButtonComponent>, IStylable<ButtonComponent, ButtonStyle>
     {
         protected ButtonComponent() {}
         
@@ -26,7 +21,7 @@ namespace UCGUI
 
         protected readonly List<UnityAction> listeners = new List<UnityAction>();
 
-        public override void Awake()
+        protected override void Awake()
         {
             base.Awake();
             DisplayName = "Button";
@@ -246,6 +241,22 @@ namespace UCGUI
             /// <param name="text">The text of the label.</param>
             /// <param name="image">(Optional) The image of the label.</param>
             public void Label(string text, [CanBeNull] Sprite image = null) => _button.Init(text, image);
+
+            public TextComponent ForegroundStyle(Color color, float alpha)
+            {
+                _button.text.Color(color, alpha);
+                return _button.text;
+            }
+
+            public TextComponent Text() => _button.text;
+            
+            public ImageComponent ImageSize(Vector2 size)
+            {
+                _button.ImageSize(size);
+                return _button.image;
+            }
+            
+            public ImageComponent Image() => _button.image;
 
             /// <summary>
             /// Hides the default <see cref="LabelComponent"/> elements and adds all inserted elements into the button's body.

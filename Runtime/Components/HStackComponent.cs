@@ -7,7 +7,7 @@ namespace UCGUI
     {
         protected HStackComponent() {}
         
-        public override void Awake()
+        protected override void Awake()
         {
             base.Awake();
             DisplayName = "HStack";
@@ -20,7 +20,7 @@ namespace UCGUI
             return HorizontalLayout;
         }
 
-        public override void Start()
+        protected override void Start()
         {
             base.Start();
             HorizontalLayout.CalculateLayoutInputHorizontal();

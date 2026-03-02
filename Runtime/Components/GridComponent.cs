@@ -9,7 +9,7 @@ namespace UCGUI
         protected GridComponent() {}
         
         public GridLayoutGroup grid;
-        public override void Awake()
+        protected override void Awake()
         {
             base.Awake();
             DisplayName = "Grid";

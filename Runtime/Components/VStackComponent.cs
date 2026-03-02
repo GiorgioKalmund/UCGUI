@@ -7,23 +7,23 @@ namespace UCGUI
     {
         protected VStackComponent() {}
         
-        public override void Awake()
+        protected override void Awake()
         {
             base.Awake();
             DisplayName = "VStack";
             
             AddVerticalLayout();
         }
+        
+        protected override void Start()
+        {
+            base.Start();
+            VerticalLayout.CalculateLayoutInputVertical();
+        }
 
         protected override HorizontalOrVerticalLayoutGroup GetLayout()
         {
             return VerticalLayout;
-        }
-
-        public override void Start()
-        {
-            base.Start();
-            VerticalLayout.CalculateLayoutInputVertical();
         }
     }
 }

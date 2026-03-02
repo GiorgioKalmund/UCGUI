@@ -7,16 +7,14 @@ namespace UCGUI
     {
         protected HorizontalOrVerticalLayoutComponent() {}
         
-        public override void Awake()
+        protected override void Awake()
         {
             base.Awake();
             AddFitter(ScrollViewDirection.Both);
         }
 
-        public override void Start()
+        protected virtual void Start()
         {
-            base.Start();
-            
             LayoutRebuilder.ForceRebuildLayoutImmediate(GetRect());
         }
 

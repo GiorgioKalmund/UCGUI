@@ -7,60 +7,43 @@ namespace UCGUI
 {
     /// <summary>
     /// UCGUI's default (Text)Input Component.
-    /// <i>Extends <see cref="ImageComponent"/>.</i>
-    /// <br></br>
-    /// <br></br>
-    /// Functions:
-    /// <list type="bullet">
-    /// <item><description><see cref="Colorize(Color)"/> - Sets the text colors of the text as well as the placeholder.</description></item>
-    /// <item><description><see cref="FontSize"/> - Control the text's and placeholder's font size.</description></item>
-    /// <item><description><see cref="Clear"/> - Clears the input field.</description></item>
-    /// <item><description><see cref="GetText"/> - Returns the current text contents of the input field.</description></item>
-    /// </list>
-    /// <para>
-    /// Handles:
-    /// <list type="bullet">
-    /// <item><description><see cref="OnSubmit"/> - Add handles to when the user submits their current text input.</description></item>
-    /// <item><description><see cref="OnChanged"/> - Add handles to when input's contents change.</description></item>
-    /// </list>
-    /// Default Style: <see cref="Defaults.Style.Input.Default"/>
-    /// </para>
+    /// Default Style: <see cref="InputStyle.Default"/>
     /// </summary>
-    public partial class InputComponent : ImageComponent , IStylable<InputComponent, InputStyle>, IFocusable, ICopyable<InputComponent>
+    public class InputComponent : ImageComponent , IStylable<InputComponent, InputStyle>, IFocusable, ICopyable<InputComponent>
     {
         protected InputComponent() {}
         
-        public TMP_InputField Input;
+        public TMP_InputField input;
 
-        public TextComponent TextElement;
-        public TextComponent PlaceholderElement;
+        public TextComponent text;
+        public TextComponent placeholder;
 
-        protected TMP_InputField.SubmitEvent OnSubmitEvent => Input.onSubmit;
-        protected TMP_InputField.OnChangeEvent OnChangedEvent => Input.onValueChanged;
-        protected TMP_InputField.SelectionEvent OnSelectionEvent => Input.onSelect;
-        protected TMP_InputField.SelectionEvent OnDeselectionEvent => Input.onDeselect;
+        protected TMP_InputField.SubmitEvent OnSubmitEvent => input.onSubmit;
+        protected TMP_InputField.OnChangeEvent OnChangedEvent => input.onValueChanged;
+        protected TMP_InputField.SelectionEvent OnSelectionEvent => input.onSelect;
+        protected TMP_InputField.SelectionEvent OnDeselectionEvent => input.onDeselect;
 
         private int _leadingOffset = 0;
         private int _trailingOffset = 0;
 
-        public override void Awake()
+        protected override void Awake()
         {
             base.Awake();
             DisplayName = "Input";
 
-            Input = gameObject.GetOrAddComponent<TMP_InputField>();
+            input = gameObject.GetOrAddComponent<TMP_InputField>();
 
-            TextElement = UI.N<TextComponent>(this).Pivot(PivotPosition.MiddleLeft, true);
-            PlaceholderElement = UI.N<TextComponent>(this).Pivot(PivotPosition.MiddleLeft, true);
+            text = UI.N<TextComponent>(this).Pivot(PivotPosition.MiddleLeft, true);
+            placeholder = UI.N<TextComponent>(this).Pivot(PivotPosition.MiddleLeft, true);
 
-            Input.targetGraphic = this.GetImage();
-            Input.textComponent = TextElement.GetTextMesh();
-            Input.textViewport = GetRect();
-            Input.placeholder = PlaceholderElement.GetTextMesh();
-            Input.onFocusSelectAll = true;
+            input.targetGraphic = this.GetImage();
+            input.textComponent = text.GetTextMesh();
+            input.textViewport = GetRect();
+            input.placeholder = placeholder.GetTextMesh();
+            input.onFocusSelectAll = true;
 
-            TextElement.OverflowMode(TextOverflowModes.Ellipsis).AutoSize();
-            PlaceholderElement.OverflowMode(TextOverflowModes.Ellipsis).AutoSize();
+            text.OverflowMode(TextOverflowModes.Ellipsis).AutoSize();
+            placeholder.OverflowMode(TextOverflowModes.Ellipsis).AutoSize();
             
             OnSelectionEvent.AddListener(_ =>
             {
@@ -72,8 +55,8 @@ namespace UCGUI
 
         public InputComponent Colorize(Color textColor, Color placeholderColor)
         {
-            TextElement.Color(textColor, keepPreviousAlphaValue:true);
-            PlaceholderElement.Color(placeholderColor, keepPreviousAlphaValue:true);
+            text.Color(textColor, keepPreviousAlphaValue:true);
+            placeholder.Color(placeholderColor, keepPreviousAlphaValue:true);
             return this;
         }
 
@@ -81,27 +64,27 @@ namespace UCGUI
 
         public InputComponent FontSize(float size)
         {
-            TextElement.AutoSize(active: false);
-            TextElement.FontSize(size);
-            PlaceholderElement.AutoSize(active: false);
-            PlaceholderElement.FontSize(size);
+            text.AutoSize(active: false);
+            text.FontSize(size);
+            placeholder.AutoSize(active: false);
+            placeholder.FontSize(size);
             return this;
         }
 
         public new InputComponent Clear()
         {
-            Input.text = "";
+            input.text = "";
             return this;
         }
 
         public InputComponent ContentType(TMP_InputField.ContentType contentType)
         {
-            Input.contentType = contentType;
+            input.contentType = contentType;
             return this;
         }
         public InputComponent InputType(TMP_InputField.InputType inputType)
         {
-            Input.inputType = inputType;
+            input.inputType = inputType;
             return this;
         }
 
@@ -109,32 +92,32 @@ namespace UCGUI
         {
             base.HandleSizeChanged(x, y);
 
-            if (TextElement)
-                TextElement.Size(x -_leadingOffset - _trailingOffset, y);
-            if (PlaceholderElement)
-                PlaceholderElement.Size(x - _leadingOffset - _trailingOffset, y);
+            if (text)
+                text.Size(x -_leadingOffset - _trailingOffset, y);
+            if (placeholder)
+                placeholder.Size(x - _leadingOffset - _trailingOffset, y);
             return this;
         }
 
-        public InputComponent Text(string text)
+        public InputComponent Text(string t)
         {
-            Input.text = text;
+            input.text = t;
             return this;
         }
 
         public string GetText()
         {
-            return TextElement.GetText();
+            return text.GetText();
         }
 
         public void Select()
         {
-            Input.ActivateInputField();
+            input.ActivateInputField();
         }
         
-        public InputComponent Placeholder(string placeholder)
+        public InputComponent Placeholder(string placeholderText)
         {
-            PlaceholderElement.Text(placeholder);
+            this.placeholder.Text(placeholderText);
             return this;
         }
 
@@ -173,8 +156,8 @@ namespace UCGUI
         {
             _leadingOffset = offset;
                 
-            TextElement.Offset(_leadingOffset, 0);
-            PlaceholderElement.Offset(_leadingOffset, 0);
+            text.Offset(_leadingOffset, 0);
+            placeholder.Offset(_leadingOffset, 0);
             HandleSizeChanged(this.GetWidth(), this.GetHeight());
             return this;
         }
@@ -188,8 +171,8 @@ namespace UCGUI
         public string FocusGroup { get; set; }
         public UnityEvent OnFocusEvent { get; set; }
         public UnityEvent OnUnfocusEvent { get; set; }
-        public virtual void HandleFocus() { Input.Select(); }
-        public virtual void HandleUnfocus() { Input.ReleaseSelection(); }
+        public virtual void HandleFocus() { input.Select(); }
+        public virtual void HandleUnfocus() { input.ReleaseSelection(); }
         
         public class InputBuilder
         {
@@ -214,8 +197,8 @@ namespace UCGUI
             _trailingOffset = other._trailingOffset;
             base.CopyFrom(other, fullyCopyRect);
             
-            TextElement.CopyFrom(other.TextElement, fullyCopyRect);
-            PlaceholderElement.CopyFrom(other.PlaceholderElement, fullyCopyRect);
+            text.CopyFrom(other.text, fullyCopyRect);
+            placeholder.CopyFrom(other.placeholder, fullyCopyRect);
             
             // TODO: Submit event is not copied over
             return this;

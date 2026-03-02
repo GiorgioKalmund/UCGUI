@@ -6,7 +6,7 @@ namespace UCGUI
     {
         protected LayoutComponent() {}
         
-        public override void Awake()
+        protected override void Awake()
         {
             base.Awake();
             Color(UnityEngine.Color.clear);

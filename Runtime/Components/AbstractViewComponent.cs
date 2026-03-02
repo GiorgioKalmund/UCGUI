@@ -157,7 +157,7 @@ namespace UCGUI
         /// </summary>
         [CanBeNull] protected ViewStackComponent viewStackComponent;
 
-        public override void Awake()
+        protected override void Awake()
         {
             base.Awake();
             DisplayName = "AbstractView";
@@ -177,10 +177,8 @@ namespace UCGUI
         /// </summary>
         protected abstract void Create();
         
-        public override void Start()
+        protected virtual void Start()
         {
-            base.Start();
-            
             if (ClosesOnBackgroundTap)
                 _button.onClick.AddListener(Close);
             

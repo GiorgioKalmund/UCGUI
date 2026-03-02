@@ -2,12 +2,12 @@ using UnityEngine;
 
 namespace UCGUI
 {
-    public abstract partial class SimpleScreen : BaseComponent
+    public abstract class SimpleScreen : BaseComponent
     {
         [HideInInspector]
         public Canvas canvas;
         
-        public override void Awake()
+        protected override void Awake()
         {
             base.Awake();
             DisplayName = "SimpleScreen";
@@ -16,7 +16,7 @@ namespace UCGUI
             Create();
         }
 
-        public virtual void Start()
+        protected virtual void Start()
         {
             if (!canvas)
             {

@@ -10,7 +10,7 @@ namespace UCGUI
     /// UCGUI's default Slider Component. <br></br><br></br>
     /// To create and customize it take a look at <see cref="UI.Slider"/> and the <see cref="SliderBuilder"/>.
     /// </summary>
-    public partial class SliderComponent : BaseComponent,
+    public class SliderComponent : BaseComponent,
         IStylable<SliderComponent, SliderStyle>
     {
         protected SliderComponent() {}
@@ -45,7 +45,7 @@ namespace UCGUI
             set => slider.minValue= value;
         }
 
-        public override void Awake()
+        protected override void Awake()
         {
             base.Awake();
             DisplayName = "Slider";

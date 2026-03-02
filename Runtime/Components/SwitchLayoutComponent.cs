@@ -8,7 +8,7 @@ namespace UCGUI
     {
         protected SwitchLayoutComponent() {}
         
-        public override void Awake()
+        protected override void Awake()
         {
             base.Awake();
             DisplayName = "Switch Layout";
