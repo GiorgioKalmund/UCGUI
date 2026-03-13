@@ -248,6 +248,14 @@ namespace UCGUI
             Invalidate();
         }
         
+        public void _AddTarget(BaseComponent node) => AddTarget(new Entry(node));
+
+        public void AddTarget(params BaseComponent[] nodes)
+        {
+            foreach (var baseComponent in nodes)
+                _AddTarget(baseComponent);
+        }
+        
         public Vector2 GetPosition()
         {
             if (position.HasValue)

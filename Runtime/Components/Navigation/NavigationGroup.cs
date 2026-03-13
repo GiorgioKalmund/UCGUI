@@ -91,7 +91,7 @@ namespace UCGUI
             var active = IFocusable.GetFocusedElement(GroupId) as IInteractable;
             active?.Interact();
         }
-
+        
         public void Set(Entry of, Direction dir, Entry to)
         {
             navigationMapping.TryGetValue(of, out var map);
@@ -100,6 +100,8 @@ namespace UCGUI
             navigationMapping[of] = map;
         }
 
+        public void Set(BaseComponent of, Direction dir, BaseComponent to) => Set(new Entry(of), dir, new Entry(to));
+        
         private DirectionMap? GetActiveMap()
         {
             var active = IFocusable.GetFocusedElement(GroupId);
