@@ -248,7 +248,7 @@ namespace UCGUI
             Invalidate();
         }
         
-        public void _AddTarget(BaseComponent node) => AddTarget(new Entry(node));
+        private void _AddTarget(BaseComponent node) => AddTarget(new Entry(node));
 
         public void AddTarget(params BaseComponent[] nodes)
         {
