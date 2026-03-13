@@ -92,7 +92,7 @@ namespace UCGUI
             active?.Interact();
         }
 
-        private void Set(Entry of, Direction dir, Entry to)
+        public void Set(Entry of, Direction dir, Entry to)
         {
             navigationMapping.TryGetValue(of, out var map);
             map.Assign(to, dir);
