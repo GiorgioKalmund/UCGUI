@@ -1,6 +1,6 @@
 namespace UCGUI
 {
-    public partial interface IRenderable
+    public interface IRenderable
     {
         public void Render();
     }

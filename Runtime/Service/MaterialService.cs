@@ -5,7 +5,7 @@ namespace UCGUI.Services
     /// <summary>
     /// A simple interface for loading Materials using Unity's Resources API
     /// </summary>
-    public partial class MaterialService
+    public class MaterialService
     {
         
         /// <summary>

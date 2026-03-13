@@ -166,3 +166,12 @@
 - Made the usability of `LayoutElement`s more user friendly.
   - Also added an option for setting the preferred size.
 - Removed partial class annotations for elements as they do not work in this case.
+
+## [1.0.22] - 2026-03-13
+### NavigationGroups
+- Added `NavigationGroup`s which can automatically determine optimal LRUD navigation based while also allowing for custom links.
+  - The navigation is based on hierarchy which can be created with `NavigationNode`s, of which **one** acts as a root node.
+  - The navigation group can be controlled via corresponding L(eft), R(ight), U(p) and D(own) functions, as well as an 'Interact()' call which makes use of the new `IInteractable` interface which unifies element which can be interacted with, like buttons.
+- In addition to the already existing events, added dedicated function-based handlers for views which are invoked when they are revealed and hidden inside a ViewStack.
+- Added shorthands for Layouts for rebuilding.
+- Removed some more unused partial annotations and documentation blocks at the top of classes.

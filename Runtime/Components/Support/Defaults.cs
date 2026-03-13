@@ -79,7 +79,15 @@ namespace UCGUI{
             /// <remarks>
             /// "ucgui-focus-group-default"
             /// </remarks>
-            public static readonly string DefaultGroup = "ucgui-focus-group-default";
+            public const string DefaultGroup = "ucgui-focus-group-default";
+            
+            /// <summary>
+            /// The default group used by <see cref="NavigationGroup"/>s.
+            /// </summary>
+            /// <remarks>
+            /// "ucgui-navigation-focus-group-default"
+            /// </remarks>
+            public const string DefaultNavigationGroup = "ucgui-navigation-focus-group-default";
         }
 
         /// <summary>

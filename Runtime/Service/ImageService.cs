@@ -7,7 +7,7 @@ namespace UCGUI.Services
     /// The ImageService uses Unity's Resources API to load
     /// Texture2D and Sprite images.
     /// </summary>
-    public partial class ImageService
+    public class ImageService
     {
         /// <summary>
         /// Path to a texture(2d) which should be displayed if a path is unavailable.

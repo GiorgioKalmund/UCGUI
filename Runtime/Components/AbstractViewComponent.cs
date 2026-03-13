@@ -12,41 +12,7 @@ using UnityEditor;
 namespace UCGUI
 {
     /// UCGUI's framework for creation view-like components.
-    /// <br></br>
-    /// <br></br>
-    /// Will default to <see cref="Close"/> on <see cref="Start"/>. Applies <see cref="Defaults.View.DefaultBackdropColor"/> to the background by default.
-    /// <br></br>
-    /// <br></br>
-    /// Variables:
-    /// <list type="bullet">
-    /// <item><description><see cref="IsOpen"/> - Whether the view is open.</description></item>.
-    /// <item><description><see cref="IsLocked"/> - Whether the view is locked If <i>true</i>, the view can neither be opened nor closed.</description></item>.
-    /// <item><description><see cref="ClosesOnBackgroundTap"/> - Determines whether the view should close when clicking on the background.</description></item>.
-    /// </list>
-    /// Functions:
-    /// <list type="bullet">
-    /// <item><description><see cref="Open"/> - Opens the view.</description></item>.
-    /// <item><description><see cref="Close"/> - Closes the view.</description></item>.
-    /// <item><description><see cref="ToggleOpenClose"/> - Toggles between opening and closing the view.</description></item>.
-    /// <item><description><see cref="StartOpen"/> - Will <b>not</b> close on <see cref="Start"/>.</description></item>.
-    /// <item><description><see cref="OpenUsing"/> - Allows the user to supply and <see cref="InputAction"/> to toggle the opening of the view.</description></item>.
-    /// <item><description><see cref="CloseUsing"/> - Allows the user to supply and <see cref="InputAction"/> to toggle the closing of the view.</description></item>.
-    /// <item><description><see cref="ToggleUsing"/> - Allows the user to supply and <see cref="InputAction"/> to toggle the opening and closing of the view.</description></item>.
-    /// <item><description><see cref="Lock"/> - Locks opening and closing behavior.</description></item>.
-    /// <item><description><see cref="Unlock"/> - Unlocks opening and closing behavior.</description></item>.
-    /// <item><description><see cref="ToggleLock"/> - Toggles between <see cref="Lock"/> and <see cref="Unlock"/>.</description></item>.
-    /// <item><description><see cref="IsOnTopOfViewStack"/> - Returns whether this view is on top of its connected <see cref="UCGUI.ViewStackComponent"/>.</description></item>.
-    /// </list>
-    /// Events:
-    /// <list type="bullet">
-    /// <item><description><see cref="OnOpen"/> - Invoked when the view is opened.</description></item>.
-    /// <item><description><see cref="OnClose"/> - Invoked when the view is closed.</description></item>.
-    /// <item><description><see cref="OnStackReveal"/> - Invoked when the view is part of a <see cref="UCGUI.ViewStackComponent"/> and has just been revealed.</description></item>.
-    /// <item><description><see cref="OnStackHide"/> - Invoked when the view is part of a <see cref="UCGUI.ViewStackComponent"/> and has just been hidden.</description></item>.
-    /// </list>
-    /// <para>
     /// Implements <see cref="IRenderable"/>.
-    /// </para>
     public abstract class AbstractViewComponent : ImageComponent, IRenderable
     {
         protected AbstractViewComponent() {}
@@ -92,8 +58,8 @@ namespace UCGUI
         #endregion
         
         #region OnStackReveal
-        
-        private UnityEvent _onStackReveal;
+
+        internal UnityEvent onStackReveal;
 
         /// <summary>
         /// Event fired whenever the view is part of a <see cref="UCGUI.ViewStackComponent"/> and has just been revealed.
@@ -102,17 +68,17 @@ namespace UCGUI
         {
             get
             {
-                _onStackReveal ??= new UnityEvent();
-                return _onStackReveal;
+                onStackReveal ??= new UnityEvent();
+                return onStackReveal;
             }
-            protected set => _onStackReveal = value;
+            protected set => onStackReveal = value;
         }
 
         #endregion
         
         #region OnStackHide
-        
-        private UnityEvent _onStackHide;
+
+        internal UnityEvent onStackHide;
 
         /// <summary>
         /// Event fired whenever the view is part of a <see cref="UCGUI.ViewStackComponent"/> and has just been hidden.
@@ -121,10 +87,10 @@ namespace UCGUI
         {
             get
             {
-                _onStackHide ??= new UnityEvent();
-                return _onStackHide;
+                onStackHide ??= new UnityEvent();
+                return onStackHide;
             }
-            protected set => _onStackHide = value;
+            protected set => onStackHide = value;
         }
 
         #endregion
@@ -219,6 +185,18 @@ namespace UCGUI
                 Open();
         }
         private void ToggleOpenClose(InputAction.CallbackContext context) => ToggleOpenClose();
+        
+        /// <summary>
+        /// Internal shorthand handler which is invoked when this view is part of a ViewStack and becomes its new top element.
+        /// Either when the view is pushed or when the previous top of the stack was popped and this view is next.
+        /// </summary>
+        internal virtual void HandleViewStackReveal() { }
+        
+        /// <summary>
+        /// Internal shorthand handler which is invoked when this view is part of a ViewStack stops being its new top element.
+        /// Either when the view is popped or when another view is pushed on top of it.
+        /// </summary>
+        internal virtual void HandleViewStackHide() { }
 
         /// <summary>
         /// Opens and re-renders the view.
@@ -245,7 +223,7 @@ namespace UCGUI
             IsOpen = true;
             this.BringToFront();
 
-            OnOpen?.Invoke();
+            _onOpen?.Invoke();
            
             Render();
         }
@@ -286,15 +264,7 @@ namespace UCGUI
             
             IsOpen = false;
 
-            OnClose?.Invoke();
-        }
-
-        private void EnsureEnabledOfAllChildren(bool e)
-        {
-            foreach (Transform child in transform)
-            {
-                child.gameObject.GetComponent<IEnabled>()?.Enabled(e);
-            }
+            _onClose?.Invoke();
         }
 
         /// <summary>
@@ -426,7 +396,8 @@ namespace UCGUI
         public AbstractViewComponent JoinStack(ViewStackComponent stackComponent)
         {
             viewStackComponent = stackComponent;
-            OnStackReveal.Invoke();
+            onStackReveal?.Invoke();
+            HandleViewStackReveal();
             return this;
         }
         /// <summary>
@@ -437,7 +408,8 @@ namespace UCGUI
         /// </remarks>
         public AbstractViewComponent LeaveStack()
         {
-            OnStackHide.Invoke();
+            onStackHide?.Invoke();
+            HandleViewStackHide();
             viewStackComponent = null;
             return this;
         }

@@ -17,7 +17,7 @@ namespace UCGUI
     /// </code>
     /// </example>
     [System.Serializable]
-    public partial class TextAnimation 
+    public class TextAnimation 
     {
         public readonly string[] Frames;
         public readonly float[] FramesPerSecond;

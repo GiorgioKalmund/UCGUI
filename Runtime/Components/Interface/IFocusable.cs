@@ -7,12 +7,12 @@ using UnityEngine.Events;
 
 namespace UCGUI
 {
-    public partial interface IFocusable
+    public interface IFocusable
     {
         public static Dictionary<string, IFocusable> FocusGroups = new Dictionary<string, IFocusable>();
         public static string[] FocusGroupNames => FocusGroups.Keys.ToArray();
 
-        private static IFocusable _lastFocusedElement;
+        public static Dictionary<string, IFocusable> LastFocused = new Dictionary<string, IFocusable>();
 
         /// <summary>
         /// The true current focus group. If a member overrides <see cref="FocusGroup"/> to not be `null`, the respective value will be
@@ -32,17 +32,6 @@ namespace UCGUI
 
         public void HandleFocus();
         public void HandleUnfocus();
-
-        /// IFocusable general functions
-        public static void SetLastFocusedElement(IFocusable focusable)
-        {
-            _lastFocusedElement = focusable;
-        }
-
-        public static void FocusLastFocused()
-        {
-            _lastFocusedElement.Focus();
-        }
 
         public static void UnfocusGroupId(string focusGroup)
         {
@@ -64,6 +53,12 @@ namespace UCGUI
         public static IFocusable GetFocusedElement(string focusGroup)
         {
             return FocusGroups.GetValueOrDefault(focusGroup, null);
+        }
+        
+        [CanBeNull]
+        public static IFocusable GetLastFocusedElement(string focusGroup)
+        {
+            return LastFocused.GetValueOrDefault(focusGroup, null);
         }
 
         [Serializable]
@@ -349,18 +344,17 @@ namespace UCGUI
             focusable.OnFocusEvent?.Invoke();
         }
 
-        
         /// <summary>
         /// Unfocuses the element within the given group. <br></br>
-        /// Sets <see cref="IFocusable._lastFocusedElement"/> to this element. Can then be re-focused using <see cref="IFocusable.FocusLastFocused"/>.
+        /// Sets <see cref="IFocusable.LastFocused"/> to this element. Can then be re-focused using <see cref="RefocusGroup"/>.
         /// </summary>
         /// <param name="focusable">Element to unfocus.</param>
         /// <typeparam name="T">Any <see cref="IFocusable"/>.</typeparam>
         public static void Unfocus<T>(this T focusable) where T : IFocusable
         {
-            IFocusable.SetLastFocusedElement(focusable);
             if (focusable == null)
                 return;
+            IFocusable.LastFocused[focusable.CurrentGroup] = focusable;
             if (focusable.IsFocused())
                 IFocusable.FocusGroups[focusable.CurrentGroup] = null;
             focusable.HandleUnfocus();
@@ -368,7 +362,7 @@ namespace UCGUI
         }
 
         /// <summary>
-        /// Returns whether the element is currently focused within its base focus group. See <see cref="IFocusable.SetFocusGroup"/>.
+        /// Returns whether the element is currently focused within its focus group.
         /// </summary>
         /// <param name="focusable">The element to check</param>
         /// <typeparam name="T">Any <see cref="IFocusable"/>.</typeparam>
@@ -393,6 +387,28 @@ namespace UCGUI
                 focusable.Unfocus();
             else
                 focusable.Focus();
+        }
+
+        /// <summary>
+        /// Refocuses the previously focused element in the group of the given element.
+        /// </summary>
+        /// <param name="focusable">The element which's group should be refocused.</param>
+        /// <typeparam name="T"></typeparam>
+        public static void RefocusGroup<T>(this T focusable) where T : IFocusable
+        {
+            IFocusable lastFocused = IFocusable.GetLastFocusedElement(focusable.CurrentGroup);
+            lastFocused?.Focus();
+        }
+
+        /// <summary>
+        /// Unfocuses the group of the given element.
+        /// </summary>
+        /// <param name="focusable">The element which's group should be unfocused.</param>
+        /// <typeparam name="T"></typeparam>
+        public static void UnfocusGroup<T>(this T focusable) where T : IFocusable
+        {
+            IFocusable currentlyFocused = IFocusable.GetFocusedElement(focusable.CurrentGroup);
+            currentlyFocused?.Unfocus();
         }
         
         /// <summary>

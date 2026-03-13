@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace UCGUI
 {
@@ -32,15 +33,35 @@ namespace UCGUI
             }
         }
 
-        public override BaseComponent HandleSizeChanged(float x, float y)
+        public override BaseComponent HandleSizeChanged(Vector2 old, Vector2 updated)
         {
             if (ContentSizeFitter)
-                ContentSizeFitter.enabled = false;
-            base.HandleSizeChanged(x, y);
-            return this;
+            {
+                if (!updated.x.Equals(old.x))
+                    ContentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+                if (!updated.y.Equals(old.y))
+                    ContentSizeFitter.verticalFit = ContentSizeFitter.FitMode.Unconstrained;
+            }
+            return base.HandleSizeChanged(old, updated);
         }
 
-        
+        /// <summary>
+        /// Marks this element for rebuild inside the Canvas. 
+        /// </summary>
+        public void MarkForRebuild()
+        {
+            LayoutRebuilder.MarkLayoutForRebuild(GetRect());
+        }
+
+        /// <summary>
+        /// Force rebuilds this element based on its current position in the hierarchy.
+        /// </summary>
+        /// <remarks>WARNING: Should only be used with care as it can be resource intensive and cause lag.</remarks>
+        public void ForceRebuild()
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(GetRect());
+        }
+
         /// <summary>
         /// Calls <see cref="SpacerComponent.RenderImmediate"/> or <see cref="SpacerComponent.Render"/> on all containing <see cref="SpacerComponent"/>s.
         /// </summary>

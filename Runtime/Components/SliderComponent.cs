@@ -1,4 +1,3 @@
-using System.Collections;
 using UCGUI.Services;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -133,7 +132,7 @@ namespace UCGUI
         /// <item><description><see cref="HandleExtraHeight"/> - Adds a given delta to the height. <i>It is this way as per default the Unity slider behind the scenes stretches the height to be the height of the slider itself.</i></description></item>
         /// </list>
         /// </summary>
-        public partial class SliderBuilder
+        public class SliderBuilder
         {
             private SliderComponent _slider;
 

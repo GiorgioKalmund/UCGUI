@@ -36,7 +36,7 @@ namespace UCGUI
     /// </para>
     /// </summary>
     [RequireComponent(typeof(TextComponent), typeof(TextMeshProUGUI))]
-    public partial class TextAnimator : BaseComponent, ICopyable<TextAnimator>
+    public class TextAnimator : BaseComponent, ICopyable<TextAnimator>
     {
         public enum State
         {

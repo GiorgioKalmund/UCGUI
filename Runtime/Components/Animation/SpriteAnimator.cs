@@ -37,7 +37,7 @@ namespace UCGUI
     /// </para>
     /// </summary>
     [RequireComponent(typeof(ImageComponent), typeof(Image))]
-    public partial class SpriteAnimator : BaseComponent, ICopyable<SpriteAnimator>
+    public class SpriteAnimator : BaseComponent, ICopyable<SpriteAnimator>
     {
         public enum State
         {

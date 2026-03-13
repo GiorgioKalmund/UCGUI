@@ -7,7 +7,7 @@ namespace UCGUI.Services
     /// <summary>
     /// A simple service for accessing some things relevant to GUIs
     /// </summary>
-    public partial class GUIService
+    public class GUIService
     {
         private static Canvas _cachedCanvas;
         

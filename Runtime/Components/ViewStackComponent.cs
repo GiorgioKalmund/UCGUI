@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine.Events;
 
 namespace UCGUI
 {
@@ -8,6 +9,47 @@ namespace UCGUI
     public class ViewStackComponent : BaseComponent
     {
         protected ViewStackComponent() {}
+        
+        #region Events
+
+        #region OnFirstPush 
+
+        private UnityEvent _onFirstPush;
+
+        /// <summary>
+        /// Event fired whenever the stack becomes non-empty for the first time.
+        /// </summary>
+        public UnityEvent OnFirstPush {
+            get
+            {
+                _onFirstPush ??= new UnityEvent();
+                return _onFirstPush;
+            }
+            protected set => _onFirstPush = value;
+        }
+
+        #endregion
+
+        #region OnLastPop
+
+        private UnityEvent _onLastPop;
+
+        /// <summary>
+        /// Event fired whenever the view is closed.
+        /// </summary>
+        public UnityEvent OnLastPop
+        {
+            get
+            {
+                _onLastPop ??= new UnityEvent();
+                return _onLastPop;
+            }
+            protected set => _onLastPop = value;
+        }
+
+        #endregion
+        
+        #endregion
         
         public Stack<AbstractViewComponent> stack = new Stack<AbstractViewComponent>();
 
@@ -22,6 +64,7 @@ namespace UCGUI
         /// </summary>
         ///
         /// <remarks>
+        /// <i><see cref="OnLastPop"/> is invoked when the stack becomes empty after the pop.</i>
         /// <i><see cref="AbstractViewComponent.LeaveStack"/> is invoked on the view here.</i>
         /// <i><see cref="AbstractViewComponent.OnStackHide"/> is invoked on the popped view here.</i>
         /// <i><see cref="AbstractViewComponent.OnStackReveal"/> is invoked on the new top view here.</i>
@@ -32,7 +75,12 @@ namespace UCGUI
             {
                 top.LeaveStack().Close();
                 if (stack.TryPeek(out AbstractViewComponent newTop))
-                    newTop.OnStackReveal.Invoke();
+                {
+                    newTop.onStackReveal?.Invoke();
+                    newTop.HandleViewStackReveal();
+                }
+                if (stack.Count == 0)
+                    _onLastPop?.Invoke();
             }
             else
                 UCGUILogger.LogWarning("Cannot pop from an already empty stack!");
@@ -65,6 +113,7 @@ namespace UCGUI
         /// <param name="abstractViewComponent">The view to add to the stack.</param>
         ///
         /// <remarks>
+        /// <i><see cref="OnFirstPush"/> is invoked when the stack is empty before the push.</i>
         /// <i><see cref="AbstractViewComponent.JoinStack"/> is invoked on the view here to allow it to hold a reference to the stack it is in.</i>
         /// <i><see cref="AbstractViewComponent.OnStackHide"/> is invoked on the previous top view here.</i>
         /// <i><see cref="AbstractViewComponent.OnStackReveal"/> is invoked on the pushed view here.</i>
@@ -81,9 +130,14 @@ namespace UCGUI
                 UCGUILogger.LogWarning($"ViewStack already contains {abstractViewComponent}. Cannot push it again!");
                 return;
             }
-            
+
             if (stack.TryPeek(out AbstractViewComponent newTop))
-                newTop.OnStackHide.Invoke();
+            {
+                newTop.onStackHide?.Invoke();
+                newTop.HandleViewStackHide();
+            }
+            else
+                _onFirstPush?.Invoke();
             stack.Push(abstractViewComponent); 
             abstractViewComponent.JoinStack(this).Open();
         }

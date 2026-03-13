@@ -13,7 +13,7 @@ namespace UCGUI
     /// Implements <see cref="ICopyable{T}"/> which allows <see cref="ICopyable{T}.CopyFrom"/> and <see cref="ICopyable{T}.Copy"/>.
     /// </para>
     /// </summary>
-    public class ButtonComponent : LabelComponent, IFocusable, ICopyable<ButtonComponent>, IStylable<ButtonComponent, ButtonStyle>
+    public class ButtonComponent : LabelComponent, IFocusable, IInteractable, ICopyable<ButtonComponent>, IStylable<ButtonComponent, ButtonStyle>
     {
         protected ButtonComponent() {}
         
@@ -35,9 +35,15 @@ namespace UCGUI
             return base.CreateText().Style(TextStyle.ButtonText);
         }
 
-        public void Press()
+        /// <summary>
+        /// Invokes the 'onClick' event of the button. If the button is disabled / not interactable
+        /// pressing it will not do anything unless <see cref="force"/> is set to true.
+        /// </summary>
+        /// <param name="force">Overrides the interactable restriction of the button if set to true.</param>
+        public void Press(bool force = false)
         {
-            button.onClick.Invoke();
+            if (button.IsInteractable() || force)
+                button.onClick.Invoke();
         }
 
         public ButtonComponent FitToContents(PaddingSide side, int amount, float spacing, ScrollViewDirection direction = ScrollViewDirection.Both)
@@ -145,6 +151,8 @@ namespace UCGUI
             return this;
         }
         
+        public void Interact() => Press();
+        
         public new virtual ButtonComponent Copy(bool fullyCopyRect = true)
         {
             ButtonComponent copyButton = this.BaseCopy(this);
@@ -229,7 +237,7 @@ namespace UCGUI
             return this;
         }
 
-        public partial class ButtonBuilder
+        public class ButtonBuilder
         {
             private ButtonComponent _button;
 

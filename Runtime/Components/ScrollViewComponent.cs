@@ -145,7 +145,7 @@ namespace UCGUI
             scrollRect.enabled = e;
         }
 
-        public partial class ScrollViewBuilder
+        public class ScrollViewBuilder
         {
             private readonly ScrollViewComponent _scrollView;
             public ScrollViewBuilder(ScrollViewComponent scrollViewComponent) => _scrollView = scrollViewComponent;

@@ -1,7 +1,6 @@
 using UCGUI.Services;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
 
 #if UNITY_EDITOR

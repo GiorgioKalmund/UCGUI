@@ -3,7 +3,7 @@ using UnityEngine;
 namespace UCGUI
 {
     using UnityEngine.UI;
-    public partial class LayoutBuilder
+    public class LayoutBuilder
     {
         private HorizontalOrVerticalLayoutComponent _layout;
         private HorizontalOrVerticalLayoutGroup _relevantLayout;
