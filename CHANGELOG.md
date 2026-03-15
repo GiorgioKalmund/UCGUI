@@ -175,3 +175,8 @@
 - In addition to the already existing events, added dedicated function-based handlers for views which are invoked when they are revealed and hidden inside a ViewStack.
 - Added shorthands for Layouts for rebuilding.
 - Removed some more unused partial annotations and documentation blocks at the top of classes.
+
+## [1.0.23] - 2026-03-15
+### Label Consistency
+- Flipped the default LabelComponent ordering to not have 'ReverseArrengement' set to true, whilst maintaining the same visual layout.
+- Fixed an issue for where SwitchLayouts would not properly copy over their ContentSizeFitter properties when using 'ICopyable.Copy'.

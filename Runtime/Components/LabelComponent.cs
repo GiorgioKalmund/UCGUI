@@ -42,7 +42,6 @@ namespace UCGUI
             DisplayName = "Label";
             
             FitToContents();
-            ReverseArrangement();
         }
 
         public LabelComponent Text(string t, TextComponent.TextMode mode = TextComponent.TextMode.Normal, Color? color = null)
@@ -112,9 +111,9 @@ namespace UCGUI
 
         public LabelComponent Init(string s, Sprite sprite = null)
         {
-            text.Text(s);
             if (sprite != null)
                 image.Sprite(sprite);
+            text.Text(s);
             return this;
         }
 

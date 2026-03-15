@@ -107,9 +107,13 @@ namespace UCGUI
             base.CopyFrom(other, fullyCopyRect);
             HorizontalLayout.CopyFrom(other.HorizontalLayout);
             VerticalLayout.CopyFrom(other.VerticalLayout);
-            
+
             if (other.ContentSizeFitter)
-                FitToContents();
+            {
+                ContentSizeFitter.enabled = other.ContentSizeFitter.enabled;
+                ContentSizeFitter.horizontalFit = other.ContentSizeFitter.horizontalFit;
+                ContentSizeFitter.verticalFit = other.ContentSizeFitter.verticalFit;
+            }
             return (T)this;
         }
 
