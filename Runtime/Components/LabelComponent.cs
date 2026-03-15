@@ -92,10 +92,10 @@ namespace UCGUI
         public new virtual LabelComponent CopyFrom(LabelComponent other, bool fullyCopyRect = true)
         {
             base.CopyFrom(other, fullyCopyRect);
-            if (other._text != null)
-                text.CopyFrom(other.text, fullyCopyRect);
             if (other._image != null)
                 image.CopyFrom(other.image, fullyCopyRect);
+            if (other._text != null)
+                text.CopyFrom(other.text, fullyCopyRect);
             return this;
         }
 
