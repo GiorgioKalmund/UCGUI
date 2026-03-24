@@ -9,10 +9,10 @@ namespace UCGUI
 {
     public interface IFocusable
     {
-        public static Dictionary<string, IFocusable> FocusGroups = new Dictionary<string, IFocusable>();
+        public static readonly Dictionary<string, IFocusable> FocusGroups = new Dictionary<string, IFocusable>();
         public static string[] FocusGroupNames => FocusGroups.Keys.ToArray();
 
-        public static Dictionary<string, IFocusable> LastFocused = new Dictionary<string, IFocusable>();
+        public static readonly Dictionary<string, IFocusable> LastFocused = new Dictionary<string, IFocusable>();
 
         /// <summary>
         /// The true current focus group. If a member overrides <see cref="FocusGroup"/> to not be `null`, the respective value will be

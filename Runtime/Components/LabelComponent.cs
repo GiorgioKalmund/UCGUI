@@ -56,17 +56,17 @@ namespace UCGUI
         /// </summary>
         /// <param name="minWidth">The minimum width the image will retain.</param>
         /// <param name="minHeight">The minium height the image will retain.</param>
-        public LabelComponent ImageSize(float minWidth, float minHeight) => ImageSize(new Vector2(minWidth, minHeight));
+        public LabelComponent MinImageSize(float minWidth, float minHeight) => MinImageSize(new Vector2(minWidth, minHeight));
 
         /// <summary>
         /// Adds an <see cref="LayoutElement"/> to the image and sets 'minWidth' and 'minHeight' of
         /// its layout.
         /// </summary>
         /// <param name="size">The min width and height.</param>
-        /// <seealso cref="ImageSize(float, float)"/>
-        public LabelComponent ImageSize(Vector2 size)
+        /// <seealso cref="MinImageSize(float,float)"/>
+        public LabelComponent MinImageSize(Vector2 size)
         {
-            image.AddLayoutElement(size, size);
+            _image?.AddLayoutElement(size, size);
             return this;
         } 
 

@@ -103,7 +103,7 @@ namespace UCGUI.Services
         /// <returns>The newly created instance.</returns>
         public static T CreateInstance<T>(bool replaceOld = false) where T : MonoBehaviour
         {
-            T instance = Object.Instantiate(new GameObject("Instance - " + typeof(T).Name)).AddComponent<T>();
+            T instance = new GameObject("Instance - " + typeof(T).Name).AddComponent<T>();
             if (!PutInstance(instance, replaceOld))
             {
                 Object.Destroy(instance.gameObject);

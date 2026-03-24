@@ -218,6 +218,8 @@ namespace UCGUI
         public void ForceOpen()
         {
             canvasGroup.alpha = 1f;
+            canvasGroup.blocksRaycasts = true;
+            canvasGroup.interactable = true;
             RaycastTarget(true);
 
             IsOpen = true;
@@ -260,6 +262,8 @@ namespace UCGUI
         public void ForceClose()
         {
             canvasGroup.alpha = 0f;
+            canvasGroup.blocksRaycasts = false;
+            canvasGroup.interactable = false;
             RaycastTarget(false);
             
             IsOpen = false;

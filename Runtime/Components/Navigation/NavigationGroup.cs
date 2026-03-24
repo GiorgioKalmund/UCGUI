@@ -28,14 +28,23 @@ namespace UCGUI
         private Entry activeEntry;
         private NavigationNode root;
         public float MaxSearchAngle { get; }
-        public string GroupId { get; private set; } = Defaults.Focus.DefaultNavigationGroup;
+        public string GroupId { get; private set; } = GUID.Generate().ToString();
 
-        public NavigationGroup(NavigationNode root, float searchAngle = 22.5f)
+        /// <summary>
+        /// Creates a new NavigationGroup.
+        /// </summary>
+        /// <param name="root">The root <see cref="NavigationNode"/> of the hierarchy.</param>
+        /// <param name="searchAngle">The maximum search angle the group will allow when trying to search for neighbors in a respective direction.</param>
+        /// <param name="groupId">OPTIONAL - custom focus group id. Will generate a random one by default.</param>
+        public NavigationGroup(NavigationNode root, float searchAngle = 22.5f, string groupId = null)
         {
             this.root = root;
             MaxSearchAngle = searchAngle;
             navigationMapping = new Dictionary<Entry, DirectionMap>();
             focusMapping = new Dictionary<IFocusable, DirectionMap>();
+
+            if (groupId != null)
+                GroupId = groupId;
         }
 
         public void CalculateConnections()
@@ -101,6 +110,13 @@ namespace UCGUI
         }
 
         public void Set(BaseComponent of, Direction dir, BaseComponent to) => Set(new Entry(of), dir, new Entry(to));
+
+        /// <inheritdoc cref="NavigationNode.SetSubdivisions"/>
+        /// Starts at the root node, which recursively applies it to all of its children.
+        public void SetNodeSubdivisions(int vertical, int horizontal)
+        {
+            root?.SetSubdivisionsRecursive(vertical, horizontal);
+        }
         
         private DirectionMap? GetActiveMap()
         {

@@ -11,18 +11,18 @@ namespace UCGUI
     public class NavigationNode
     {
         private NavigationNode parent;
-        private readonly List<NavigationNode> children;
-        private readonly Dictionary<NavigationNode, Vector2[]> childrenHitPoints;
-        private readonly List<Entry> targets;
-        private readonly Dictionary<Entry, Vector2[]> targetHitPoints;
+        private List<NavigationNode> children;
+        private Dictionary<NavigationNode, Vector2[]> childrenHitPoints;
+        private List<Entry> targets;
+        private Dictionary<Entry, Vector2[]> targetHitPoints;
 
         private Vector2? sizeDelta;
         private Vector2? position;
         
-        const int verticalSubdivisions = 1;
-        const int horizontalSubdivisions = 1;
+        private int verticalSubdivisions = 1;
+        private int horizontalSubdivisions = 1;
 
-        public string name;
+        public readonly string name;
 
         private DirectionMap? entryMap;
 
@@ -47,15 +47,45 @@ namespace UCGUI
         public NavigationNode(string n, params IFocusable[] targets)
         {
             name = n;
-            this.targets = targets.Select(t => new Entry(t)).ToList();
+            this.targets = new List<Entry>();
             targetHitPoints = new Dictionary<Entry, Vector2[]>();
-            foreach (var entry in this.targets)
-            {
-                List<Vector2> positions = new List<Vector2>(){ entry.gameObject.transform.position };
-                CalculateCrossHitpoints(entry.gameObject.transform.position, entry.gameObject.GetRect().sizeDelta, horizontalSubdivisions, verticalSubdivisions,  positions);
-                targetHitPoints.Add(entry, positions.ToArray());
-            }
+            foreach (var entry in targets)
+                AddTarget(new Entry(entry));
             entryMap = new DirectionMap();
+        }
+
+        private void ConvertToLeaf()
+        {
+            if (IsLeaf())
+                return;
+
+            children = null;
+            childrenHitPoints = null;
+            
+            targets = new List<Entry>();
+            targetHitPoints = new Dictionary<Entry, Vector2[]>();
+            entryMap = new DirectionMap();
+        }
+
+        /// <summary>
+        /// Sets the amount of subdivisions which are performed when calculating the hit-points for the node.
+        /// </summary>
+        public void SetSubdivisions(int vertical, int horizontal)
+        {
+            verticalSubdivisions = vertical;
+            horizontalSubdivisions = horizontal;
+        }
+        
+        /// <inheritdoc cref="SetSubdivisions(int, int)"/>
+        /// Additionally sets the subdivision count for all children recursively.
+        public void SetSubdivisionsRecursive(int vertical, int horizontal)
+        {
+            SetSubdivisions(vertical, horizontal);
+            if (!IsLeaf())
+            {
+                foreach (var navigationNode in children)
+                    navigationNode.SetSubdivisionsRecursive(vertical, horizontal);
+            }
         }
 
         private void CalculateCrossHitpoints(Vector2 center, Vector2 dimensions, int hSubdivisions, int vSubdivisions, List<Vector2> elements)
@@ -239,11 +269,20 @@ namespace UCGUI
                 _AddChild(navigationNode);
         }
         
-        public void AddTarget(Entry node)
+        private void AddTarget(Entry node)
         {
             if (!IsLeaf())
-                throw new InvalidOperationException("[NavigationNode]: Can't add target to non-leaf node.");
+            {
+                if (children.Count != 0)
+                    throw new InvalidOperationException("[NavigationNode]: Can't add target to non-leaf node.");
+                
+                // node was internally not a leaf, however no children were added yet so we can safely convert it to a leaf.
+                ConvertToLeaf();
+            }
             
+            List<Vector2> positions = new List<Vector2>(){ node.gameObject.transform.position };
+            CalculateCrossHitpoints(node.gameObject.transform.position, node.gameObject.GetRect().sizeDelta, horizontalSubdivisions, verticalSubdivisions,  positions);
+            targetHitPoints.Add(node, positions.ToArray());
             targets.Add(node);
             Invalidate();
         }

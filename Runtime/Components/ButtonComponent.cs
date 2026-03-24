@@ -260,7 +260,7 @@ namespace UCGUI
             
             public ImageComponent ImageSize(Vector2 size)
             {
-                _button.ImageSize(size);
+                _button.MinImageSize(size);
                 return _button.image;
             }
             

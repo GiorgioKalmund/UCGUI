@@ -180,3 +180,10 @@
 ### Label Consistency
 - Flipped the default LabelComponent ordering to not have 'ReverseArrengement' set to true, whilst maintaining the same visual layout.
 - Fixed an issue for where SwitchLayouts would not properly copy over their ContentSizeFitter properties when using 'ICopyable.Copy'.
+ 
+## [1.0.24] - 2026-03-24
+### Smaller Fixes & Adjustments
+- Fixed an issue where a View would still block interaction while closed.
+- Fixed a problem where every NavigationGroup would be part of the same focus group.
+- Properly added support for '.AddTarget' for empty NavigationNodes.
+- Renamed 'ImageSize' to 'MinImageSize' to make it clearer that this only controls the minium size.
