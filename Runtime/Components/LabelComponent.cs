@@ -109,7 +109,13 @@ namespace UCGUI
             return _text != null;
         }
 
-        public LabelComponent Init(string s, Sprite sprite = null)
+        public LabelComponent Init(string s)
+        {
+            text.Text(s);
+            return this;
+        }
+        
+        public LabelComponent Init(string s, Sprite sprite)
         {
             if (sprite != null)
                 image.Sprite(sprite);

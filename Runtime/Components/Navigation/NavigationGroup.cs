@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UGUI;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using Entry = UCGUI.DirectionMap.Entry;
@@ -28,7 +30,7 @@ namespace UCGUI
         private Entry activeEntry;
         private NavigationNode root;
         public float MaxSearchAngle { get; }
-        public string GroupId { get; private set; } = GUID.Generate().ToString();
+        public string GroupId { get; private set; } = UnityEngine.Random.ColorHSV(0f, 1f, 0f, 1f, 0f, 1f, 0f, 1f).ToHexString(); 
 
         /// <summary>
         /// Creates a new NavigationGroup.
@@ -47,7 +49,12 @@ namespace UCGUI
                 GroupId = groupId;
         }
 
-        public void CalculateConnections()
+        /// <summary>
+        /// Calculates the LRUD-connections of the group, starting from the group's root node.
+        /// </summary>
+        /// <param name="thenStartWith">Optional - Focuses the given element AFTER the connections have been calculated.
+        /// <i>This is to avoid mishaps where the desired starting element is focused BEFORE the connections have been calculated, resulting in an incorrect state.</i></param>
+        public void CalculateConnections(IFocusable thenStartWith = null)
         {
             if (root == null)
                 UCGUILogger.LogWarning("[NavigationGroup]: No root to calculate connections.");
@@ -60,6 +67,8 @@ namespace UCGUI
                     return p.Key.focus;
                 },
                 p => p.Value);
+            
+            thenStartWith?.Focus();
         }
 
         public void Print()
@@ -101,15 +110,32 @@ namespace UCGUI
             active?.Interact();
         }
         
-        public void Set(Entry of, Direction dir, Entry to)
+        public void Set(Entry of, Direction dir, Entry to, bool bidirectional = false)
         {
-            navigationMapping.TryGetValue(of, out var map);
+            if (!navigationMapping.TryGetValue(of, out var map))
+            {
+                UCGUILogger.LogWarning($"[NavigationGroup]: {of.gameObject.name} is not part of this group! Cannot link {dir} to {to.gameObject.name}.");
+            };
             map.Assign(to, dir);
             focusMapping[of.focus] = map;
             navigationMapping[of] = map;
+            
+            if (bidirectional)
+                Set(to, dir.GetOpposite(), of);
         }
 
-        public void Set(BaseComponent of, Direction dir, BaseComponent to) => Set(new Entry(of), dir, new Entry(to));
+        public void Set(BaseComponent of, Direction dir, BaseComponent to, bool bidirectional = false) => Set(new Entry(of), dir, new Entry(to), bidirectional);
+
+        public DirectionMap Get(Entry of)
+        {
+            if (!navigationMapping.TryGetValue(of, out var map))
+            {
+                UCGUILogger.LogWarning($"[NavigationGroup]: {of.gameObject.name} is not part of this group! Cannot get corresponding DirectionMap.");
+            };
+            return map;
+        }
+        
+        public DirectionMap Get(BaseComponent of) => Get(new Entry(of));
 
         /// <inheritdoc cref="NavigationNode.SetSubdivisions"/>
         /// Starts at the root node, which recursively applies it to all of its children.

@@ -74,7 +74,7 @@ namespace UCGUI.Services
         private static Dictionary<Type, MonoBehaviour> _instances = new();
 
         /// <summary>
-        /// Creates a Singleton-like Instance of for this class, storing it in a static map.
+        /// Creates a Singleton-like instance of for this class, storing it in a static map.
         /// </summary>
         /// <param name="behaviour">The <see cref="MonoBehaviour"/> to make an Instance.</param>
         /// <param name="replaceOld">Whether to delete and replace the previous Instance (if present) before creating a new one. Defaults to true.</param>
@@ -97,7 +97,7 @@ namespace UCGUI.Services
         } 
 
         /// <summary>
-        /// Creates a new Singleton-like Instance for this class.
+        /// Creates a new Singleton-like instance for this class.
         /// </summary>
         /// <typeparam name="T">The <see cref="MonoBehaviour"/> type to create an Instance for.</typeparam>
         /// <returns>The newly created instance.</returns>
@@ -112,7 +112,7 @@ namespace UCGUI.Services
         }
 
         /// <summary>
-        /// Deletes an Instance with its corresponding GameObject.
+        /// Deletes an instance with its corresponding GameObject.
         /// </summary>
         /// <typeparam name="T">The <see cref="MonoBehaviour"/> type to delete the Instance of.</typeparam>
         /// <returns>Whether the deletion was successful, aka. if there was an Instance to destroy in the first place.</returns>
@@ -129,19 +129,35 @@ namespace UCGUI.Services
         }
 
         /// <summary>
-        /// Finds and Instance for the given type.
+        /// Finds an instance for the given type.
         /// </summary>
         /// <typeparam name="T">The <see cref="MonoBehaviour"/> type to grab the Instance of.</typeparam>
         /// <returns>The Instance of that type if one was created, else null.</returns>
         [CanBeNull]
         public static T GetInstance<T>() where T : MonoBehaviour
         {
+            var instance = TryGetInstance<T>();
+            
+            if (!instance)
+                UCGUILogger.LogWarning($"ComponentFinder: Attempted to get and Instance which was not registered yet! " +
+                                       $"Try calling ComponentFinder.CreateInstance<{typeof(T).Name}> or using ComponentFinder.PutInstance()!");
+            return instance;
+        }
+
+        /// <summary>
+        /// Tries finding an instance for the given type.
+        /// </summary>
+        /// <typeparam name="T">The <see cref="MonoBehaviour"/> type to grab the Instance of.</typeparam>
+        /// <returns>The Instance of that type if one was created, else null.</returns>
+        [CanBeNull]
+        public static T TryGetInstance<T>() where T : MonoBehaviour
+        {
             if (_instances.TryGetValue(typeof(T), out var value))
             {
                 return (T)value;
             }
             UCGUILogger.LogWarning($"ComponentFinder: Attempted to get and Instance which was not registered yet! " +
-                                       $"Try calling ComponentFinder.CreateInstance<{typeof(T).Name}> or using ComponentFinder.PutInstance()!");
+                                   $"Try calling ComponentFinder.CreateInstance<{typeof(T).Name}> or using ComponentFinder.PutInstance()!");
             return null;
         }
     }

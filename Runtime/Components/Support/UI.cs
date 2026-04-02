@@ -11,8 +11,7 @@ namespace UCGUI
         public static string DefaultName => "Component";
 
         // Object creation
-        public static GameObject CreateEmptyGameObjectWithParent(Transform parent, bool worldPositionStays,
-            string name = "")
+        public static GameObject CreateEmptyGameObjectWithParent(Transform parent, bool worldPositionStays, string name)
         {
             GameObject toReturn = new GameObject(name);
             toReturn.AddComponent<RectTransform>();
@@ -30,7 +29,7 @@ namespace UCGUI
         public static T N<T>( Transform parent = null, bool worldPositionStays = false)
             where T : BaseComponent
         {
-            GameObject toReturn = CreateEmptyGameObjectWithParent(parent, worldPositionStays);
+            GameObject toReturn = CreateEmptyGameObjectWithParent(parent, worldPositionStays, typeof(T).ToString());
             var t = toReturn.AddComponent<T>();
             return t;
         }
@@ -225,6 +224,11 @@ namespace UCGUI
         // Set Size 
         public static T Size<T>(this T renderable, Vector2 sizeDelta) where T : BaseComponent
         {
+            if (renderable.ContentSizeFitter)
+            {
+                renderable.ContentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+                renderable.ContentSizeFitter.verticalFit = ContentSizeFitter.FitMode.Unconstrained;
+            }
             var old = renderable.GetRect().sizeDelta;
             renderable.GetRect().sizeDelta = sizeDelta;
             renderable.HandleSizeChanged(sizeDelta.x, sizeDelta.y);
@@ -245,12 +249,28 @@ namespace UCGUI
 
         public static T Width<T>(this T renderable, float width) where T : BaseComponent
         {
-            return Size(renderable, width, renderable.GetHeight());
+            if (renderable.ContentSizeFitter)
+                renderable.ContentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            var old = renderable.GetRect().sizeDelta;
+            var newSize = renderable.GetRect().sizeDelta;
+            newSize.x = width;
+            renderable.GetRect().sizeDelta = newSize;
+            renderable.HandleSizeChanged(newSize.x, newSize.y);
+            renderable.HandleSizeChanged(old, newSize);
+            return renderable;
         }
 
         public static T Height<T>(this T renderable, float height) where T : BaseComponent
         {
-            return Size(renderable, renderable.GetWidth(), height);
+            if (renderable.ContentSizeFitter)
+                renderable.ContentSizeFitter.verticalFit = ContentSizeFitter.FitMode.Unconstrained;
+            var old = renderable.GetRect().sizeDelta;
+            var newSize = renderable.GetRect().sizeDelta;
+            newSize.y = height;
+            renderable.GetRect().sizeDelta = newSize;
+            renderable.HandleSizeChanged(newSize.x, newSize.y);
+            renderable.HandleSizeChanged(old, newSize);
+            return renderable;
         }
 
         public static Vector2 GetSize<T>(this T renderable) where T : BaseComponent
@@ -261,12 +281,12 @@ namespace UCGUI
         // Add Size
         public static T AddHeight<T>(this T renderable, float extraHeight) where T : BaseComponent
         {
-            return Size(renderable, renderable.GetWidth(), renderable.GetHeight() + extraHeight);
+            return Height(renderable, renderable.GetHeight() + extraHeight);
         }
 
         public static T AddWidth<T>(this T renderable, float extraWidth) where T : BaseComponent
         {
-            return Size(renderable, renderable.GetWidth() + extraWidth, renderable.GetHeight());
+            return Width(renderable, renderable.GetWidth() + extraWidth);
         }
 
         // Scaling
@@ -443,6 +463,53 @@ namespace UCGUI
             AnchorMax(renderable, 1, 1);
             return renderable;
         }
+        
+        // Padding
+        
+        /// <summary>
+        /// Controls the padding of <see cref="HorizontalLayout"/> and <see cref="VerticalLayout"/>.
+        /// </summary>
+        /// <param name="padding">A <see cref="RectOffset"/> specifying the padding amounts on every side.</param>
+        /// <param name="direction">Which layout to apply it to. Defaults to <see cref="ScrollViewDirection.Both"/>,
+        /// but will only apply if the layout of that direction is present!</param>
+        public static T Padding<T>(this T renderable, RectOffset padding, ScrollViewDirection direction = ScrollViewDirection.Both) where T : BaseComponent
+        {
+            if (direction.HasFlag(ScrollViewDirection.Vertical) && renderable.VerticalLayout)
+            {
+                renderable.VerticalLayout.padding = padding;
+            }
+            if (direction.HasFlag(ScrollViewDirection.Horizontal) && renderable.HorizontalLayout)
+            {
+                renderable.HorizontalLayout.padding = padding;
+            }
+            return renderable;
+        }
+        
+        /// <summary>
+        /// Controls the padding of <see cref="HorizontalLayout"/> and <see cref="VerticalLayout"/>.
+        /// </summary>
+        /// <param name="side">The <see cref="PaddingSide"/> to apply the padding.</param>
+        /// <param name="amount">The padding amount.</param>
+        /// <param name="direction">Which layout to apply it to. Defaults to <see cref="ScrollViewDirection.Both"/>,
+        /// but will only apply if the layout of that direction is present!</param>
+        public static T Padding<T>(this T renderable, PaddingSide side, int amount, ScrollViewDirection direction = ScrollViewDirection.Both) where T : BaseComponent
+        {
+            if (side.HasFlag(PaddingSide.Leading)) { if (renderable.HorizontalLayout && direction.HasFlag(ScrollViewDirection.Horizontal)) renderable.HorizontalLayout.padding.left = amount; if (renderable.VerticalLayout&& direction.HasFlag(ScrollViewDirection.Vertical)) renderable.VerticalLayout.padding.left = amount;}
+            if (side.HasFlag(PaddingSide.Trailing)) { if (renderable.HorizontalLayout&& direction.HasFlag(ScrollViewDirection.Horizontal)) renderable.HorizontalLayout.padding.right = amount;  if (renderable.VerticalLayout&& direction.HasFlag(ScrollViewDirection.Vertical)) renderable.VerticalLayout.padding.right = amount;}
+            if (side.HasFlag(PaddingSide.Top)) { if (renderable.HorizontalLayout&& direction.HasFlag(ScrollViewDirection.Horizontal)) renderable.HorizontalLayout.padding.top = amount;  if (renderable.VerticalLayout&& direction.HasFlag(ScrollViewDirection.Vertical)) renderable.VerticalLayout.padding.top= amount;}
+            if (side.HasFlag(PaddingSide.Bottom)) { if (renderable.HorizontalLayout&& direction.HasFlag(ScrollViewDirection.Horizontal)) renderable.HorizontalLayout.padding.bottom = amount;  if (renderable.VerticalLayout&& direction.HasFlag(ScrollViewDirection.Vertical)) renderable.VerticalLayout.padding.bottom = amount;}
+            return renderable;
+        }
+
+        /// <summary>
+        /// Applies padding to <see cref="PaddingSide.All"/> for <see cref="HorizontalLayout"/> and <see cref="VerticalLayout"/>.
+        /// </summary>
+        /// <param name="amount">The padding amount.</param>
+        /// <param name="direction">Which layout to apply it to. Defaults to <see cref="ScrollViewDirection.Both"/>,
+        /// but will only apply if the layout of that direction is present!</param>
+        public static T Padding<T>(this T renderable, int amount, ScrollViewDirection direction = ScrollViewDirection.Both) where T : BaseComponent =>
+            Padding<T>(renderable, PaddingSide.All, amount, direction);
+
         
         // Hierarchy
         public static T NthSibling<T>(this T renderable, int n) where T : BaseComponent

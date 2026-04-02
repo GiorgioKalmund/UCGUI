@@ -51,7 +51,7 @@ namespace UCGUI
 
         public ScrollViewComponent ContentPadding(PaddingSide side, int amount)
         {
-            Padding(side, amount);
+            this.Padding(side, amount);
             return this;
         }
 

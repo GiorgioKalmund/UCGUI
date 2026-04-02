@@ -187,3 +187,19 @@
 - Fixed a problem where every NavigationGroup would be part of the same focus group.
 - Properly added support for '.AddTarget' for empty NavigationNodes.
 - Renamed 'ImageSize' to 'MinImageSize' to make it clearer that this only controls the minium size.
+
+## [1.0.25] - 2026-04-02
+### NavGroup & ViewStack Improvements, Native Waits and Fixes
+- Fixed an issue where in the NavigationGroup where setting entries manually would overwrite the existing DirectionMap due `Entry` keys not being found, as they were missing the `IEquatable` annotation.
+- Fixed an issue where the NavigationGroup GroupId depended on the UnityEditor package which is not available for builds.
+  - GroupIds are now randomized by generating a random color value and representing it as a hex string.
+- NavigationGroups now also allow querying the related DirectionMap for an element.
+- Setting Entries in a NavigationGroup now allows for a 'bidirectional' parameter which automatically adds the respective link for the opposite direction as well.
+- ViewStacks now support two new operations:
+  - `IsEmpty` returns true if the stack is empty.
+  - `ReplaceTop` replaces the upmost element with a new specified view by first popping it and then pushing the new view. This is primarily for quality of life.
+- The BaseComponent class now has a built in Coroutine which can wait for 1 or more frames before performing an action. This might be helpful in certain situations where logic depends on the final layout of the UI.
+- The ComponentFinder now supports a relaxed `TryGetInstance` function which will not print an issue if no instance was found for a given type.
+- The LabelComponent has a dedicated string-only initializer to remove the case where no Sprite was used for initialization but due to ambiguous method invokation the parameter could not be left out.
+- Fixed copy behaviour for layout-dependent components like buttons and H/V-stacks.
+- Moved 'Padding' to the generic [UI Support class](Runtime/Components/Support/UI.cs) to avoid type confusion and casting issues.

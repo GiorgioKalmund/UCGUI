@@ -7,7 +7,7 @@ namespace UCGUI {
     
     public struct DirectionMap
     {
-        public class Entry
+        public class Entry : IEquatable<Entry>
         {
             internal IFocusable focus;
             internal BaseComponent gameObject;
@@ -26,6 +26,26 @@ namespace UCGUI {
             public Entry(BaseComponent obj) : this(obj, obj as IFocusable ?? throw new ArgumentException($"[Entry]: {obj.name} is not of type IFocusable!"))
             {
                 
+            }
+
+            public bool Equals(Entry other)
+            {
+                if (other is null) return false;
+                if (ReferenceEquals(this, other)) return true;
+                return Equals(focus, other.focus) && Equals(gameObject, other.gameObject);
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (obj is null) return false;
+                if (ReferenceEquals(this, obj)) return true;
+                if (obj.GetType() != GetType()) return false;
+                return Equals((Entry)obj);
+            }
+
+            public override int GetHashCode()
+            {
+                return HashCode.Combine(focus, gameObject);
             }
         }
         

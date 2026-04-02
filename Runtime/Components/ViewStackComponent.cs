@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Events;
 
 namespace UCGUI
@@ -159,6 +160,28 @@ namespace UCGUI
             int size = stack.Count;
             for (var i = 0; i < size; i++)
                 Pop();
+        }
+
+        /// <summary>
+        /// Whether the ViewStack is empty, aka. there are currently no elements part of it.
+        /// </summary>
+        public bool IsEmpty()
+        {
+            return stack.Count == 0;
+        }
+
+        /// <summary>
+        /// Shorthand for replacing the top most view with a new view. Closes the top view and then pushes the new view onto the stack.
+        /// </summary>
+        /// <param name="with">The new view to replace the previous top view.</param>
+        public virtual void ReplaceTop(AbstractViewComponent with)
+        {
+            if (IsEmpty())
+                UCGUILogger.LogWarning("[ViewStackComponent]: ReplaceTop was invoked but the stack is empty. Consider calling 'Push' instead.");
+            else
+                Pop();
+            
+            Push(with);
         }
     }
 }

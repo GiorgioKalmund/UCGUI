@@ -33,18 +33,6 @@ namespace UCGUI
             }
         }
 
-        public override BaseComponent HandleSizeChanged(Vector2 old, Vector2 updated)
-        {
-            if (ContentSizeFitter)
-            {
-                if (!updated.x.Equals(old.x))
-                    ContentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
-                if (!updated.y.Equals(old.y))
-                    ContentSizeFitter.verticalFit = ContentSizeFitter.FitMode.Unconstrained;
-            }
-            return base.HandleSizeChanged(old, updated);
-        }
-
         /// <summary>
         /// Marks this element for rebuild inside the Canvas. 
         /// </summary>

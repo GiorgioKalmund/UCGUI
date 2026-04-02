@@ -49,7 +49,7 @@ namespace UCGUI
         public ButtonComponent FitToContents(PaddingSide side, int amount, float spacing, ScrollViewDirection direction = ScrollViewDirection.Both)
         {
             AddFitter(direction);
-            Padding(side, amount, direction);
+            this.Padding(side, amount, direction);
             Spacing(spacing);
             return this;
         }
@@ -162,7 +162,11 @@ namespace UCGUI
         public virtual ButtonComponent CopyFrom(ButtonComponent other, bool fullyCopyRect = true)
         {
             if (other.ContentSizeFitter)
+            {
                 FitToContents();
+                ContentSizeFitter.horizontalFit = other.ContentSizeFitter.horizontalFit;
+                ContentSizeFitter.verticalFit = other.ContentSizeFitter.verticalFit;
+            }
             
             base.CopyFrom(other, fullyCopyRect);
             button.CopyFrom(other.button);

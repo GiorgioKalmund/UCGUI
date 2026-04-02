@@ -1,6 +1,8 @@
+using System.Collections;
 using UCGUI.Services;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 #if UNITY_EDITOR
@@ -255,50 +257,6 @@ namespace UCGUI
             return this;
         }
 
-        /// <summary>
-        /// Controls the padding of <see cref="HorizontalLayout"/> and <see cref="VerticalLayout"/>.
-        /// </summary>
-        /// <param name="padding">A <see cref="RectOffset"/> specifying the padding amounts on every side.</param>
-        /// <param name="direction">Which layout to apply it to. Defaults to <see cref="ScrollViewDirection.Both"/>,
-        /// but will only apply if the layout of that direction is present!</param>
-        public BaseComponent Padding(RectOffset padding, ScrollViewDirection direction = ScrollViewDirection.Both)
-        {
-            if (direction.HasFlag(ScrollViewDirection.Vertical) && VerticalLayout)
-            {
-                VerticalLayout.padding = padding;
-            }
-            if (direction.HasFlag(ScrollViewDirection.Horizontal) && HorizontalLayout)
-            {
-                HorizontalLayout.padding = padding;
-            }
-            return this;
-        }
-        
-        /// <summary>
-        /// Controls the padding of <see cref="HorizontalLayout"/> and <see cref="VerticalLayout"/>.
-        /// </summary>
-        /// <param name="side">The <see cref="PaddingSide"/> to apply the padding.</param>
-        /// <param name="amount">The padding amount.</param>
-        /// <param name="direction">Which layout to apply it to. Defaults to <see cref="ScrollViewDirection.Both"/>,
-        /// but will only apply if the layout of that direction is present!</param>
-        public BaseComponent Padding(PaddingSide side, int amount, ScrollViewDirection direction = ScrollViewDirection.Both)
-        {
-            if (side.HasFlag(PaddingSide.Leading)) { if (HorizontalLayout && direction.HasFlag(ScrollViewDirection.Horizontal)) HorizontalLayout.padding.left = amount; if (VerticalLayout&& direction.HasFlag(ScrollViewDirection.Vertical)) VerticalLayout.padding.left = amount;}
-            if (side.HasFlag(PaddingSide.Trailing)) { if (HorizontalLayout&& direction.HasFlag(ScrollViewDirection.Horizontal)) HorizontalLayout.padding.right = amount;  if (VerticalLayout&& direction.HasFlag(ScrollViewDirection.Vertical)) VerticalLayout.padding.right = amount;}
-            if (side.HasFlag(PaddingSide.Top)) { if (HorizontalLayout&& direction.HasFlag(ScrollViewDirection.Horizontal)) HorizontalLayout.padding.top = amount;  if (VerticalLayout&& direction.HasFlag(ScrollViewDirection.Vertical)) VerticalLayout.padding.top= amount;}
-            if (side.HasFlag(PaddingSide.Bottom)) { if (HorizontalLayout&& direction.HasFlag(ScrollViewDirection.Horizontal)) HorizontalLayout.padding.bottom = amount;  if (VerticalLayout&& direction.HasFlag(ScrollViewDirection.Vertical)) VerticalLayout.padding.bottom = amount;}
-            return this;
-        }
-        
-        /// <summary>
-        /// Applies padding to <see cref="PaddingSide.All"/> for <see cref="HorizontalLayout"/> and <see cref="VerticalLayout"/>.
-        /// </summary>
-        /// <param name="amount">The padding amount.</param>
-        /// <param name="direction">Which layout to apply it to. Defaults to <see cref="ScrollViewDirection.Both"/>,
-        /// but will only apply if the layout of that direction is present!</param>
-        public BaseComponent Padding(int amount, ScrollViewDirection direction = ScrollViewDirection.Both) =>
-            Padding(PaddingSide.All, amount, direction);
-
 
 
         public virtual BaseComponent Copy(bool fullyCopyRect = true)
@@ -330,5 +288,39 @@ namespace UCGUI
         /// Registers this object as an instance of its class in the <see cref="ComponentFinder"/> instances map.
         /// </summary>
         public void RegisterInstance(bool replaceOld) => ComponentFinder.PutInstance(this, replaceOld);
+
+        /// <summary>
+        ///  Global WaitForEndOfFrame instance to avoid new allocation every time.
+        /// </summary>
+        private static readonly WaitForEndOfFrame EndOfFrameInstance = new ();
+        
+        /// <summary>
+        /// Waits exactly 1 frame before executing a given action. Helpful for UI work.
+        /// </summary>
+        /// <param name="then">The action to perform after waiting has completed.</param>
+        protected void Wait1Frame(UnityAction then) => WaitNFrames(1, then);
+        
+        /// <summary>
+        /// Waits a specified amount of frames before executing a given action. Helpful for UI work.
+        /// </summary>
+        /// <param name="n">The amount of frames to wait.</param>
+        /// <param name="then">The action to perform after waiting has completed.</param>
+        protected void WaitNFrames(int n, UnityAction then)
+        {
+            StartCoroutine(WaitNFramesRoutine(n, then));
+        }
+        /// <summary>
+        /// Coroutine which waits a specified amount of frames before executing a given action. Helpful for UI work.
+        /// </summary>
+        /// <param name="n">The amount of frames to wait.</param>
+        /// <param name="then">The action to perform after waiting has completed.</param>
+        private IEnumerator WaitNFramesRoutine(int n, UnityAction then)
+        {
+            for (int i = 0; i < n; i++)
+            {
+                yield return EndOfFrameInstance;
+            }
+            then?.Invoke();
+        }
     }
 }
