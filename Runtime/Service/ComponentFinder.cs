@@ -85,7 +85,7 @@ namespace UCGUI.Services
             if (replaceOld)
                 DeleteInstance<T>();
             
-            if (!_instances.TryAdd(behaviour.GetType(), behaviour))
+            if (!_instances.TryAdd(typeof(T), behaviour))
             {
                 UCGUILogger.LogError($"Trying to register an Instance of type {behaviour.GetType()}, " +
                                        $"but there is already an Instance registered for that type. " +
@@ -156,8 +156,6 @@ namespace UCGUI.Services
             {
                 return (T)value;
             }
-            UCGUILogger.LogWarning($"ComponentFinder: Attempted to get and Instance which was not registered yet! " +
-                                   $"Try calling ComponentFinder.CreateInstance<{typeof(T).Name}> or using ComponentFinder.PutInstance()!");
             return null;
         }
     }
