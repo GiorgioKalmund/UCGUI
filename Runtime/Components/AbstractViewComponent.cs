@@ -190,13 +190,13 @@ namespace UCGUI
         /// Internal shorthand handler which is invoked when this view is part of a ViewStack and becomes its new top element.
         /// Either when the view is pushed or when the previous top of the stack was popped and this view is next.
         /// </summary>
-        internal virtual void HandleViewStackReveal() { }
+        public virtual void HandleViewStackReveal() { }
         
         /// <summary>
         /// Internal shorthand handler which is invoked when this view is part of a ViewStack stops being its new top element.
         /// Either when the view is popped or when another view is pushed on top of it.
         /// </summary>
-        internal virtual void HandleViewStackHide() { }
+        public virtual void HandleViewStackHide() { }
 
         /// <summary>
         /// Opens and re-renders the view.
