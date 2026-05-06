@@ -23,14 +23,16 @@ namespace UCGUI
     /// </remarks>
     /// </summary>
     ///
-    public class NavigationGroup
+    public class NavigationGroup : IEnabled
     {
         private Dictionary<Entry, DirectionMap> navigationMapping;
         private Dictionary<IFocusable, DirectionMap> focusMapping;
         private Entry activeEntry;
         private NavigationNode root;
         public float MaxSearchAngle { get; }
-        public string GroupId { get; private set; } = UnityEngine.Random.ColorHSV(0f, 1f, 0f, 1f, 0f, 1f, 0f, 1f).ToHexString(); 
+        public string GroupId { get; private set; } = UnityEngine.Random.ColorHSV(0f, 1f, 0f, 1f, 0f, 1f, 0f, 1f).ToHexString();
+
+        public bool IsEnabled { get; private set; } = false;
 
         /// <summary>
         /// Creates a new NavigationGroup.
@@ -80,23 +82,37 @@ namespace UCGUI
             }
         }
 
+        #region NavigationActions
+
         public void Left()
         {
+            if (!IsEnabled)
+                return;
+            
             GetActiveMap()?.left?.focus.Focus();
         }
         
         public void Right()
         {
+            if (!IsEnabled)
+                return;
+            
             GetActiveMap()?.right?.focus.Focus();
         }
         
         public void Up()
         {
+            if (!IsEnabled)
+                return;
+            
             GetActiveMap()?.up?.focus.Focus();
         }
         
         public void Down()
         {
+            if (!IsEnabled)
+                return;
+            
             GetActiveMap()?.down?.focus.Focus();
         }
 
@@ -106,10 +122,18 @@ namespace UCGUI
         /// </summary>
         public void Interact()
         {
+            if (!IsEnabled)
+                return;
+            
             var active = IFocusable.GetFocusedElement(GroupId) as IInteractable;
             active?.Interact();
         }
         
+
+        #endregion
+
+        #region NavigationModification
+
         public void Set(Entry of, Direction dir, Entry to, bool bidirectional = false)
         {
             if (!navigationMapping.TryGetValue(of, out var map))
@@ -143,6 +167,8 @@ namespace UCGUI
         {
             root?.SetSubdivisionsRecursive(vertical, horizontal);
         }
+
+        #endregion
         
         private DirectionMap? GetActiveMap()
         {
@@ -201,5 +227,10 @@ namespace UCGUI
             }
         }
 #endif
+        
+        public void Enabled(bool on)
+        {
+            IsEnabled = on;
+        }
     }
 }

@@ -11,6 +11,11 @@ using UnityEditor;
 
 namespace UCGUI
 {
+    public enum ViewStatus
+    {
+        Opened, Closed, Revealed, Hidden
+    }
+    
     /// UCGUI's framework for creation view-like components.
     /// Implements <see cref="IRenderable"/>.
     public abstract class AbstractViewComponent : ImageComponent, IRenderable
@@ -91,6 +96,25 @@ namespace UCGUI
                 return onStackHide;
             }
             protected set => onStackHide = value;
+        }
+
+        #endregion
+        
+        #region OnStatusChanged
+
+        internal UnityEvent<ViewStatus> onStatusChanged;
+
+        /// <summary>
+        /// Event fired when certain actions are performed according to the available <see cref="ViewStatus"/> options.
+        /// </summary>
+        public UnityEvent<ViewStatus> OnStatusChanged
+        {
+            get
+            {
+                onStatusChanged ??= new UnityEvent<ViewStatus>();
+                return onStatusChanged;
+            }
+            set => onStatusChanged = value;
         }
 
         #endregion
@@ -226,6 +250,7 @@ namespace UCGUI
             this.BringToFront();
 
             _onOpen?.Invoke();
+            onStatusChanged?.Invoke(ViewStatus.Opened);
            
             Render();
         }
@@ -269,6 +294,7 @@ namespace UCGUI
             IsOpen = false;
 
             _onClose?.Invoke();
+            onStatusChanged?.Invoke(ViewStatus.Closed);
         }
 
         /// <summary>
@@ -401,6 +427,7 @@ namespace UCGUI
         {
             viewStackComponent = stackComponent;
             onStackReveal?.Invoke();
+            onStatusChanged?.Invoke(ViewStatus.Revealed);
             HandleViewStackReveal();
             return this;
         }
@@ -413,6 +440,7 @@ namespace UCGUI
         public AbstractViewComponent LeaveStack()
         {
             onStackHide?.Invoke();
+            onStatusChanged?.Invoke(ViewStatus.Hidden);
             HandleViewStackHide();
             viewStackComponent = null;
             return this;

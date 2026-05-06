@@ -66,9 +66,15 @@ namespace UCGUI
         /// <seealso cref="MinImageSize(float,float)"/>
         public LabelComponent MinImageSize(Vector2 size)
         {
-            _image?.AddLayoutElement(size, size);
+            _image?.MinimumSize(size);
             return this;
-        } 
+        }
+
+        public LabelComponent PrefImageSize(Vector2 size)
+        {
+            _image?.PreferredSize(size);
+            return this;
+        }
 
         public override LabelComponent FitToContents(bool fit = true)
         {

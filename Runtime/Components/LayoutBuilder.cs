@@ -16,6 +16,7 @@ namespace UCGUI
 
         public void Padding(RectOffset padding) => _relevantLayout.padding = padding;
         
+        public void Padding(int amount) => _relevantLayout.Padding(PaddingSide.All, amount);
         public void Padding(PaddingSide side, int amount) => _relevantLayout.Padding(side, amount);
         public void PaddingAdd(PaddingSide side, int amount) => _relevantLayout.PaddingAdd(side, amount);
         public void ReverseArrangement(bool reverse = true) => _relevantLayout.reverseArrangement = reverse;

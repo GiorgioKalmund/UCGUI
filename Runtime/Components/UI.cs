@@ -12,17 +12,27 @@ namespace UCGUI
     public partial class UI
     {
         /// <summary>
+        /// UCGUI's default Empty. Will be sized 0x0.
+        /// </summary>
+        /// <param name="parent">Optional parent in the hierarchy.</param>
+        /// <param name="name">Optional name for identification.</param>
+        /// <returns>The resulting UCGUI <see cref="BaseComponent"/>.</returns>
+        public static BaseComponent Empty(MonoBehaviour parent = null, string name = null)
+        {
+            BaseComponent empty = N<BaseComponent>();
+            empty.Size(0, 0);
+            empty.Parent(parent);
+            if (name != null)
+                empty.DisplayName = name;
+            return empty;
+        }
+        
+        /// <summary>
         /// UCGUI's default Text Component.
         /// </summary>
-        /// <param name="text">
-        /// The text to display.
-        /// </param>
-        /// <param name="color">
-        /// Optional <see cref="Color"/> of the font. Defaults to TextMeshPro's default.
-        /// </param>
-        /// <returns>
-        /// The resulting UCGUI <see cref="TextComponent"/>. Use this to then continue building your desired Text Component.
-        /// </returns>
+        /// <param name="text">The text to display.</param>
+        /// <param name="color">Optional <see cref="Color"/> of the font. Defaults to TextMeshPro's default.</param>
+        /// <returns>The resulting UCGUI <see cref="TextComponent"/>. Use this to then continue building your desired Text Component.</returns>
         public static TextComponent Text(string text = null, Color? color = null)
         {
             TextComponent textComponent = N<TextComponent>();
@@ -53,18 +63,10 @@ namespace UCGUI
         /// <summary>
         /// UCGUI's default Image Component.
         /// </summary>
-        /// <param name="sprite">
-        /// The sprite to display.
-        /// </param>
-        /// <param name="type">
-        /// Optional <see cref="Image.Type"/> used to render the image. Defaults to <see cref="Image.Type.Simple"/>.
-        /// </param>
-        /// <param name="ppum">
-        /// Optional value to determine the PixelsPerUnitMultiplier of the sprite. Relevant for example if you use <see cref="Image.Type.Sliced"/>.
-        /// </param>
-        /// <returns>
-        /// The resulting UCGUI <see cref="ImageComponent"/>. Use this to then continue building your desired Image Component.
-        /// </returns>
+        /// <param name="sprite">The sprite to display.</param>
+        /// <param name="type">Optional <see cref="Image.Type"/> used to render the image. Defaults to <see cref="Image.Type.Simple"/>.</param>
+        /// <param name="ppum">Optional value to determine the PixelsPerUnitMultiplier of the sprite. Relevant for example if you use <see cref="Image.Type.Sliced"/>.</param>
+        /// <returns>The resulting UCGUI <see cref="ImageComponent"/>. Use this to then continue building your desired Image Component.</returns>
         public static ImageComponent Image([CanBeNull] Sprite sprite, Image.Type type = UnityEngine.UI.Image.Type.Simple,
             float ppum = -1f)
         {

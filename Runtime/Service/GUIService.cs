@@ -22,7 +22,7 @@ namespace UCGUI.Services
         {
             if (_cachedCanvas && !forceNewCache)
                 return _cachedCanvas;
-            var canvasList = Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None);
+            var canvasList = Object.FindObjectsByType<Canvas>();
             foreach (var c in canvasList)
             {
                 if (c.renderMode.Equals(RenderMode.ScreenSpaceOverlay))

@@ -70,8 +70,6 @@ namespace UCGUI
 
         public T MakeHorizontal() => MakeDirection(ScrollViewDirection.Horizontal);
         public T MakeVertical() => MakeDirection(ScrollViewDirection.Vertical);
-        public bool IsVertical() => VerticalLayout != null;
-        public bool IsHorizontal() => HorizontalLayout != null;
         public bool IsDirection(ScrollViewDirection dir)
         {
             if (dir.Equals(ScrollViewDirection.Horizontal))

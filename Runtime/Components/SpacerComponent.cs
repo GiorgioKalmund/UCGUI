@@ -79,15 +79,15 @@ namespace UCGUI
                 UCGUILogger.LogError("An existing behaviour already attached. Cannot auto set. Set 'overrideExisting' to true to set a new behaviour.");
                 return;
             }
+
+            var targetLayout = gameObject.GetComponentInParent<HorizontalOrVerticalLayoutComponent>();
             
-            if (gameObject.GetComponentInParent<HStackComponent>())
+            if (targetLayout.IsHorizontal())
                 SetBehaviour(new HorizontalSpacerBehaviour());
-            else if (gameObject.GetComponentInParent<VStackComponent>())
+            else if (targetLayout.IsVertical())
                 SetBehaviour(new VerticalSpacerBehaviour());
             else
-            {
                 UCGUILogger.LogError("Spacer: Cannot auto set behaviour based on parent. Is the spacer part of a valid hierarchy?");
-            }
         }
 
         /// <summary>

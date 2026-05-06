@@ -203,3 +203,9 @@
 - The LabelComponent has a dedicated string-only initializer to remove the case where no Sprite was used for initialization but due to ambiguous method invokation the parameter could not be left out.
 - Fixed copy behaviour for layout-dependent components like buttons and H/V-stacks.
 - Moved 'Padding' to the generic [UI Support class](Runtime/Components/Support/UI.cs) to avoid type confusion and casting issues.
+
+## [1.0.26] - 2026-05-06
+### Fixes and Cleanup
+- Some adjustments to layouts and spacers, fixing incorrect and unexpected behaviours
+- Added helper functions and ajdusted return values
+  - Views now additionally emit and event with the info which event type it was

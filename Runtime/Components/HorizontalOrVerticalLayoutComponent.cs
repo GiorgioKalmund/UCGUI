@@ -43,5 +43,15 @@ namespace UCGUI
             GetLayout().ReverseArrangement(!GetLayout().reverseArrangement);
             return this;
         }
+
+        public bool IsHorizontal()
+        {
+            return HorizontalLayout != null;
+        }
+        
+        public bool IsVertical()
+        {
+            return VerticalLayout != null;
+        }
     }
 }

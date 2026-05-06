@@ -7,17 +7,24 @@ namespace UCGUI
     {
         public void Apply(SpacerComponent spacer)
         {
-            var layout = spacer.GetComponentInParent<VStackComponent>();
+            var layout = spacer.GetComponentInParent<HorizontalOrVerticalLayoutComponent>();
             if (layout == null)
             {
-                UCGUILogger.LogError("VerticalSpacerBehaviour: Cannot apply because no VStack is present in parent!");
+                UCGUILogger.LogError("VerticalSpacerBehaviour: Cannot apply because no vertical layout is present in parent!");
                 spacer.Enabled(false);
                 return;
             }
 
+            if (!layout.IsVertical())
+            {
+                UCGUILogger.LogError("VerticalSpacerBehaviour: Cannot apply because the parent layout is not vertical. Please make sure the parent contains a VerticalLayoutGroup.");
+                spacer.Enabled(false);
+                return;
+            }
+            
             if (layout.ContentSizeFitter.enabled && layout.ContentSizeFitter.verticalFit != ContentSizeFitter.FitMode.Unconstrained)
             {
-                UCGUILogger.LogError("VerticalSpacerBehaviour: Cannot apply because the parent VStack is dynamically sized.\nSpacers are currently only supported in statically sized layouts!");
+                UCGUILogger.LogError("VerticalSpacerBehaviour: Cannot apply because the parent vertical layout is dynamically sized.\nSpacers are currently only supported in statically sized layouts! Did you forget to add a fixed HEIGHT to the container?");
                 spacer.Enabled(false);
                 return;
             }
@@ -48,7 +55,9 @@ namespace UCGUI
                 UCGUILogger.LogWarning("VerticalSpacerBehaviour: Cannot insert spacer. Not enough vertical space!\nDisabled spacer.");
                 spacer.Enabled(false);
             }
+
             spacer.Size(Defaults.Spacer.AlternateDirectionExtents, perSpacer);
+            spacer.PreferredSize(Defaults.Spacer.AlternateDirectionExtents, perSpacer);
             LayoutRebuilder.MarkLayoutForRebuild(layout.GetRect());
         }
         

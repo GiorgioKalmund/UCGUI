@@ -1,22 +1,30 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UCGUI {
+namespace UCGUI 
+{
     public class HorizontalSpacerBehaviour : ISpacerBehaviour
     {
         public void Apply(SpacerComponent spacer)
         {
-            var layout = spacer.GetComponentInParent<HStackComponent>();
+            var layout = spacer.GetComponentInParent<HorizontalOrVerticalLayoutComponent>();
             if (layout == null)
             {
-                UCGUILogger.LogError("HorizontalSpacerBehaviour: Cannot apply because no HStack is present in parent!\n");
+                UCGUILogger.LogError("HorizontalSpacerBehaviour: Cannot apply because no horizontal layout is present in parent!\n");
+                spacer.Enabled(false);
+                return;
+            }
+            
+            if (!layout.IsHorizontal())
+            {
+                UCGUILogger.LogError("HorizontalSpacerBehaviour: Cannot apply because the parent layout is not horizontal. Please make sure the parent contains a HorizontalLayoutGroup.");
                 spacer.Enabled(false);
                 return;
             }
 
             if (layout.ContentSizeFitter.enabled && layout.ContentSizeFitter.horizontalFit != ContentSizeFitter.FitMode.Unconstrained)
             {
-                UCGUILogger.LogError("HorizontalSpacerBehaviour: Cannot apply because the parent HStack is dynamically sized.\nSpacers are currently only supported in statically sized layouts!\n");
+                UCGUILogger.LogError("HorizontalSpacerBehaviour: Cannot apply because the parent horizontal layout is dynamically sized.\nSpacers are currently only supported in statically sized layouts! Did you forget to add a fixed WIDTH to the container?");
                 spacer.Enabled(false);
                 return;
             }
@@ -48,7 +56,9 @@ namespace UCGUI {
                 UCGUILogger.LogWarning("HorizontalSpacerBehaviour: Cannot insert spacer. Not enough horizontal space! Disabled spacer.\n");
                 spacer.Enabled(false);
             }
-            spacer.Size(perSpacer, Defaults.Spacer.AlternateDirectionExtents);
+            
+            spacer.Size(perSpacer ,Defaults.Spacer.AlternateDirectionExtents);
+            spacer.PreferredSize(perSpacer, Defaults.Spacer.AlternateDirectionExtents);
             LayoutRebuilder.MarkLayoutForRebuild(layout.GetRect());
         }
     }

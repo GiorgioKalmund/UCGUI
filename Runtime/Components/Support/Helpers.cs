@@ -68,6 +68,7 @@ namespace UCGUI
         {
             layout.reverseArrangement = reverse;
         }
+        
         public static void Padding(this LayoutGroup layout, PaddingSide side, int amount)
         {
             var padding = layout.padding;
@@ -80,6 +81,14 @@ namespace UCGUI
             if (side.HasFlag(PaddingSide.Bottom))
                 padding.bottom = amount;
             layout.padding = padding;
+        }
+
+        public static void Padding(this LayoutGroup layout, RectOffset padding)
+        {
+            layout.padding.left = padding.left;
+            layout.padding.right = padding.right;
+            layout.padding.top = padding.top;
+            layout.padding.bottom = padding.bottom;
         }
         
         public static void PaddingAdd(this LayoutGroup layout, PaddingSide side, int amount)
@@ -94,6 +103,14 @@ namespace UCGUI
             if (side.HasFlag(PaddingSide.Bottom))
                 padding.bottom += amount;
             layout.padding = padding;
+        }
+        
+        public static void PaddingAdd(this LayoutGroup layout, RectOffset padding)
+        {
+            layout.padding.left += padding.left;
+            layout.padding.right += padding.right;
+            layout.padding.top += padding.top;
+            layout.padding.bottom += padding.bottom;
         }
     }
 

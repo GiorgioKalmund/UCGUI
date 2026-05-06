@@ -78,6 +78,7 @@ namespace UCGUI
                 if (stack.TryPeek(out AbstractViewComponent newTop))
                 {
                     newTop.onStackReveal?.Invoke();
+                    newTop.onStatusChanged?.Invoke(ViewStatus.Revealed);
                     newTop.HandleViewStackReveal();
                 }
                 if (stack.Count == 0)
@@ -132,10 +133,11 @@ namespace UCGUI
                 return;
             }
 
-            if (stack.TryPeek(out AbstractViewComponent newTop))
+            if (stack.TryPeek(out AbstractViewComponent oldTop))
             {
-                newTop.onStackHide?.Invoke();
-                newTop.HandleViewStackHide();
+                oldTop.onStackHide?.Invoke();
+                oldTop.onStatusChanged?.Invoke(ViewStatus.Hidden);
+                oldTop.HandleViewStackHide();
             }
             else
                 _onFirstPush?.Invoke();

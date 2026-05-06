@@ -40,10 +40,12 @@ namespace UCGUI
         /// pressing it will not do anything unless <see cref="force"/> is set to true.
         /// </summary>
         /// <param name="force">Overrides the interactable restriction of the button if set to true.</param>
-        public void Press(bool force = false)
+        public bool Press(bool force = false)
         {
-            if (button.IsInteractable() || force)
-                button.onClick.Invoke();
+            if (!button.IsInteractable() && !force)
+                return false;
+            button.onClick.Invoke();
+            return true;
         }
 
         public ButtonComponent FitToContents(PaddingSide side, int amount, float spacing, ScrollViewDirection direction = ScrollViewDirection.Both)
@@ -145,13 +147,21 @@ namespace UCGUI
             return this;
         }
 
-        public ButtonComponent Interactable(bool i)
+        public ButtonComponent Interactable(bool interactable)
         {
-            button.interactable = i;
+            button.interactable = interactable;
+            HandleInteractable(interactable); 
             return this;
         }
         
-        public void Interact() => Press();
+        public bool IsInteractable() => button.IsInteractable();
+
+        protected virtual void HandleInteractable(bool interactable)
+        {
+            
+        }
+
+        public bool Interact() => Press();
         
         public new virtual ButtonComponent Copy(bool fullyCopyRect = true)
         {
