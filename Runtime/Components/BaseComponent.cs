@@ -96,7 +96,7 @@ namespace UCGUI
         {
             _rect = gameObject.GetOrAddComponent<RectTransform>();
             canvasWidthFactor = GUIService.WidthScale;
-            canvasWidthFactor = GUIService.HeightScale;
+            canvasHeightFactor = GUIService.HeightScale;
         }
 
         public RectTransform GetRect()
