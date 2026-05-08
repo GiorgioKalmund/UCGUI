@@ -162,7 +162,15 @@ namespace UCGUI
         }
 
         public bool Interact() => Press();
-        
+
+        public override ImageComponent Maskable(bool maskable)
+        {
+            base.Maskable(maskable);
+            _text?.Maskable(maskable);
+            _image?.Maskable(maskable);
+            return this;
+        }
+
         public new virtual ButtonComponent Copy(bool fullyCopyRect = true)
         {
             ButtonComponent copyButton = this.BaseCopy(this);

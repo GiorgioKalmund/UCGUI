@@ -134,7 +134,7 @@ namespace UCGUI
             return _textMesh.text;
         }
         
-        public TextComponent Maskable(bool maskable)
+        public virtual TextComponent Maskable(bool maskable)
         {
             _textMesh.maskable = maskable;
             return this;

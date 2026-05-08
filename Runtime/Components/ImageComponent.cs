@@ -112,7 +112,7 @@ namespace UCGUI
             return this;
         }
         
-        public ImageComponent Maskable(bool maskable)
+        public virtual ImageComponent Maskable(bool maskable)
         {
             _image.maskable = maskable;
             return this;
