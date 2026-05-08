@@ -83,6 +83,14 @@ namespace UCGUI
             return this;
         }
         
+        public override ImageComponent Maskable(bool maskable)
+        {
+            base.Maskable(maskable);
+            _text?.Maskable(maskable);
+            _image?.Maskable(maskable);
+            return this;
+        }
+        
         public LabelComponent Style(LabelStyle style)
         {
             style.Apply(this);
