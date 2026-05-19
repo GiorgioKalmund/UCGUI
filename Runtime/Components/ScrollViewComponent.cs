@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -91,14 +92,26 @@ namespace UCGUI
             return this;
         }
 
-        public override BaseComponent HandleSizeChanged(float x, float y)
+        public ScrollViewComponent ContentSize(Vector2 size)
         {
-            base.HandleSizeChanged(x, y);
-            if (content)
-                content.Size(x, y);
+            content.Size(size);
             return this;
         }
         
+        public ScrollViewComponent ContentWidth(float width)
+        {
+            content.Width(width);
+            return this;
+        }
+        
+        public ScrollViewComponent ContentHeight(float height)
+        {
+            content.Height(height);
+            return this;
+        }
+
+        public ScrollViewComponent ViewportSize(Vector2 size) => this.Size(size);
+
         public ScrollViewComponent ScrollingDirection(ScrollViewDirection dir)
         {
             scrollRect.vertical = dir.HasFlag(ScrollViewDirection.Vertical);
@@ -150,6 +163,7 @@ namespace UCGUI
             private readonly ScrollViewComponent _scrollView;
             public ScrollViewBuilder(ScrollViewComponent scrollViewComponent) => _scrollView = scrollViewComponent;
             public void Add(params BaseComponent[] content) => _scrollView.Add(content);
+            public ScrollViewComponent GetScroll() => _scrollView;
         }
     }
 }
