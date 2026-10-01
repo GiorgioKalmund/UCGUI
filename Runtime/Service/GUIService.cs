@@ -18,14 +18,14 @@ namespace UCGUI.Services
         /// The <see cref="Canvas"/> if one was found, else throws an exception.
         /// </returns>
         /// <exception cref="Exception">If no canvas is found.</exception>
-        public static Canvas GetCanvas(bool forceNewCache = false)
+        public static Canvas GetCanvas(RenderMode canvasType = RenderMode.ScreenSpaceOverlay, bool forceNewCache = false)
         {
             if (_cachedCanvas && !forceNewCache)
                 return _cachedCanvas;
             var canvasList = Object.FindObjectsByType<Canvas>();
             foreach (var c in canvasList)
             {
-                if (c.renderMode.Equals(RenderMode.ScreenSpaceOverlay))
+                if (c.renderMode.Equals(canvasType))
                 {
                     _cachedCanvas = c;
                     break;

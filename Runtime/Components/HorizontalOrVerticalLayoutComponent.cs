@@ -22,25 +22,37 @@ namespace UCGUI
 
         public HorizontalOrVerticalLayoutComponent Spacing(float spacing)
         {
-            GetLayout().spacing = spacing;
+            if (GetLayout())
+                GetLayout().spacing = spacing;
+            else
+                UCGUILogger.LogWarning("No layout present!", this);
             return this;
         }
 
         public HorizontalOrVerticalLayoutComponent ChildAlignment(TextAnchor childAlignment)
         {
-            GetLayout().childAlignment = childAlignment;
+            if (GetLayout())
+                GetLayout().childAlignment = childAlignment;
+            else
+                UCGUILogger.LogWarning("No layout present!", this);
             return this;
         }
 
         public HorizontalOrVerticalLayoutComponent ReverseArrangement(bool reverse = true)
         {
-            GetLayout().ReverseArrangement(reverse);
+            if (GetLayout())
+                GetLayout().ReverseArrangement(reverse);
+            else
+                UCGUILogger.LogWarning("No layout present!", this);
             return this;
         }
         
         public HorizontalOrVerticalLayoutComponent ReverseArrangementToggle()
         {
-            GetLayout().ReverseArrangement(!GetLayout().reverseArrangement);
+            if (GetLayout())
+                GetLayout().ReverseArrangement(!GetLayout().reverseArrangement);
+            else
+                UCGUILogger.LogWarning("No layout present!", this);
             return this;
         }
 

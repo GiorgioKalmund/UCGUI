@@ -209,3 +209,28 @@
 - Some adjustments to layouts and spacers, fixing incorrect and unexpected behaviours
 - Added helper functions and ajdusted return values
   - Views now additionally emit and event with the info which event type it was
+
+## [1.0.27] - 2026-10-02
+### Automatic Parenting, ScrollView Improvements and More
+- Introduced a new automatic parenting system which makes use of static context to determine the appropriate parent.
+  - This comes with `BeginParentContext(Transform)` and `EndParentContext()` to begin and end the context of a parent, respectively.
+  - `ParentContext(Transform, UnityAction)` can act as a shorthand using a `UnityAction` lambda.
+  - All relevant UI.XXX builders also make use of this (i.e. `HStack`, `VStack`, `ScrollView`, ...) allowing you to omit the previously required `xx.Add(...)` calls and `xx.Parent(...)`.
+  - `AbstractViewComponent`s and `SimpleScreen`s will also automatically create such context in their `Create()` and `Initialize()` calls.
+- Revamped `ScrollViewComponent`.
+  - Proper distinction between `viewport` and `content`.
+  - New padding and inset options for content and viewport, respectively.
+  - Proper `ScrollToStart()` and `ScrollToEnd()`, independent of layout.
+  - More robust layout options, allowing the user to distinguish between only layout direction and scroll direction.
+  - Child alignment and reversal now works properly.
+  - Added support for scrollbars, which make use of Unity's built-in `Scrollbar` component. they appear automatically when content overflows in the current scrolling direction.
+  - Improved styling support for both the scroll view background and its scrollbars. this is driven through the respective ScrollViewStyles.
+  - Content padding in scroll views now works as expected.
+- Added the `UI.ZStack()` call which simply wraps a context of UI elements around an optional parent.
+- Added TryPeek and TryPop to `ViewStackComponent`.
+- The ViewStackComponent now makes use of a `List<T>` instead of a `Stack<T>` for improved serialization support in the editor.
+- Switch layouts have now been abstracted one layer to allow for the simple SwitchLayoutComponent to be used as a standalone element.
+- Expanded logging behaviour in `UCGUILogger` to allow for direct object references to link into the editor.
+- Child alignment is now only copied between layouts if they are of the same type by default, a boolean enables a 1:1 copy.
+- Cleaned up some ui functions and documentation.
+- Made more parts of the animations and animator classes' context serializable and visible in the editor.

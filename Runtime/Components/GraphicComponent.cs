@@ -85,22 +85,26 @@ namespace UCGUI
 
         public GraphicComponent<T> OnPointerEnter(UnityAction action) { _onPointerEnterAction = action; return this; }
         
+        // Unity IPointerEnterHandler 
         public void OnPointerEnter(PointerEventData eventData)
         {
             HandlePointerEnter(eventData);
             _onPointerEnterAction?.Invoke();
         }
 
+        // Unity IPointerExitHandler
         public void OnPointerExit(PointerEventData eventData)
         {
             HandlePointerExit(eventData);
             _onPointerExitAction?.Invoke();
         }
+        
         public GraphicComponent<T> OnPointerExit(UnityAction action) { _onPointerExitAction = action; return this; }
         
         public virtual void Enabled(bool on)
         {
             GetGraphic().enabled = on;
+            GetGraphic().raycastTarget = on;
         }
     }
 }

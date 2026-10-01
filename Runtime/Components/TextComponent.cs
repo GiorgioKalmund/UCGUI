@@ -25,7 +25,7 @@ namespace UCGUI
         protected static readonly string NamePrefix = "Text";
         private static TMP_FontAsset _globalFont;
         protected TextAnimator animator;
-
+        
         public static void GlobalFont(TMP_FontAsset asset)
         {
             _globalFont = asset;
@@ -39,7 +39,6 @@ namespace UCGUI
         protected override void Awake()
         {
             base.Awake();
-            DisplayName = NamePrefix;
             
             _textMesh = gameObject.GetOrAddComponent<TextMeshProUGUI>();
             this.Size(Defaults.Text.DefaultSize);
@@ -72,6 +71,9 @@ namespace UCGUI
             }
             if (color.HasValue)
                 Color(color.Value);
+
+            if (Defaults.Text.NameMirrorsText)
+                this.DisplayName($"\"{text}\"");
             return this;
         }
         

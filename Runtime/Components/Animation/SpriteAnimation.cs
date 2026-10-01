@@ -4,7 +4,7 @@ using UnityEngine;
 namespace UCGUI
 {
     /// <summary>
-    /// Object containing all individual frames, as well as the time every frame will show for. <i>Assuming <see cref="SpriteAnimator.Speed"/> is 1</i>.
+    /// Object containing all individual frames, as well as the time every frame will show for. <i>Assuming <see cref="SpriteAnimator.speed"/> is 1</i>.
     /// <seealso cref="SpriteAnimator"/>
     /// </summary>
     /// <example>
@@ -15,22 +15,23 @@ namespace UCGUI
     /// SpriteAnimation myAnimation2 = new SpriteAnimation(frameArray, frameTimeArray);
     /// </code>
     /// </example>
+    [Serializable]
     public class SpriteAnimation
     {
-        public readonly Sprite[] Frames;
-        public readonly float[] FramesPerSecond;
+        public Sprite[] frames;
+        public float[] framesPerSecond;
 
         public SpriteAnimation(Sprite[] frames, float[] framesPerSeconds)
         {
-            Frames = frames;
-            FramesPerSecond = framesPerSeconds;
+            this.frames = frames;
+            framesPerSecond = framesPerSeconds;
         }
 
         public SpriteAnimation(Sprite[] frames, float framesPerSecond)
         {
-            Frames = frames;
-            FramesPerSecond = new float[frames.Length];
-            Array.Fill(FramesPerSecond, framesPerSecond);
+            this.frames = frames;
+            this.framesPerSecond = new float[frames.Length];
+            Array.Fill(this.framesPerSecond, framesPerSecond);
         }
     }
 }

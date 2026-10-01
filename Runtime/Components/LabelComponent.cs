@@ -6,7 +6,7 @@ namespace UCGUI
     /// <summary>
     /// UCGUI's default Label Component.
     /// </summary>
-    public class LabelComponent : SwitchLayoutComponent<LabelComponent>, IStylable<LabelComponent, LabelStyle>, ICopyable<LabelComponent>
+    public class LabelComponent : AbstractSwitchLayoutComponent<LabelComponent>, IStylable<LabelComponent, LabelStyle>, ICopyable<LabelComponent>
     {
         protected LabelComponent() {}
 
@@ -20,7 +20,7 @@ namespace UCGUI
 
         protected virtual ImageComponent CreateImage()
         {
-            return UI.N<ImageComponent>(transform).RaycastTarget(false).Parent(this);
+            return UI.N<ImageComponent>(this).RaycastTarget(false);
         }
 
         protected TextComponent _text;
@@ -33,7 +33,7 @@ namespace UCGUI
         
         protected virtual TextComponent CreateText()
         {
-            return UI.N<TextComponent>(transform).Parent(this);   
+            return UI.N<TextComponent>(this);
         }
 
         protected override void Awake()

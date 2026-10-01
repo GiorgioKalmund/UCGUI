@@ -11,6 +11,7 @@ namespace UCGUI
 {
     public partial class UI
     {
+        #region Empty
         /// <summary>
         /// UCGUI's default Empty. Will be sized 0x0.
         /// </summary>
@@ -26,7 +27,9 @@ namespace UCGUI
                 empty.DisplayName = name;
             return empty;
         }
+        #endregion
         
+        #region Text 
         /// <summary>
         /// UCGUI's default Text Component.
         /// </summary>
@@ -36,30 +39,37 @@ namespace UCGUI
         public static TextComponent Text(string text = null, Color? color = null)
         {
             TextComponent textComponent = N<TextComponent>();
+            
             textComponent.Text(text);
-            if (color.HasValue)
-                textComponent.Color(color.Value);
-            return textComponent;
-        }
-        
-        public static TextComponent Text(int text, Color? color = null)
-        {
-            TextComponent textComponent = N<TextComponent>();
-            textComponent.Text(text);
-            if (color.HasValue)
-                textComponent.Color(color.Value);
-            return textComponent;
-        }
-        
-        public static TextComponent Text(float text, string format, Color? color = null)
-        {
-            TextComponent textComponent = N<TextComponent>();
-            textComponent.Text(text, format);
             if (color.HasValue)
                 textComponent.Color(color.Value);
             return textComponent;
         }
 
+        /// <summary>
+        /// Creates a new <see cref="TextComponent"/> from an integer value.
+        /// </summary>
+        /// <param name="text">The floating point value to be represented as text.</param>
+        /// <param name="color">The (optional) color of the text.</param>
+        /// <remarks>See more at <see cref="Text(string, Color?)"/></remarks>
+        public static TextComponent Text(int text, Color? color = null) => Text(text.ToString(), color);
+
+        /// <summary>
+        /// Creates a new <see cref="TextComponent"/> from a floating point value.
+        /// </summary>
+        /// <param name="text">The floating point value to be represented as text.</param>
+        /// <param name="format">Format of the floating point value. See remarks down below for more info.</param>
+        /// <param name="color">The (optional) color of the text.</param>
+        /// <remarks>
+        /// See more at <see cref="Text(string, Color?)"/> <br></br> <br></br>
+        /// <see href="https://learn.microsoft.com/en-us/dotnet/api/system.single.tostring?view=net-10.0"/> <br></br>
+        /// <see href="https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-numeric-format-strings"/> <br></br>
+        /// <see href="https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-numeric-format-strings"/> <br></br>
+        /// </remarks>
+        public static TextComponent Text(float text, string format = "0.00", Color? color = null) => Text(text.ToString(format), color);
+        #endregion
+        
+        #region Image
         /// <summary>
         /// UCGUI's default Image Component.
         /// </summary>
@@ -92,19 +102,25 @@ namespace UCGUI
         {
             return Image(color, color.a);
         }
+        #endregion
 
-
+        #region Button
         public static ButtonComponent Button([CanBeNull] string text, UnityAction action = null,
             UnityAction<ButtonComponent.ButtonBuilder> label = null)
         {
             ButtonComponent buttonComponent = N<ButtonComponent>();
+            buttonComponent.DisplayName($"[{text}]");
 
             if (text != null)
                 buttonComponent.Text(text);
             if (action != null)
                 buttonComponent.Function(action);
             if (label != null)
+            {
+                BaseComponent.BeginParentContext(buttonComponent);
                 label(new ButtonComponent.ButtonBuilder(buttonComponent));
+                BaseComponent.EndParentContext();
+            }
 
             return buttonComponent;
         }
@@ -112,46 +128,46 @@ namespace UCGUI
         public static ButtonComponent Button(UnityAction action = null,
             UnityAction<ButtonComponent.ButtonBuilder> label = null)
             => Button(null, action, label);
+        #endregion
 
+        #region Views
+        #region ScrollView
         /// <summary>
         /// UCGUI's default Scroll View. Similar to UGUI's <see cref="ScrollRect"/>.
         /// </summary>
         /// <param name="direction"> The <see cref="ScrollViewDirection"/> in which scrolling is enabled.</param>
         /// <param name="spacing"> (Optional) The spacing between the elements. <i>Defaults to <b>0f</b></i>.</param>
-        /// <param name="alignment"> (Optional) the alignment of the children within the scroll view. <i>Defaults to <see cref="TextAnchor.UpperCenter"/></i>.</param>
-        /// <param name="content"> <see cref="ScrollViewComponent.ScrollViewBuilder"/> to add content and further customize the scroll view. Will default to pivoting around and anchoring to <see cref="PivotPosition.UpperCenter"/> if the scroll view is vertical, else to <see cref="PivotPosition.MiddleLeft"/>.</param>
+        /// <param name="content"> The action wrapping the content of the scroll view.</param>
         /// <returns>
         /// The resulting UCGUI <see cref="ScrollViewComponent"/>
         /// </returns>
-        public static ScrollViewComponent ScrollView(ScrollViewDirection direction, float spacing, TextAnchor alignment, UnityAction<ScrollViewComponent.ScrollViewBuilder> content)
+        public static ScrollViewComponent ScrollView(ScrollViewDirection direction, float spacing, UnityAction content)
         {
             ScrollViewComponent scrollViewComponent = N<ScrollViewComponent>();
 
-            scrollViewComponent.ScrollingDirection(direction);
-            scrollViewComponent.content
-                .AddLayout(direction, spacing, alignment)
-                .AddFitter(direction)
-                .Pivot(direction == ScrollViewDirection.Vertical ? PivotPosition.UpperCenter : PivotPosition.MiddleLeft, true);
+            scrollViewComponent
+                .ScrollingDirection(direction, true)
+                .ContentSpacing(spacing);
             
-            content(new ScrollViewComponent.ScrollViewBuilder(scrollViewComponent));
+            BaseComponent.BeginParentContext(scrollViewComponent.content);
+            content();
+            BaseComponent.EndParentContext();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(scrollViewComponent.content.GetRect());
             return scrollViewComponent;
         }
-
-        /// <inheritdoc cref="ScrollView(UCGUI.ScrollViewDirection,float,UnityEngine.TextAnchor,UnityEngine.Events.UnityAction{UCGUI.ScrollViewComponent.ScrollViewBuilder})"/>
-        public static ScrollViewComponent ScrollView(ScrollViewDirection direction, float spacing, UnityAction<ScrollViewComponent.ScrollViewBuilder> content)
-        {
-            return ScrollView(direction, spacing, direction == ScrollViewDirection.Vertical ? TextAnchor.UpperCenter : TextAnchor.MiddleLeft, content);
-        }
-        /// <inheritdoc cref="ScrollView(UCGUI.ScrollViewDirection,float,UnityEngine.TextAnchor,UnityEngine.Events.UnityAction{UCGUI.ScrollViewComponent.ScrollViewBuilder})"/>
-        public static ScrollViewComponent ScrollView(ScrollViewDirection direction, UnityAction<ScrollViewComponent.ScrollViewBuilder> content)
+        
+        /// <inheritdoc cref="ScrollView(UCGUI.ScrollViewDirection,float,UnityEngine.Events.UnityAction)"/>
+        public static ScrollViewComponent ScrollView(ScrollViewDirection direction, UnityAction content)
         {
             return ScrollView(direction, 0f, content);
         }
-
+        #endregion
+        
+        #region View
         /// <summary>
         /// UCGUI's default View. Can be opened and closed manually or using <see cref="InputAction"/>.
         /// </summary>
-        /// <param name="canvas">The canvas the view attaches to. If set will <see cref="FullScreen{T}"/> if no other <see cref="Size{T}(T,UnityEngine.Vector2)"/> is specified.</param>
+        /// <param name="canvas">The canvas the view attaches to. If set will <see cref="Maximize{T}"/> if no other <see cref="Size{T}(T,UnityEngine.Vector2)"/> is specified.</param>
         /// <param name="viewBuilder"><see cref="AbstractViewComponent.ViewBuilder"/> to add content and further customize the view.</param>
         /// <returns>
         /// The resulting UCGUI <see cref="AbstractViewComponent"/>.
@@ -160,7 +176,9 @@ namespace UCGUI
         {
             ViewComponent abstractViewComponent = N<ViewComponent>();
             
+            BaseComponent.BeginParentContext(abstractViewComponent);
             viewBuilder(new AbstractViewComponent.ViewBuilder(abstractViewComponent, canvas));
+            BaseComponent.EndParentContext();
 
             return abstractViewComponent;
         }
@@ -173,7 +191,9 @@ namespace UCGUI
         /// The resulting UCGUI <see cref="AbstractViewComponent"/>.
         /// </returns>
         public static ViewComponent View(UnityAction<AbstractViewComponent.ViewBuilder> viewBuilder) => View(null, viewBuilder);
+        #endregion
         
+        #region DragView
         /// <summary>
         /// 
         /// </summary>
@@ -184,7 +204,9 @@ namespace UCGUI
         {
             DragViewComponent dragViewComponent = N<DragViewComponent>();
             
+            BaseComponent.BeginParentContext(dragViewComponent);
             viewBuilder(new DragViewComponent.DragViewBuilder(dragViewComponent, canvas));
+            BaseComponent.EndParentContext();
 
             return dragViewComponent;
         }
@@ -196,7 +218,9 @@ namespace UCGUI
         /// <returns></returns>
         public static DragViewComponent DragView(UnityAction<DragViewComponent.DragViewBuilder> dragViewBuilder) =>
             DragView(null, dragViewBuilder);
-        
+        #endregion
+
+        #region ViewStack
         /// <summary>
         /// A controlling component for opening and closing multiple <see cref="AbstractViewComponent"/>s.
         /// </summary>
@@ -219,7 +243,11 @@ namespace UCGUI
             viewStackComponent.Parent(parent);
             return viewStackComponent;
         }
-
+        #endregion
+        #endregion
+        
+        #region Layout
+        #region HStack
         /// <summary>
         /// A horizontal layout element, automatically resizing to its contents.
         /// </summary>
@@ -238,24 +266,28 @@ namespace UCGUI
         /// Under the hood it is simply an <see cref="ImageComponent"/>, allowing you to enable (<see cref="ImageComponent.ToggleVisibility()"/>), and then also directly modify the backdrop.
         /// </remarks>
         /// </returns>
-        public static HStackComponent HStack(float spacing, TextAnchor childAlignment, Action<LayoutBuilder> contents)
+        public static HStackComponent HStack(float spacing, TextAnchor childAlignment, UnityAction<LayoutBuilder> contents)
         {
             HStackComponent layout = N<HStackComponent>();
             layout.Spacing(spacing).ChildAlignment(childAlignment);
             var builder = new LayoutBuilder(layout, layout.HorizontalLayout);
+            BaseComponent.BeginParentContext(layout);
             contents(builder);
+            BaseComponent.EndParentContext();
             return layout;
         }
-        /// <inheritdoc cref="HStack(float, TextAnchor, Action{LayoutBuilder})"/>
-        public static HStackComponent HStack(Action<LayoutBuilder> contents)
+        /// <inheritdoc cref="HStack(float, TextAnchor, UnityAction{LayoutBuilder})"/>
+        public static HStackComponent HStack(UnityAction<LayoutBuilder> contents)
             => HStack(0f, contents);
-        /// <inheritdoc cref="HStack(float, TextAnchor, Action{LayoutBuilder})"/>
-        public static HStackComponent HStack(float spacing, Action<LayoutBuilder> contents)
+        /// <inheritdoc cref="HStack(float, TextAnchor, UnityAction{LayoutBuilder})"/>
+        public static HStackComponent HStack(float spacing, UnityAction<LayoutBuilder> contents)
             => HStack(spacing, TextAnchor.UpperCenter, contents);
-        /// <inheritdoc cref="HStack(float, TextAnchor, Action{LayoutBuilder})"/>
-        public static HStackComponent HStack(TextAnchor childAlignment, Action<LayoutBuilder> contents)
+        /// <inheritdoc cref="HStack(float, TextAnchor, UnityAction{LayoutBuilder})"/>
+        public static HStackComponent HStack(TextAnchor childAlignment, UnityAction<LayoutBuilder> contents)
             => HStack(0f, childAlignment, contents);
-        
+        #endregion
+
+        #region VStack
         /// <summary>
         /// A vertical layout element, automatically resizing to its contents.
         /// </summary>
@@ -274,24 +306,50 @@ namespace UCGUI
         /// Under the hood it is simply an <see cref="ImageComponent"/>, allowing you to enable (<see cref="ImageComponent.ToggleVisibility()"/>), and then also directly modify the backdrop.
         /// </remarks>
         /// </returns>
-        public static VStackComponent VStack(float spacing, TextAnchor childAlignment, Action<LayoutBuilder> contents)
+        public static VStackComponent VStack(float spacing, TextAnchor childAlignment, UnityAction<LayoutBuilder> contents)
         {
             VStackComponent layout = N<VStackComponent>();
             layout.Spacing(spacing).ChildAlignment(childAlignment);
             var builder = new LayoutBuilder(layout, layout.VerticalLayout);
+            BaseComponent.BeginParentContext(layout);
             contents(builder);
+            BaseComponent.EndParentContext();
             return layout;
         }
-        /// <inheritdoc cref="VStack(float, TextAnchor, Action{LayoutBuilder})"/>
-        public static VStackComponent VStack(Action<LayoutBuilder> contents)
+        /// <inheritdoc cref="VStack(float, TextAnchor, UnityAction{LayoutBuilder})"/>
+        public static VStackComponent VStack(UnityAction<LayoutBuilder> contents)
             => VStack(0f, contents);
-        /// <inheritdoc cref="VStack(float, TextAnchor, Action{LayoutBuilder})"/>
-        public static VStackComponent VStack(float spacing, Action<LayoutBuilder> contents)
+        /// <inheritdoc cref="VStack(float, TextAnchor, UnityAction{LayoutBuilder})"/>
+        public static VStackComponent VStack(float spacing, UnityAction<LayoutBuilder> contents)
             => VStack(spacing, TextAnchor.MiddleLeft, contents);
-        /// <inheritdoc cref="VStack(float, TextAnchor, Action{LayoutBuilder})"/>
-        public static VStackComponent VStack(TextAnchor childAlignment, Action<LayoutBuilder> contents)
+        /// <inheritdoc cref="VStack(float, TextAnchor, UnityAction{LayoutBuilder})"/>
+        public static VStackComponent VStack(TextAnchor childAlignment, UnityAction<LayoutBuilder> contents)
             => VStack(0f, childAlignment, contents);
+        #endregion
 
+        #region ZStack
+        /// <summary>
+        /// Syntactic sugar for <see cref="BaseComponent.ParentContext(BaseComponent, UnityAction)"/>, using an <see cref="UI.Empty"/> object.
+        /// </summary>
+        public static void ZStack(UnityAction content) => ZStack(Empty().DisplayName("ZStack"), content);
+        /// <summary>
+        /// Syntactic sugar for <see cref="BaseComponent.ParentContext(BaseComponent, UnityAction)"/>.
+        /// </summary>
+        public static void ZStack(BaseComponent parent, UnityAction content) => ZStack(parent.transform, content);
+        /// <summary>
+        /// Syntactic sugar for <see cref="BaseComponent.ParentContext(GameObject, UnityAction)"/>.
+        /// </summary>
+        public static void ZStack(GameObject    parent, UnityAction content) => ZStack(parent.transform, content);
+        /// <summary>
+        /// Syntactic sugar for <see cref="BaseComponent.ParentContext(Transform, UnityAction)"/>.
+        /// </summary>
+        public static void ZStack(Transform parent, UnityAction content)
+        {
+            BaseComponent.ParentContext(parent, content);
+        }
+        #endregion
+
+        #region Spacer
         /// <summary>
         /// A greedy layout element which takes as much space as it can according to its specified <see cref="ISpacerBehaviour"/>.
         /// </summary>
@@ -301,6 +359,7 @@ namespace UCGUI
             SpacerComponent spacer = N<SpacerComponent>();
             return spacer;
         }
+
         
         /// <summary>
         /// A greedy layout element which takes as much space as it can according to its specified <see cref="ISpacerBehaviour"/>.
@@ -313,7 +372,9 @@ namespace UCGUI
             spacer.SetBehaviour(behaviour);
             return spacer;
         }
+        #endregion
 
+        #region Grid
         /// <summary>
         /// A grid layout element based on Unity's <see cref="GridLayoutGroup"/>.
         /// </summary>
@@ -324,14 +385,16 @@ namespace UCGUI
         /// <returns>
         /// The resulting <see cref="GridComponent"/>.
         /// </returns>
-        public static GridComponent Grid(GridLayoutGroup.Constraint constraint, int constraintCount, TextAnchor childAlignment, Action<GridComponent.GridBuilder> grid)
+        public static GridComponent Grid(GridLayoutGroup.Constraint constraint, int constraintCount, TextAnchor childAlignment, UnityAction<GridComponent.GridBuilder> grid)
         {
             GridComponent gridComponent = N<GridComponent>();
             var builder = new GridComponent.GridBuilder(gridComponent);
             builder.GetGrid().constraint = constraint;
             builder.GetGrid().constraintCount = constraintCount;
             builder.GetGrid().childAlignment = childAlignment;
+            BaseComponent.BeginParentContext(gridComponent);
             grid(builder);
+            BaseComponent.EndParentContext();
             return gridComponent;
         }
 
@@ -345,7 +408,7 @@ namespace UCGUI
         /// The resulting <see cref="GridComponent"/>.
         /// </returns>
         public static GridComponent Grid(GridLayoutGroup.Constraint constraint, int constraintCount,
-            Action<GridComponent.GridBuilder> grid)
+            UnityAction<GridComponent.GridBuilder> grid)
         {
             return Grid(constraint, constraintCount, TextAnchor.MiddleCenter, grid);
         }
@@ -357,7 +420,7 @@ namespace UCGUI
         /// <returns>
         /// The resulting <see cref="GridComponent"/>.
         /// </returns>
-        public static GridComponent Grid(Action<GridComponent.GridBuilder> grid) => Grid(GridLayoutGroup.Constraint.Flexible, 0, grid);
+        public static GridComponent Grid(UnityAction<GridComponent.GridBuilder> grid) => Grid(GridLayoutGroup.Constraint.Flexible, 0, grid);
         
         /// <summary>
         /// A grid layout element based on Unity's <see cref="GridLayoutGroup"/>.
@@ -367,8 +430,9 @@ namespace UCGUI
         /// <returns>
         /// The resulting <see cref="GridComponent"/>.
         /// </returns>
-        public static GridComponent Grid(TextAnchor childAlignment, Action<GridComponent.GridBuilder> grid) => Grid(GridLayoutGroup.Constraint.Flexible, 0, childAlignment, grid);
-
+        public static GridComponent Grid(TextAnchor childAlignment, UnityAction<GridComponent.GridBuilder> grid) => Grid(GridLayoutGroup.Constraint.Flexible, 0, childAlignment, grid);
+        #endregion
+        #endregion
 
         /// <summary>
         /// An input / text field based on <see cref="TMP_InputField"/>.
@@ -379,7 +443,7 @@ namespace UCGUI
         /// <returns>
         /// The resulting <see cref="InputComponent"/>.
         /// </returns>
-        public static InputComponent Input(string placeholder, TMP_InputField.ContentType contentType = TMP_InputField.ContentType.Standard, [CanBeNull] Action<InputComponent.InputBuilder> builder = null)
+        public static InputComponent Input(string placeholder, TMP_InputField.ContentType contentType = TMP_InputField.ContentType.Standard, [CanBeNull] UnityAction<InputComponent.InputBuilder> builder = null)
         {
             InputComponent inputComponent = N<InputComponent>();
             inputComponent.Placeholder(placeholder);
@@ -398,7 +462,7 @@ namespace UCGUI
         /// <returns>
         /// The resulting <see cref="InputComponent"/>.
         /// </returns>
-        public static InputComponent Input(string placeholder, Action<InputComponent.InputBuilder> builder) =>
+        public static InputComponent Input(string placeholder, UnityAction<InputComponent.InputBuilder> builder) =>
             Input(placeholder, TMP_InputField.ContentType.Standard, builder);
         
         /// <summary>
@@ -430,8 +494,8 @@ namespace UCGUI
         /// }).Parent(canvas);
         /// </code>
         /// </example>.
-        public static SliderComponent Slider(Range range, Action<SliderComponent.SliderBuilder> builder,
-            Action<float> onValueChanged = null)
+        public static SliderComponent Slider(Range range, UnityAction<SliderComponent.SliderBuilder> builder,
+            UnityAction<float> onValueChanged = null)
         {
             SliderComponent slider = N<SliderComponent>();
             slider.SetRange(range);

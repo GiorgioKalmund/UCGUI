@@ -4,6 +4,7 @@ namespace UCGUI
 {
     /// <summary>
     /// Position shorthands for pivots of RectTransforms.
+    /// Mirror of <see cref="TextAnchor"/>.
     /// </summary>
     public enum PivotPosition 
     {

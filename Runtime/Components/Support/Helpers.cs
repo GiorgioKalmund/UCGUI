@@ -33,12 +33,14 @@ namespace UCGUI
             return behaviour.gameObject.transform;
         }
 
-        public static void CopyFrom(this HorizontalOrVerticalLayoutGroup layout, HorizontalOrVerticalLayoutGroup other) 
+        public static void CopyFrom(this HorizontalOrVerticalLayoutGroup layout, HorizontalOrVerticalLayoutGroup other, bool copyChildAlignmentIndependentOfDirection = false) 
         {
             if (!other)
                 return;
 
-            layout.childAlignment = other.childAlignment;
+            // Only copy child alignment if we copy from the same direction, or we explicitly want to
+            if (copyChildAlignmentIndependentOfDirection || (layout is VerticalLayoutGroup && other is VerticalLayoutGroup) || (layout is HorizontalLayoutGroup && other is HorizontalLayoutGroup))
+                layout.childAlignment = other.childAlignment;
             layout.spacing = other.spacing;
             layout.childForceExpandWidth = other.childForceExpandWidth;
             layout.childForceExpandHeight = other.childForceExpandHeight;

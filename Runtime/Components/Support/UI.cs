@@ -27,13 +27,15 @@ namespace UCGUI
             return N<T>(parent.gameObject.transform, worldPositionStays);
         }
 
-        public static T N<T>( Transform parent = null, bool worldPositionStays = false)
+        public static T N<T>(Transform parent = null, bool worldPositionStays = false)
             where T : BaseComponent
         {
+            parent ??= BaseComponent.PeekParentStack();
             GameObject toReturn = CreateEmptyGameObjectWithParent(parent, worldPositionStays, typeof(T).ToString());
             var t = toReturn.AddComponent<T>();
             return t;
         }
+        
 
         #endregion
 
@@ -524,11 +526,11 @@ namespace UCGUI
         /// <param name="amount">The padding amount.</param>
         /// <param name="direction">Which layout to apply it to. Defaults to <see cref="ScrollViewDirection.Both"/>,
         /// but will only apply if the layout of that direction is present!</param>
-        public static T Padding<T>(this T renderable, PaddingSide side, int amount, ScrollViewDirection direction = ScrollViewDirection.Both) where T : BaseComponent
+        public static T Padding<T>(this T renderable, PaddingSide side, int amount) where T : BaseComponent
         {
-            if (renderable.HorizontalLayout && direction.HasFlag(ScrollViewDirection.Horizontal))
+            if (renderable.HorizontalLayout)
                 renderable.HorizontalLayout.Padding(side, amount);
-            if (renderable.VerticalLayout && direction.HasFlag(ScrollViewDirection.Vertical))
+            else if (renderable.VerticalLayout)
                 renderable.VerticalLayout.Padding(side, amount);
             return renderable;
         }
@@ -539,8 +541,8 @@ namespace UCGUI
         /// <param name="amount">The padding amount.</param>
         /// <param name="direction">Which layout to apply it to. Defaults to <see cref="ScrollViewDirection.Both"/>,
         /// but will only apply if the layout of that direction is present!</param>
-        public static T Padding<T>(this T renderable, int amount, ScrollViewDirection direction = ScrollViewDirection.Both) where T : BaseComponent =>
-            Padding<T>(renderable, PaddingSide.All, amount, direction);
+        public static T Padding<T>(this T renderable, int amount) where T : BaseComponent =>
+            Padding<T>(renderable, PaddingSide.All, amount);
         
         /// <summary>
         /// Controls the padding of <see cref="HorizontalLayout"/> and <see cref="VerticalLayout"/>.

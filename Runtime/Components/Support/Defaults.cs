@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UCGUI.Services;
+using UGUI;
 
 namespace UCGUI{
     /// <summary>
@@ -8,12 +9,11 @@ namespace UCGUI{
     /// </summary>
     public static class Defaults
     {
-        /// <summary>
-        /// Holds general state information for UCGUI
-        /// </summary>
-        public static class State
+        public static class Layout
         {
-            
+            public static ScrollViewDirection StandardLayoutDirection = ScrollViewDirection.Horizontal;
+            public static TextAnchor StandardVerticalChildAlignment = TextAnchor.UpperCenter;
+            public static TextAnchor StandardHorizontalChildAlignment = TextAnchor.MiddleLeft;
         }
         
         public static class Screen 
@@ -27,6 +27,8 @@ namespace UCGUI{
 
         public static class Debug
         {
+            public static bool DoLogging = true;
+            
             public static GUIStyle DebugStyle(Color color, int fontSize = 14, FontStyle fontStyle = FontStyle.Bold)
             {
                 var style = new GUIStyle();
@@ -57,6 +59,11 @@ namespace UCGUI{
             /// The size a text should be if no size is specified. Defaults to Unity's convention of 100 x 100.
             /// </summary>
             public static Vector2 DefaultSize = new Vector2(100, 100);
+
+            /// <summary>
+            /// Whether when updating the text of the object to let the name of the corresponding GameObject mirror that text.
+            /// </summary>
+            public static bool NameMirrorsText = true;
         }
 
         public static class Spacer
@@ -122,6 +129,14 @@ namespace UCGUI{
             /// The size an image should be if no size is specified. Defaults to Unity's convention of 100 x 100.
             /// </summary>
             public static Vector2 DefaultSize = new Vector2(100, 100);
+        }
+
+        public static class ScrollView
+        {
+            public static int HorizontalScrollbarHeight = 20;
+            public static PaddingSide HorizontalScrollbarPlacement = PaddingSide.Bottom;
+            public static int VerticalScrollbarWidth    = 20;
+            public static PaddingSide VerticalScrollbarPlacement = PaddingSide.Trailing;
         }
     }
 }

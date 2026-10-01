@@ -4,7 +4,6 @@ namespace UCGUI
 {
     public abstract class SimpleScreen : BaseComponent
     {
-        [HideInInspector]
         public Canvas canvas;
         
         protected override void Awake()
@@ -13,7 +12,9 @@ namespace UCGUI
             DisplayName = "SimpleScreen";
             
             canvas = GetCanvas();
+            BeginParentContext(this);
             Create();
+            EndParentContext();
         }
 
         protected virtual void Start()
@@ -23,7 +24,10 @@ namespace UCGUI
                 UCGUILogger.LogWarning($"{DisplayName} (Start): No canvas bound to screen!");
             }
             this.Maximize();
+            
+            BeginParentContext(this);
             Initialize();
+            EndParentContext();
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UCGUI.Services;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -321,6 +322,36 @@ namespace UCGUI
                 yield return EndOfFrameInstance;
             }
             then?.Invoke();
+        }
+
+        public static void BeginParentContext(BaseComponent component) => BeginParentContext(component.transform);
+        public static void BeginParentContext(GameObject component) => BeginParentContext(component.transform);
+        
+        private static Stack<Transform> _parentStack = new Stack<Transform>();
+
+        public static Transform PeekParentStack()
+        {
+            _parentStack.TryPeek(out Transform t);
+            return t;
+        }
+        
+        public static void BeginParentContext(Transform parent)
+        {
+            _parentStack.Push(parent);
+        }
+
+        public static void EndParentContext()
+        {
+            _parentStack.Pop();
+        }
+
+        public static void ParentContext(BaseComponent parent, UnityAction content) => ParentContext(parent.transform, content);
+        public static void ParentContext(GameObject parent, UnityAction content) => ParentContext(parent.transform, content);
+        public static void ParentContext(Transform parent, UnityAction content)
+        {
+            BeginParentContext(parent);
+            content();
+            EndParentContext();
         }
     }
 }

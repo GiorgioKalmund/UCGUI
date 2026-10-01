@@ -21,14 +21,17 @@ namespace UCGUI
         public void PaddingAdd(PaddingSide side, int amount) => _relevantLayout.PaddingAdd(side, amount);
         public void ReverseArrangement(bool reverse = true) => _relevantLayout.reverseArrangement = reverse;
 
-        public virtual void Add(params BaseComponent[] components)
+        public HorizontalOrVerticalLayoutComponent GetLayout() => _layout;
+
+        public void Add(params BaseComponent[] components)
         {
-            _layout.Add(components);
+            foreach (var baseComponent in components)
+                baseComponent.Parent(_layout);
         }
 
         public void Spacer()
         {
-            Add(UI.Spacer());
+            UI.Spacer();
         }
     }
 }

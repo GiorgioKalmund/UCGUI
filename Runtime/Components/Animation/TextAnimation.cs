@@ -1,11 +1,10 @@
 using System;
 using System.Text.RegularExpressions;
-using UnityEngine;
 
 namespace UCGUI
 {
     /// <summary>
-    /// Object containing all individual frames, as well as the time every frame will show for. <i>Assuming <see cref="SpriteAnimator.Speed"/> is 1</i>.
+    /// Object containing all individual frames, as well as the time every frame will show for. <i>Assuming <see cref="SpriteAnimator.speed"/> is 1</i>.
     /// <seealso cref="SpriteAnimator"/>
     /// </summary>
     /// <example>
@@ -16,11 +15,11 @@ namespace UCGUI
     /// SpriteAnimation myAnimation2 = new SpriteAnimation(frameArray, frameTimeArray);
     /// </code>
     /// </example>
-    [System.Serializable]
+    [Serializable]
     public class TextAnimation 
     {
-        public readonly string[] Frames;
-        public readonly float[] FramesPerSecond;
+        public string[] frames;
+        public float[] framesPerSecond;
 
         public enum Mode
         {
@@ -29,23 +28,23 @@ namespace UCGUI
 
         public TextAnimation(string[] frames, float[] framesPerSeconds)
         {
-            Frames = frames;
-            FramesPerSecond = framesPerSeconds;
+            this.frames = frames;
+            framesPerSecond = framesPerSeconds;
         }
 
         public TextAnimation(string text, Mode mode, float framesPerSecond)
         {
             string pattern = mode.GetPattern();
             var matches = Regex.Matches(text, pattern);
-            Frames = new string[matches.Count];
+            frames = new string[matches.Count];
 
             for (int index = 0; index < matches.Count; index++)
             {
-                Frames[index] = matches[index].Value;
+                frames[index] = matches[index].Value;
             }
             
-            FramesPerSecond = new float[Frames.Length];
-            Array.Fill(FramesPerSecond, framesPerSecond);
+            this.framesPerSecond = new float[frames.Length];
+            Array.Fill(this.framesPerSecond, framesPerSecond);
         }
     }
 

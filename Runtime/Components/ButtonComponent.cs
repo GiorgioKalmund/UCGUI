@@ -51,7 +51,7 @@ namespace UCGUI
         public ButtonComponent FitToContents(PaddingSide side, int amount, float spacing, ScrollViewDirection direction = ScrollViewDirection.Both)
         {
             AddFitter(direction);
-            this.Padding(side, amount, direction);
+            this.Padding(side, amount);
             Spacing(spacing);
             return this;
         }

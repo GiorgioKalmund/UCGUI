@@ -13,21 +13,21 @@ namespace UCGUI
     /// Variables:
     /// <list type="bullet">
     /// <item><description><see cref="currentAnimation"/> - The current <see cref="SpriteAnimation"/>.</description></item>
-    /// <item><description><see cref="CurrentState"/> - The current <see cref="State"/> the animator is in.</description></item>
-    /// <item><description><see cref="Speed"/> - The playback speed. Default value is 1f.</description></item>
-    /// <item><description><see cref="AnimationType"/> - The <see cref="Type"/> of the animator.</description></item>
+    /// <item><description><see cref="currentState"/> - The current <see cref="State"/> the animator is in.</description></item>
+    /// <item><description><see cref="speed"/> - The playback speed. Default value is 1f.</description></item>
+    /// <item><description><see cref="animationType"/> - The <see cref="Type"/> of the animator.</description></item>
     /// </list>
     /// Functions:
     /// <list type="bullet">
-    /// <item><description><see cref="Play"/> - Sets the <see cref="CurrentState"/> to <see cref="State.Running"/>.<i>If the animation is already <see cref="State.Completed"/>, will simply return.</i></description></item>
-    /// <item><description><see cref="Pause"/> - Sets the <see cref="CurrentState"/> to <see cref="State.Paused"/>.</description></item>
+    /// <item><description><see cref="Play"/> - Sets the <see cref="currentState"/> to <see cref="State.Running"/>.<i>If the animation is already <see cref="State.Completed"/>, will simply return.</i></description></item>
+    /// <item><description><see cref="Pause"/> - Sets the <see cref="currentState"/> to <see cref="State.Paused"/>.</description></item>
     /// <item><description><see cref="ResetAnimation"/> - Resets the current animation by setting the state to <see cref="State.None"/>.</description></item>
     /// <item><description><see cref="RestartAnimation"/> - Resets and then plays the current animation.</description></item>
     /// </list>
     /// Events:
     /// <list type="bullet">
-    /// <item><description><see cref="OnPing"/> - Event fired when <see cref="AnimationType"/> is set to <see cref="Type.PingPong"/> and the <see cref="PingPongPhase.Ping"/> is reached. <i>Does <b>NOT</b> fire at the initial "Ping" when the animation starts.</i></description></item>
-    /// <item><description><see cref="OnPong"/> - Event fired when <see cref="AnimationType"/> is set to <see cref="Type.PingPong"/> and the <see cref="PingPongPhase.Pong"/> is reached.</description></item>
+    /// <item><description><see cref="OnPing"/> - Event fired when <see cref="animationType"/> is set to <see cref="Type.PingPong"/> and the <see cref="PingPongPhase.Ping"/> is reached. <i>Does <b>NOT</b> fire at the initial "Ping" when the animation starts.</i></description></item>
+    /// <item><description><see cref="OnPong"/> - Event fired when <see cref="animationType"/> is set to <see cref="Type.PingPong"/> and the <see cref="PingPongPhase.Pong"/> is reached.</description></item>
     /// </list>
     /// <seealso cref="TextAnimation"/>
     /// <seealso cref="TextComponent.AddAnimator"/>
@@ -60,13 +60,13 @@ namespace UCGUI
         }
         
         public TextAnimation currentAnimation;
-        public State CurrentState { get; private set; } = State.None;
-        public Type AnimationType { get; private set;  }
+        public State currentState = State.None;
+        public Type animationType = Type.Loop;
         private PingPongPhase _currentPingPongPhase = PingPongPhase.Ping;
-        public float Speed { get; private set; } = 1f;
+        public float speed = 1f;
         public float ElapsedTime { get; private set; }
-        public int CurrentFrame { get; private set; }
-        public int AnimationLength => currentAnimation.Frames.Length;
+        public int currentFrame;
+        public int AnimationLength => currentAnimation.frames.Length;
 
         private UnityEvent _onPing;
         public UnityEvent OnPing {
@@ -90,7 +90,7 @@ namespace UCGUI
 
         public void Play()
         {
-            if (CurrentState == State.Completed)
+            if (currentState == State.Completed)
                 return;
             
             if (AnimationLength <= 1)
@@ -99,15 +99,15 @@ namespace UCGUI
                 return;
             }
             
-            CurrentState = State.Running;
+            currentState = State.Running;
         }
 
         public void Pause()
         {
-            if (CurrentState == State.Completed)
+            if (currentState == State.Completed)
                 return;
             
-            CurrentState = State.Paused;
+            currentState = State.Paused;
         }
 
         private void Start()
@@ -118,7 +118,7 @@ namespace UCGUI
 
         private void Update()
         {
-            if (CurrentState != State.Running || currentAnimation == null)
+            if (currentState != State.Running || currentAnimation == null)
                 return;
             
             ElapsedTime += Time.deltaTime;
@@ -133,33 +133,33 @@ namespace UCGUI
         public TextAnimator CreateAnimation(TextAnimation anim, Type animationType, float speed = 1f)
         {
             currentAnimation = anim;
-            AnimationType = animationType;
-            Speed = speed;
+            this.animationType = animationType;
+            this.speed = speed;
             return this;
         }
 
         public void NextFrame()
         {
-            switch (AnimationType)
+            switch (animationType)
             {
                 case Type.Loop:
                 {
-                    CurrentFrame++;
-                    if (CurrentFrame == AnimationLength)
+                    currentFrame++;
+                    if (currentFrame == AnimationLength)
                         Text.Clear();
-                    CurrentFrame %= AnimationLength;
+                    currentFrame %= AnimationLength;
                     SetFrame();
                     break;   
                 }
                 case Type.Once:
                 {
-                    CurrentFrame++;
-                    if (CurrentFrame < AnimationLength)
+                    currentFrame++;
+                    if (currentFrame < AnimationLength)
                         SetFrame();
                     else
                     {
-                        CurrentFrame = AnimationLength - 1;
-                        CurrentState = State.Completed;
+                        currentFrame = AnimationLength - 1;
+                        currentState = State.Completed;
                     }
                     break;
                 }
@@ -167,26 +167,26 @@ namespace UCGUI
                 {
                     if (_currentPingPongPhase == PingPongPhase.Ping)
                     {
-                        if (CurrentFrame == AnimationLength - 1)
+                        if (currentFrame == AnimationLength - 1)
                         {
                             _currentPingPongPhase = PingPongPhase.Pong;
                             _onPong?.Invoke();
                             PingPongPhaseBackFrame();
                             break;
                         }
-                        CurrentFrame++;
+                        currentFrame++;
                         SetFrame();
                     }
                     else
                     {
-                        if (CurrentFrame == 0)
+                        if (currentFrame == 0)
                         {
                             _currentPingPongPhase = PingPongPhase.Ping;
                             _onPing?.Invoke();
                             SetFrame();
                             break;
                         }
-                        CurrentFrame--;
+                        currentFrame--;
                         PingPongPhaseBackFrame();
                     }
                     break;
@@ -199,8 +199,8 @@ namespace UCGUI
         public void ResetAnimation()
         {
             ClearText();
-            CurrentFrame = 0;
-            CurrentState = State.None;
+            currentFrame = 0;
+            currentState = State.None;
             ElapsedTime = 0;
             _currentPingPongPhase = PingPongPhase.Ping;
             SetFrame();
@@ -225,28 +225,28 @@ namespace UCGUI
 
         private void SetFrame()
         {
-            Text.GetTextMesh().text += currentAnimation.Frames[CurrentFrame];
+            Text.GetTextMesh().text += currentAnimation.frames[currentFrame];
         }
         private void PingPongPhaseBackFrame()
         {
-            string frameText = currentAnimation.Frames[CurrentFrame];
+            string frameText = currentAnimation.frames[currentFrame];
             var textMesh = Text.GetTextMesh();
             textMesh.text = textMesh.text.Substring(0, textMesh.text.Length - frameText.Length);
         }
 
         float GetFrameTime()
         {
-            if (CurrentFrame < 0 || CurrentFrame >= currentAnimation.FramesPerSecond.Length)
-                Debug.Log(AnimationType + ": "+ currentAnimation.FramesPerSecond.Length + $">> ({CurrentFrame})");
-            return 1f / (currentAnimation.FramesPerSecond[CurrentFrame] * Speed);
+            if (currentFrame < 0 || currentFrame >= currentAnimation.framesPerSecond.Length)
+                UCGUILogger.LogError(animationType + ": "+ currentAnimation.framesPerSecond.Length + $">> ({currentFrame})", this);
+            return 1f / (currentAnimation.framesPerSecond[currentFrame] * speed);
         }
 
         public TextAnimator Configure(Type? type = null, float? speed = null)
         {
             if (type.HasValue)
-                AnimationType = type.Value;
+                animationType = type.Value;
             if (speed.HasValue)
-                Speed = speed.Value;
+                this.speed = speed.Value;
             return this;
         }
 
@@ -261,10 +261,10 @@ namespace UCGUI
             base.CopyFrom(other, fullyCopyRect);
             DisplayName = other.DisplayName + " (Copy)";
             
-            Speed = other.Speed;
+            speed = other.speed;
             currentAnimation = other.currentAnimation;
-            CurrentState = other.CurrentState;
-            CurrentFrame = other.CurrentFrame;
+            currentState = other.currentState;
+            currentFrame = other.currentFrame;
 
             return this;
         }
@@ -279,7 +279,7 @@ namespace UCGUI
                 style.normal.textColor = Color.red;
                 style.fontSize = 14; 
                 
-                Handles.Label(transform.position, $"Type: {AnimationType}\nState: {CurrentState}\nFrame: {CurrentFrame}\nSpeed: {Speed}\nFrames: {currentAnimation.Frames.Length}", style);
+                Handles.Label(transform.position, $"Type: {animationType}\nState: {currentState}\nFrame: {currentFrame}\nSpeed: {speed}\nFrames: {currentAnimation.frames.Length}", style);
             }
         }
         #endif

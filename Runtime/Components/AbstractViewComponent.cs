@@ -21,7 +21,7 @@ namespace UCGUI
     public abstract class AbstractViewComponent : ImageComponent, IRenderable
     {
         protected AbstractViewComponent() {}
-        public bool IsOpen { get; protected set; } = Defaults.View.StartsOpen;
+        public bool IsOpen { get; protected set; }
 
         #region Events
 
@@ -122,7 +122,7 @@ namespace UCGUI
         #endregion
 
         [CanBeNull] protected Canvas canvas;
-        public CanvasGroup canvasGroup;
+        [HideInInspector] public CanvasGroup canvasGroup;
         
         /// <summary>
         /// Whether the view is locked. Locked views cannot be opened
@@ -140,7 +140,7 @@ namespace UCGUI
         /// If set to true will add a listener to the back pane of the view
         /// which is bound to <see cref="Close"/>.
         /// </summary>
-        public bool ClosesOnBackgroundTap { get; protected set; }
+        public bool ViewClosesOnBackgroundTap { get; private set; }
 
         /// <summary>
         /// Reference to the <see cref="ViewStackComponent"/>, if the view has joined one.
@@ -157,9 +157,13 @@ namespace UCGUI
             _button = gameObject.GetOrAddComponent<Button>();
             _button.transition = Selectable.Transition.None;
             
+            IsOpen = Defaults.View.StartsOpen;
+            
             Color(Defaults.View.DefaultBackdropColor);
             
+            BeginParentContext(this);
             Create();
+            EndParentContext();
         }
 
         /// <summary>
@@ -169,10 +173,9 @@ namespace UCGUI
         
         protected virtual void Start()
         {
-            if (ClosesOnBackgroundTap)
-                _button.onClick.AddListener(Close);
-            
+            BeginParentContext(this);
             Initialize();
+            EndParentContext();
             
             if (IsOpen) ForceOpen(); else ForceClose();
         }
@@ -305,19 +308,7 @@ namespace UCGUI
         public AbstractViewComponent Add(params BaseComponent[] components)
         {
             foreach (var baseComponent in components)
-            {
-                Add(baseComponent);
-            }
-            return this;
-        }
-        /// <summary>
-        /// Parents the component to the view.
-        /// </summary>
-        /// <param name="component">The component to add.</param>
-        /// <returns></returns>
-        public virtual AbstractViewComponent Add(BaseComponent component)
-        {
-            component.Parent(this);
+                baseComponent.Parent(this);
             return this;
         }
         
@@ -388,6 +379,9 @@ namespace UCGUI
         }
         public virtual void OnDisable()
         {
+            if (ViewClosesOnBackgroundTap)
+                _button.onClick.RemoveListener(Close);
+            
             _toggleAction?.Disable();
             _openAction?.Disable();
             _closeAction?.Disable();
@@ -411,7 +405,7 @@ namespace UCGUI
         /// <br></br> Preferably you should call <see cref="ViewStackComponent.PopUntil(AbstractViewComponent)"/>.
         /// </summary>
         /// <returns>Whether the operation was successful.</returns>
-        public virtual bool BackToSelfInViewStack()
+        public bool BackToSelfInViewStack()
         {
             return viewStackComponent?.PopUntil(this) ?? false;
         }
@@ -463,10 +457,22 @@ namespace UCGUI
             if (debugOptions.HasFlag(DebugOptions.TextOnly))
             {
                 RectTransform rect = gameObject.GetComponent<RectTransform>();
-                Handles.Label(transform.position + new Vector3(-rect.sizeDelta.x / 2, rect.sizeDelta.y / 2, 0),  $"\nOpen:{IsOpen}\nLocked:{IsLocked}\nClosesOnTap:{ClosesOnBackgroundTap}", Defaults.Debug.DebugRed(8));
+                Handles.Label(transform.position + new Vector3(-rect.sizeDelta.x / 2, rect.sizeDelta.y / 2, 0),  $"\nOpen:{IsOpen}\nLocked:{IsLocked}\nClosesOnTap:{ViewClosesOnBackgroundTap}", Defaults.Debug.DebugRed(8));
             }
         }
         #endif
+
+
+        public AbstractViewComponent ClosesOnBackgroundTap(bool closes)
+        {
+            if (closes)
+                _button.onClick.AddListener(Close);
+            else 
+                _button.onClick.RemoveListener(Close);
+            ViewClosesOnBackgroundTap = closes;
+            
+            return this;
+        }
 
         /// <summary>
         /// Minimal builder for small and simple views.
@@ -498,8 +504,8 @@ namespace UCGUI
             /// <summary>
             /// Sets whether the view closes automatically when tapping on its background.
             /// </summary>
-            /// <param name="closes">Boolean controlling <see cref="AbstractViewComponent.ClosesOnBackgroundTap"/>.</param>
-            public void CloseOnBackgroundTap(bool closes = true) => abstractViewComponent.ClosesOnBackgroundTap = closes;
+            /// <param name="closes">Boolean controlling <see cref="AbstractViewComponent.ViewClosesOnBackgroundTap"/>.</param>
+            public void CloseOnBackgroundTap(bool closes = true) => abstractViewComponent.ClosesOnBackgroundTap(closes);
         }
     }
 }

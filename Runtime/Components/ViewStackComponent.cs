@@ -52,7 +52,7 @@ namespace UCGUI
         
         #endregion
         
-        public Stack<AbstractViewComponent> stack = new Stack<AbstractViewComponent>();
+        public List<AbstractViewComponent> stack = new List<AbstractViewComponent>();
 
         protected override void Awake()
         {
@@ -70,29 +70,52 @@ namespace UCGUI
         /// <i><see cref="AbstractViewComponent.OnStackHide"/> is invoked on the popped view here.</i>
         /// <i><see cref="AbstractViewComponent.OnStackReveal"/> is invoked on the new top view here.</i>
         /// </remarks>
-        public virtual void Pop()
+        public AbstractViewComponent Pop()
         {
-            if (stack.TryPop(out AbstractViewComponent top))
+            if (stack.Count > 0)
             {
+                var top = stack[^1];
                 top.LeaveStack().Close();
-                if (stack.TryPeek(out AbstractViewComponent newTop))
+                stack.RemoveAt(stack.Count - 1);
+                
+                if (stack.Count > 0)
                 {
+                    var newTop = stack[^1];
                     newTop.onStackReveal?.Invoke();
                     newTop.onStatusChanged?.Invoke(ViewStatus.Revealed);
                     newTop.HandleViewStackReveal();
                 }
                 if (stack.Count == 0)
                     _onLastPop?.Invoke();
+
+                return top;
             }
-            else
-                UCGUILogger.LogWarning("Cannot pop from an already empty stack!");
+
+            UCGUILogger.LogWarning("Cannot pop from an already empty stack!");
+            return null;
+        }
+
+        /// <summary>
+        /// Attempts to remove the top view from the stack and close it.
+        /// </summary>
+        /// <remarks>See more details on functionality in <see cref="Pop"/>.</remarks>
+        public bool TryPop(out AbstractViewComponent view)
+        {
+            if (stack.Count > 0)
+            {
+                view = Pop();
+                return true;
+            }
+
+            view = null;
+            return false;
         }
 
         /// <summary>
         /// Goes back to a specific view in the stack if present. If the target view is not part of the stack will not do anything.
         /// </summary>
         /// <param name="abstractViewComponent">The view to go back to.</param>
-        public virtual bool PopUntil(AbstractViewComponent abstractViewComponent)
+        public bool PopUntil(AbstractViewComponent abstractViewComponent)
         {
             AbstractViewComponent current = Peek();
             if (!stack.Contains(abstractViewComponent))
@@ -120,7 +143,7 @@ namespace UCGUI
         /// <i><see cref="AbstractViewComponent.OnStackHide"/> is invoked on the previous top view here.</i>
         /// <i><see cref="AbstractViewComponent.OnStackReveal"/> is invoked on the pushed view here.</i>
         /// </remarks>
-        public virtual void Push(AbstractViewComponent abstractViewComponent)
+        public void Push(AbstractViewComponent abstractViewComponent)
         {
             if (!abstractViewComponent)
             {
@@ -133,25 +156,42 @@ namespace UCGUI
                 return;
             }
 
-            if (stack.TryPeek(out AbstractViewComponent oldTop))
+            if (stack.Count > 0)
             {
+                var oldTop = stack[^1];
                 oldTop.onStackHide?.Invoke();
                 oldTop.onStatusChanged?.Invoke(ViewStatus.Hidden);
                 oldTop.HandleViewStackHide();
             }
             else
                 _onFirstPush?.Invoke();
-            stack.Push(abstractViewComponent); 
+            stack.Add(abstractViewComponent); 
             abstractViewComponent.JoinStack(this).Open();
         }
 
         /// <summary>
-        /// 
+        /// Tries to peek at the top of the view stack.
+        /// </summary>
+        /// <returns>The top view in the stack without removing it.</returns>
+        public bool TryPeek(out AbstractViewComponent view)
+        {
+            if (stack.Count > 0)
+            {
+                view = stack[^1];
+                return true;
+            }
+
+            view = null;
+            return false;
+        }
+
+        /// <summary>
+        /// Tries to peek at the top of the view stack.
         /// </summary>
         /// <returns>The top view in the stack without removing it.</returns>
         public AbstractViewComponent Peek()
         {
-            return stack.TryPeek(out AbstractViewComponent top) ? top : null;
+            return stack.Count > 0 ? stack[^1] : null;
         }
 
         /// <summary>
@@ -176,12 +216,16 @@ namespace UCGUI
         /// Shorthand for replacing the top most view with a new view. Closes the top view and then pushes the new view onto the stack.
         /// </summary>
         /// <param name="with">The new view to replace the previous top view.</param>
-        public virtual void ReplaceTop(AbstractViewComponent with)
+        public void ReplaceTop(AbstractViewComponent with)
         {
             if (IsEmpty())
-                UCGUILogger.LogWarning("[ViewStackComponent]: ReplaceTop was invoked but the stack is empty. Consider calling 'Push' instead.");
-            else
-                Pop();
+                UCGUILogger.LogWarning("[ViewStackComponent]: ReplaceTop was invoked but the stack is empty. Pushed the element to the stack anyways. Consider calling 'Push' instead to remove the warning.", with);
+            else if (Peek() == with)
+            {
+                UCGUILogger.LogWarning($"[ViewStackComponent]: ReplaceTop was invoked with '{with.name}' but it's already at the top of the stack.", with);
+                return;
+            }
+            else Pop();
             
             Push(with);
         }
