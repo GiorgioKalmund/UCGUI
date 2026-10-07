@@ -1,0 +1,147 @@
+using UCGUI.Styles;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace UCGUI
+{
+    /// <summary>
+    /// UCGUI's default Label Component.
+    /// </summary>
+    public class LabelComponent : AbstractSwitchLayoutComponent<LabelComponent>, IStylable<LabelComponent, LabelStyle>, ICopyable<LabelComponent>
+    {
+        protected LabelComponent() {}
+
+        protected ImageComponent _image;
+
+        public ImageComponent image
+        {
+            get => _image ??= CreateImage();
+            set => _image = value;
+        }
+
+        protected virtual ImageComponent CreateImage()
+        {
+            return UI.N<ImageComponent>(this).RaycastTarget(false);
+        }
+
+        protected TextComponent _text;
+        
+        public TextComponent text
+        {
+            get => _text ??= CreateText();
+            set => _text = value;
+        }
+        
+        protected virtual TextComponent CreateText()
+        {
+            return UI.N<TextComponent>(this);
+        }
+
+        protected override void Awake()
+        {
+            base.Awake();
+            
+            FitToContents();
+        }
+
+        public LabelComponent Text(string t, TextComponent.TextMode mode = TextComponent.TextMode.Normal, Color? color = null)
+        {
+            text.Text(t, mode, color);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds an <see cref="LayoutElement"/> to the image and sets 'minWidth' and 'minHeight' of
+        /// its layout.
+        /// </summary>
+        /// <param name="minWidth">The minimum width the image will retain.</param>
+        /// <param name="minHeight">The minium height the image will retain.</param>
+        public LabelComponent MinImageSize(float minWidth, float minHeight) => MinImageSize(new Vector2(minWidth, minHeight));
+
+        /// <summary>
+        /// Adds an <see cref="LayoutElement"/> to the image and sets 'minWidth' and 'minHeight' of
+        /// its layout.
+        /// </summary>
+        /// <param name="size">The min width and height.</param>
+        /// <seealso cref="MinImageSize(float,float)"/>
+        public LabelComponent MinImageSize(Vector2 size)
+        {
+            _image?.MinimumSize(size);
+            return this;
+        }
+
+        public LabelComponent PrefImageSize(Vector2 size)
+        {
+            _image?.PreferredSize(size);
+            return this;
+        }
+
+        public override LabelComponent FitToContents(bool fit = true)
+        {
+            base.FitToContents(fit);
+            _text?.FitToContents(fit);
+            return this;
+        }
+        
+        public override ImageComponent Maskable(bool maskable)
+        {
+            base.Maskable(maskable);
+            _text?.Maskable(maskable);
+            _image?.Maskable(maskable);
+            return this;
+        }
+        
+        public LabelComponent Style(LabelStyle style)
+        {
+            style.Apply(this);
+            return this;
+        }
+
+        public new virtual LabelComponent Copy(bool fullyCopyRect = true)
+        {
+            LabelComponent copyLabel = this.BaseCopy(this);
+            return copyLabel.CopyFrom(this, fullyCopyRect);
+        }
+
+        public new virtual LabelComponent CopyFrom(LabelComponent other, bool fullyCopyRect = true)
+        {
+            base.CopyFrom(other, fullyCopyRect);
+            if (other._image != null)
+                image.CopyFrom(other.image, fullyCopyRect);
+            if (other._text != null)
+                text.CopyFrom(other.text, fullyCopyRect);
+            return this;
+        }
+
+        public new bool HasImage()
+        {
+            return _image != null;
+        }
+        
+        public bool HasText()
+        {
+            return _text != null;
+        }
+
+        public LabelComponent Init(string s)
+        {
+            text.Text(s);
+            return this;
+        }
+        
+        public LabelComponent Init(string s, Sprite sprite)
+        {
+            if (sprite != null)
+                image.Sprite(sprite);
+            text.Text(s);
+            return this;
+        }
+
+        protected override HorizontalOrVerticalLayoutGroup GetLayout()
+        {
+            if (VerticalLayout)
+                return VerticalLayout;
+            return HorizontalLayout;
+        }
+    }
+}

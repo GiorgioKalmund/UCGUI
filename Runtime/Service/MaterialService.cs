@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace UCGUI.Services
+namespace UCGUI.Service
 {
     /// <summary>
     /// A simple interface for loading Materials using Unity's Resources API

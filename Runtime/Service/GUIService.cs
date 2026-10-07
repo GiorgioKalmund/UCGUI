@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace UCGUI.Services
+namespace UCGUI.Service
 {
     /// <summary>
     /// A simple service for accessing some things relevant to GUIs

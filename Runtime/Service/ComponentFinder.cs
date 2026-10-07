@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace UCGUI.Services
+namespace UCGUI.Service
 {
     public static class ComponentFinder
     {

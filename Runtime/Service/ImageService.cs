@@ -1,7 +1,8 @@
 using JetBrains.Annotations;
+using UCGUI.Support;
 using UnityEngine;
 
-namespace UCGUI.Services
+namespace UCGUI.Service
 {
     /// <summary>
     /// The ImageService uses Unity's Resources API to load

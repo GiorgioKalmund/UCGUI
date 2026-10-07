@@ -1,0 +1,293 @@
+using System.Collections.Generic;
+using JetBrains.Annotations;
+using UCGUI.Styles;
+using UCGUI.Support;
+using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.UI;
+
+namespace UCGUI
+{
+    /// <summary>
+    /// UCGUI's default Button Component.
+    /// <para>
+    /// Implements <see cref="ICopyable{T}"/> which allows <see cref="ICopyable{T}.CopyFrom"/> and <see cref="ICopyable{T}.Copy"/>.
+    /// </para>
+    /// </summary>
+    public class ButtonComponent : LabelComponent, IFocusable, IInteractable, ICopyable<ButtonComponent>, IStylable<ButtonComponent, ButtonStyle>
+    {
+        protected ButtonComponent() {}
+        
+        public Button button;
+
+        protected readonly List<UnityAction> listeners = new List<UnityAction>();
+
+        protected override void Awake()
+        {
+            base.Awake();
+            
+            button = gameObject.GetOrAddComponent<Button>();
+            Style(ButtonStyle.Plain);
+        }
+
+        protected override TextComponent CreateText()
+        {
+            return base.CreateText().Style(TextStyle.ButtonText);
+        }
+
+        /// <summary>
+        /// Invokes the 'onClick' event of the button. If the button is disabled / not interactable
+        /// pressing it will not do anything unless <see cref="force"/> is set to true.
+        /// </summary>
+        /// <param name="force">Overrides the interactable restriction of the button if set to true.</param>
+        public bool Press(bool force = false)
+        {
+            if (!button.IsInteractable() && !force)
+                return false;
+            button.onClick.Invoke();
+            return true;
+        }
+
+        public ButtonComponent FitToContents(PaddingSide side, int amount, float spacing, ScrollViewDirection direction = ScrollViewDirection.Both)
+        {
+            AddFitter(direction, ContentSizeFitter.FitMode.PreferredSize);
+            this.Padding(side, amount);
+            Spacing(spacing);
+            return this;
+        }
+        
+        public ButtonComponent FitToContents(int padding = 0, float spacing = 0f, ScrollViewDirection direction = ScrollViewDirection.Both)  
+        {
+            return FitToContents(PaddingSide.All, padding, spacing, direction);
+        }
+        
+
+        public ButtonComponent Function(UnityAction action, bool keepLast = false)
+        {
+            if (!keepLast && listeners.Count > 1)
+            {
+                var last = listeners[^1];
+                RemoveFunction(last);
+            }
+            button.onClick.AddListener(action);
+            listeners.Add(action);
+            return this;
+        }
+        
+        public ButtonComponent RemoveFunction(UnityAction action)
+        {
+            button.onClick.RemoveListener(action);
+            listeners.Remove(action);
+            return this;
+        }
+        
+        public ButtonComponent ClearAllFunctions()
+        {
+            button.onClick.RemoveAllListeners();
+            listeners.Clear();
+            return this;
+        }
+
+        public override BaseComponent HandleSizeChanged(float x, float y)
+        {
+            base.HandleSizeChanged(x, y);
+            if (HorizontalLayout && HorizontalLayout.enabled || VerticalLayout && VerticalLayout.enabled)
+                return this;
+            
+            _image?.Size(x, y);
+            _text?.Size(x, y);
+            return this;
+        }
+
+        public ButtonComponent HighlightedColor(Color color)
+        {
+            var colors = button.colors;
+            colors.highlightedColor = color;
+            button.colors = colors;
+            return this;
+        }
+        
+        public ButtonComponent PressedColor(Color color)
+        {
+            var colors = button.colors;
+            colors.pressedColor = color;
+            button.colors = colors;
+            return this;
+        }
+        
+        public ButtonComponent DisabledColor(Color color)
+        {
+            var colors = button.colors;
+            colors.disabledColor = color;
+            button.colors = colors;
+            return this;
+        }
+        
+        public ButtonComponent HighlightedSprite(Sprite sprite)
+        {
+            var sprites = button.spriteState;
+            sprites.highlightedSprite = sprite;
+            button.spriteState = sprites;
+            return this;
+        }
+        
+        public ButtonComponent PressedSprite(Sprite sprite)
+        {
+            var sprites = button.spriteState;
+            sprites.pressedSprite = sprite;
+            button.spriteState = sprites;
+            return this;
+        }
+        
+        public ButtonComponent DisabledSprite(Sprite sprite)
+        {
+            var sprites = button.spriteState;
+            sprites.disabledSprite = sprite;
+            button.spriteState = sprites;
+            return this;
+        }
+
+        public ButtonComponent Interactable(bool interactable)
+        {
+            button.interactable = interactable;
+            HandleInteractable(interactable); 
+            return this;
+        }
+        
+        public bool IsInteractable() => button.IsInteractable();
+
+        protected virtual void HandleInteractable(bool interactable)
+        {
+            
+        }
+
+        public bool Interact() => Press();
+
+        public new virtual ButtonComponent Copy(bool fullyCopyRect = true)
+        {
+            ButtonComponent copyButton = this.BaseCopy(this);
+            return copyButton.CopyFrom(this, fullyCopyRect);
+        }
+
+        public virtual ButtonComponent CopyFrom(ButtonComponent other, bool fullyCopyRect = true)
+        {
+            if (other.ContentSizeFitter)
+            {
+                FitToContents();
+                ContentSizeFitter.horizontalFit = other.ContentSizeFitter.horizontalFit;
+                ContentSizeFitter.verticalFit = other.ContentSizeFitter.verticalFit;
+            }
+            
+            base.CopyFrom(other, fullyCopyRect);
+            button.CopyFrom(other.button);
+            
+            ClearAllFunctions();
+            foreach (var unityAction in other.listeners)
+            {
+                Function(unityAction);
+            }
+
+            return this;
+        }
+
+
+        public string FocusGroup { get; set; }
+        
+        public UnityEvent OnFocusEvent { get; set; }
+        
+        public UnityEvent OnUnfocusEvent { get; set; }
+        
+        public virtual void HandleFocus() { }
+        public virtual void HandleUnfocus() { }
+
+        public ButtonComponent Transition(Selectable.Transition transition)
+        {
+            button.transition = transition;
+            return this;
+        }
+
+        public ButtonComponent SpriteSwap(Sprite highlightedSprite = null, Sprite pressedSprite = null, Sprite disabledSprite = null)
+        {
+            Transition(Selectable.Transition.SpriteSwap);
+            var state = button.spriteState;
+            HighlightedSprite(highlightedSprite ?? state.selectedSprite);
+            PressedSprite(pressedSprite ?? state.selectedSprite);
+            DisabledSprite(disabledSprite ?? state.selectedSprite);
+            return this;
+        }
+
+        public ButtonComponent Style(ButtonStyle style)
+        {
+            style.Apply(this);
+            return this;
+        }
+
+        public ButtonComponent TargetGraphic(Graphic g)
+        {
+            button.targetGraphic = g;
+            return this;
+        }
+        
+        public override void Enabled(bool on)
+        {
+            base.Enabled(on);
+            button.interactable = on;
+            _image?.Enabled(on);
+            _text?.Enabled(on);
+            if (HorizontalLayout) HorizontalLayout.enabled = on;
+            if (VerticalLayout) VerticalLayout.enabled = on;
+            if (ContentSizeFitter) ContentSizeFitter.enabled = on;
+        }
+
+        /// <summary>
+        /// Initializes the button with some text and an accompanying optional image.
+        /// </summary>
+        /// <param name="s">The string text of the button.</param>
+        /// <param name="sprite">(Optional) sprite to be shown next to the text.</param>
+        /// <returns></returns>
+        public ButtonComponent Label(string s, [CanBeNull] Sprite sprite = null)
+        {
+            Init(s, sprite);
+            return this;
+        }
+
+        public class ButtonBuilder
+        {
+            private ButtonComponent _button;
+
+            public ButtonBuilder(ButtonComponent button) => _button = button;
+            
+            /// <summary>
+            /// Modifies the label of the button.
+            /// </summary>
+            /// <param name="text">The text of the label.</param>
+            /// <param name="image">(Optional) The image of the label.</param>
+            public void Label(string text, [CanBeNull] Sprite image = null) => _button.Init(text, image);
+
+            public TextComponent ForegroundStyle(Color color, float alpha)
+            {
+                _button.text.Color(color, alpha);
+                return _button.text;
+            }
+
+            public TextComponent Text() => _button.text;
+            
+            public ImageComponent ImageSize(Vector2 size)
+            {
+                _button.MinImageSize(size);
+                return _button.image;
+            }
+            
+            public ImageComponent Image() => _button.image;
+
+            /// <summary>
+            /// Deleted the default <see cref="LabelComponent"/> elements.
+            /// </summary>
+            public void DestroyDefaultContent() 
+            {
+                Destroy(_button._text?.gameObject);
+                Destroy(_button._image.gameObject);
+            }
+        }
+    }
+}

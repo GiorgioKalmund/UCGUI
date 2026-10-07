@@ -1,0 +1,88 @@
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace UCGUI
+{
+    public abstract class LayoutComponent : ImageComponent
+    {
+        protected override void Awake()
+        {
+            base.Awake();
+            Color(UnityEngine.Color.clear);
+        }
+
+        public virtual void Add(params BaseComponent[] elements) 
+        {
+            foreach (var element in elements)
+            {
+                element.Parent(this);
+            }
+        }
+
+        public override void Enabled(bool on)
+        {
+            base.Enabled(on);
+            foreach (Transform child in GetRect())
+            {
+                if (child.GetComponent<MonoBehaviour>() is IEnabled e)
+                {
+                    e.Enabled(on);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Marks this element for rebuild inside the Canvas. 
+        /// </summary>
+        public void MarkForRebuild()
+        {
+            LayoutRebuilder.MarkLayoutForRebuild(GetRect());
+        }
+
+        /// <summary>
+        /// Force rebuilds this element based on its current position in the hierarchy.
+        /// </summary>
+        /// <remarks>WARNING: Should only be used with care as it can be resource intensive and cause lag.</remarks>
+        public void ForceRebuild()
+        {
+            Canvas.ForceUpdateCanvases();
+
+            LayoutRebuilder.ForceRebuildLayoutImmediate(
+                GetLayoutRoot(transform as RectTransform));
+        }
+        
+        static RectTransform GetLayoutRoot(RectTransform rect)
+        {
+            var root = rect;
+
+            while (root.parent is RectTransform parent)
+            {
+                if (parent.GetComponent<ILayoutGroup>() != null)
+                    root = parent;
+                else
+                    break;
+            }
+
+            return root;
+        }
+
+        /// <summary>
+        /// Calls <see cref="SpacerComponent.RenderImmediate"/> or <see cref="SpacerComponent.Render"/> on all containing <see cref="SpacerComponent"/>s.
+        /// </summary>
+        /// <param name="immediate">Whether to immediately re-render the spacer or not.</param>
+        public void RerenderSpacers(bool immediate = true)
+        {
+            foreach (RectTransform child in GetRect().transform)
+            {
+                var spacer = child.gameObject.GetComponent<SpacerComponent>();
+                if (spacer)
+                {
+                    if (immediate)
+                        spacer.RenderImmediate();
+                    else
+                        spacer.Render();
+                }
+            }
+        }
+    }
+}

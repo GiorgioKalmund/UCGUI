@@ -234,3 +234,26 @@
 - Child alignment is now only copied between layouts if they are of the same type by default, a boolean enables a 1:1 copy.
 - Cleaned up some ui functions and documentation.
 - Made more parts of the animations and animator classes' context serializable and visible in the editor.
+
+## [1.0.28] - 2026-10-07
+### Better Slider, Reduced Dependencies, Flatter Hierarchy, Cleanup & Fixes
+- Reworked `SliderComponent` to be more flexible and simple.
+  - This includes removing the `SliderBuilder` abstraction layer in favour of simply exposing the desired sub-components directly.
+  - Changing the padding of the fill and handle areas is now easily possible
+  - The `HandleWidth(...)` function can also adjust the padding if the behaviour desires the handle to be always fully enclosed in the slider.
+  - Added dedicated `Interactable()` call
+- Removed the Unity.VisualScripting asmdef dependency. 
+  - Replaced calls like `GetOrAddComponent<T>()` with a custom extension which might not be fully optimal but keeping the dependencies lower seemed better.
+- Flattened the folder hierarchy into the top level [Runtime](Runtime) folder.
+  - Also cleaned up some namespace aspects, making it more clear what parts belong to the core functionality `UCGUI` namespace, and which are optional (`UCGUI.Support` and `UCGUI.Service`).
+- Removed DragViewComponent.
+  - This is in favor of balancing the "library" vs "framework" principle. UCGUI is still in its identifiy phase and it was decided that the DragView did not provide enough value and flexibility to be general-purpose enough. User's can also pretty trivially re-implement it if desired.
+- Renamed `UI.Empty` to `UI.Blank` with the `UI.Empty` now creating a simple GameObject with no additional components attached, mirroring the naming convention the user is familiar with from the editor.
+- Text components now properly follow the restrictions set by width, height and size setters.
+- Text component fitting now defaults to both horizontal and vertical fitting.
+- Button label builder now includes an option to destroy the default image and text components, if created.
+- AddFitter no longer presumes the `FitMode` to be `PreferredSize`.
+- HStacks and VStacks now ignore raycasts by default.
+- Reworked a view's closing on background tap behaviour to be driven via a dedicated child at the back of the view. This fixes unwanted clicks in non-background areas, causing unintended closing.
+- Canvas assignment for screens now correctly respects the serialized canvas.
+- Canvas assignment for screens is now available in the editor again.

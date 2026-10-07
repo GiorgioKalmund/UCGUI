@@ -1,0 +1,297 @@
+using System.Linq;
+using TMPro;
+using UCGUI.Styles;
+using UCGUI.Support;
+using UnityEngine;
+using UnityEngine.UI;
+using FontStyles = TMPro.FontStyles;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
+namespace UCGUI
+{
+    /// <summary>
+    /// UCGUI's default Text Component.
+    /// <para>
+    /// Also implements <see cref="ICopyable{T}"/> which allows <see cref="ICopyable{T}.CopyFrom"/> and <see cref="ICopyable{T}.Copy"/>.
+    /// </para>
+    /// </summary>
+    public class TextComponent : GraphicComponent<TextComponent>, ICopyable<TextComponent>, IStylable<TextComponent, TextStyle>
+    {
+        protected TextComponent() {}
+        
+        private TextMeshProUGUI _textMesh;
+        private static TMP_FontAsset _globalFont;
+        protected TextAnimator animator;
+        
+        public static void GlobalFont(TMP_FontAsset asset)
+        {
+            _globalFont = asset;
+        }
+
+        public static TMP_FontAsset GetGlobalFont()
+        {
+            return _globalFont;
+        }
+        
+        protected override void Awake()
+        {
+            base.Awake();
+            
+            _textMesh = gameObject.GetOrAddComponent<TextMeshProUGUI>();
+            this.Size(Defaults.Text.DefaultSize);
+            
+            Font(_globalFont);
+            Style(TextStyle.Primary);
+        }
+        
+        public enum TextMode
+        {
+            Normal, Additive
+        }
+
+        public TextComponent Text(string text, TextMode mode = TextMode.Normal, Color? color = null)
+        {
+            if (text != null)
+            {
+                if (mode == TextMode.Normal)
+                    _textMesh.text = text;
+                else if (mode == TextMode.Additive)
+                    _textMesh.text += text;
+            }
+            if (color.HasValue)
+                Color(color.Value);
+
+            if (Defaults.Text.NameMirrorsText)
+                this.DisplayName($"\"{text}\"");
+            return this;
+        }
+        
+        public TextComponent Text(int text, TextMode mode = TextMode.Normal)
+        {
+            return Text(text.ToString(), mode:mode);
+        }
+        
+        public TextComponent Text(float text, string format, TextMode mode = TextMode.Normal)
+        {
+            return Text(text.ToString(format), mode:mode);
+        }
+
+        /// <summary>
+        /// Clears the text.
+        /// </summary>
+        public TextComponent Clear()
+        {
+            return Text("");
+        }
+
+        /// <summary>
+        /// Capitalizes the first word of the text.
+        /// </summary>
+        public TextComponent Capitalize()
+        {
+            Text(GetText().FirstCharacterToUpper());
+            return this;
+        }
+        
+        /// <summary>
+        /// Capitalizes every individual word in the text.
+        /// </summary>
+        public TextComponent CapitalizeFully()
+        {
+            Text(string.Join(" ", GetText().Split().ToList().Select(word => word.FirstCharacterToUpper())));
+            return this;
+        }
+        
+        /// <summary>
+        /// Converts every letter to its uppercase representation.
+        /// </summary>
+        public TextComponent ToUpper()
+        {
+            Text(GetText().ToUpper());
+            return this;
+        }
+        
+        /// <summary>
+        /// Converts every letter to its lowercase representation.
+        /// </summary>
+        public TextComponent ToLower()
+        {
+            Text(GetText().ToLower());
+            return this;
+        }
+
+        public string GetText()
+        {
+            return _textMesh.text;
+        }
+        
+        public virtual TextComponent Maskable(bool maskable)
+        {
+            _textMesh.maskable = maskable;
+            return this;
+        }
+      
+        public TextComponent Font(TMP_FontAsset font)
+        {
+            _textMesh.font = font;
+            return this;
+        }
+        
+        public TextComponent FontSize(float fontSize)
+        {
+            _textMesh.fontSize = fontSize;
+            return this;
+        }
+
+        public TextComponent Alignment(TextAlignmentOptions alignmentOptions)
+        {
+            _textMesh.alignment = alignmentOptions;
+            return this;
+        }
+        
+        public TextComponent AlignCenter()
+        {
+            return Alignment(TextAlignmentOptions.Center);
+        }
+        
+        public TextComponent VAlignment(VerticalAlignmentOptions alignmentOptions)
+        {
+            _textMesh.verticalAlignment = alignmentOptions;
+            return this;
+        }
+        
+        public TextComponent VAlignCenter()
+        {
+            return VAlignment(VerticalAlignmentOptions.Middle);
+        }
+        
+        public TextComponent OverflowMode(TextOverflowModes overflowModes)
+        {
+            _textMesh.overflowMode = overflowModes;
+            return this;
+        }
+        
+        public TextComponent WrappingMode(TextWrappingModes wrappingModes)
+        {
+            _textMesh.textWrappingMode = wrappingModes;
+            return this;
+        }
+        
+        public TextComponent NoWrap()
+        {
+            return WrappingMode(TextWrappingModes.NoWrap);
+        }
+
+        public TextComponent FontStyle(FontStyles style)
+        {
+            _textMesh.fontStyle |= style;
+            return this;
+        }
+        public TextComponent FontStyleRemove(FontStyles style)
+        {
+            _textMesh.fontStyle &= ~style;
+            return this;
+        }
+
+        public TextComponent FitToContents(bool fit = true, ScrollViewDirection direction = ScrollViewDirection.Both)
+        {
+            _textMesh.autoSizeTextContainer = fit;
+            if (fit)
+            {
+                AddFitter(direction, ContentSizeFitter.FitMode.PreferredSize);
+            } else if (ContentSizeFitter)
+            {
+                var dir = direction;
+                if (dir.HasFlag(ScrollViewDirection.Vertical))
+                    ContentSizeFitter.verticalFit =  ContentSizeFitter.FitMode.Unconstrained;
+                if (dir.HasFlag(ScrollViewDirection.Horizontal))
+                    ContentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            }
+            return this;
+        }
+
+        public TextComponent Bold() { return FontStyle(FontStyles.Bold); }
+        public TextComponent Italic() { return FontStyle(FontStyles.Italic); }
+        public TextComponent Underline() { return FontStyle(FontStyles.Underline); }
+
+        public TextMeshProUGUI GetTextMesh() => _textMesh;
+        
+        /// <summary>
+        /// Return the graphic required by <see cref="GraphicComponent{TextComponent}"/>
+        /// </summary>
+        public override Graphic GetGraphic() => _textMesh;
+
+        public new virtual TextComponent Copy(bool fullyCopyRect = true)
+        {
+            TextComponent textCopy = this.BaseCopy(this);
+            return textCopy.CopyFrom(this, fullyCopyRect);
+        }
+
+        public override TextComponent CopyFrom(TextComponent other, bool fullyCopyRect = true)
+        {
+            base.CopyFrom(other, fullyCopyRect);
+            CopyTextProperties(other.GetTextMesh(), this);
+            return this;
+        }
+
+        public static void CopyTextProperties(TMP_Text text, TextComponent textComponent)
+        {
+            textComponent.Text(text.text);
+            textComponent.Alignment(text.alignment);
+            textComponent.VAlignment(text.verticalAlignment);
+            textComponent.FontStyle(text.fontStyle);
+            textComponent.FontSize(text.fontSize);
+            textComponent.OverflowMode(text.overflowMode);
+            textComponent.FitToContents(text.autoSizeTextContainer);
+            if (text.enableAutoSizing)
+                textComponent.AutoSize(text.fontSizeMin, text.fontSizeMax);
+        }
+
+        public TextComponent AutoSize(float minSize = 18, float maxSize = 72, bool active = true)
+        {
+            _textMesh.enableAutoSizing = active;
+            _textMesh.fontSizeMin = minSize;
+            _textMesh.fontSizeMax = maxSize;
+            return this;
+        }
+
+        #if UNITY_EDITOR
+        protected override void OnDrawGizmosSelected()
+        {
+            base.OnDrawGizmosSelected();
+            if (debugOptions.HasFlag(DebugOptions.TextOnly))
+            {
+                Handles.Label(transform.position, $"\"{GetText()}\"\nBold:{(_textMesh.fontStyle & FontStyles.Bold) == FontStyles.Bold}\nItalic:{(_textMesh.fontStyle & FontStyles.Italic) == FontStyles.Italic}\nUnderline:{(_textMesh.fontStyle & FontStyles.Underline) == FontStyles.Underline}", Defaults.Debug.DebugBlack());
+                Handles.Label(transform.position + new Vector3(0.2f, 0.2f, 0), $"\"{GetText()}\"\nBold:{(_textMesh.fontStyle & FontStyles.Bold) == FontStyles.Bold}\nItalic:{(_textMesh.fontStyle & FontStyles.Italic) == FontStyles.Italic}\nUnderline:{(_textMesh.fontStyle & FontStyles.Underline) == FontStyles.Underline}", Defaults.Debug.DebugWhite());
+            }
+        }
+        #endif
+        
+        public TextComponent Style(TextStyle style)
+        {
+            style.Apply(this);
+            return this;
+        }
+        
+        /// <summary>
+        /// Creates an <see cref="TextAnimator"/> and adds it to the object. If one is already present, it will 
+        /// return the existing.
+        /// </summary>
+        /// <returns><see cref="animator"/></returns>
+        public TextAnimator AddAnimator()
+        {
+            animator = gameObject.GetOrAddComponent<TextAnimator>();
+            animator.DisplayName(DisplayName);
+            return animator;
+        }
+
+        public TextComponent Margin(RectOffset rectOffset)
+        {
+            _textMesh.margin = new Vector4(rectOffset.left, rectOffset.right, rectOffset.top, rectOffset.bottom);
+            return this;
+        }
+    }
+}
